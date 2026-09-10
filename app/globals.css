@@ -1,0 +1,705 @@
+@import "tailwindcss";
+
+:root {
+  --bg-main: #000000;
+  --bg-card: rgba(10, 10, 12, 0.92);
+  --border-card: rgba(255, 255, 255, 0.08);
+  --border-card-hover: rgba(255, 255, 255, 0.22);
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  --text-muted: #52525b;
+  --accent-white: #ffffff;
+  --accent-glow: rgba(255, 255, 255, 0.07);
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Isometric 3D wireframe background on pure pitch black */
+.iso-grid-bg {
+  background-color: #000000;
+  background-image: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.035), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='138.56' viewBox='0 0 80 138.56'%3E%3Cpath d='M40 0 L80 23.09 L80 69.28 L40 92.38 L0 69.28 L0 23.09 Z M40 46.19 L40 0 M40 46.19 L0 69.28 M40 46.19 L80 69.28 M40 92.38 L80 115.47 L80 161.66 L40 184.75 L0 161.66 L0 115.47 Z' fill='none' stroke='rgba(255,255,255,0.032)' stroke-width='1'/%3E%3Cpath d='M40 138.56 L40 92.38 M40 138.56 L0 115.47 M40 138.56 L80 115.47' fill='none' stroke='rgba(255,255,255,0.032)' stroke-width='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* Card aesthetics - Precision Obsidian Glass */
+.bento-card {
+  background: linear-gradient(180deg, rgba(14, 14, 18, 0.92) 0%, rgba(8, 8, 10, 0.98) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* =========================================================================
+   DIFFERENTIATED BENTO BORDER SYSTEM (DESIGN SYSTEM):
+   Each card has distinct border semantics tailored to its functional identity
+   ========================================================================= */
+
+/* 1. HERO INFO CARD: Flagship Top-Lit Specular Sheen */
+.card-border-hero {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.22),
+    inset 0 0 24px 0 rgba(255, 255, 255, 0.015),
+    0 14px 40px -12px rgba(0, 0, 0, 0.85);
+}
+
+.card-border-hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.card-border-hero:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.35),
+    inset 0 0 28px 0 rgba(255, 255, 255, 0.04),
+    0 20px 45px -12px rgba(0, 0, 0, 0.95);
+  transform: translateY(-2px);
+}
+
+/* 2. PHOTO POLAROID CARD: Analog-Digital Gallery Frame with Inset Border */
+.card-border-photo {
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow: 
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.18),
+    0 14px 40px -12px rgba(0, 0, 0, 0.85);
+}
+
+.card-border-photo:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
+    0 20px 45px -12px rgba(0, 0, 0, 0.95);
+  transform: translateY(-2px);
+}
+
+/* 3. STACK CARD: Technical Blueprint Matrix Frame with Corner Micro-Ticks */
+.card-border-stack {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.13),
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.04),
+    0 12px 36px -10px rgba(0, 0, 0, 0.85);
+}
+
+.card-border-stack:hover {
+  border-color: rgba(255, 255, 255, 0.24);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.25),
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.08),
+    0 18px 40px -10px rgba(0, 0, 0, 0.92);
+  transform: translateY(-2px);
+}
+
+/* 4. EXPERIENCE CARD: Career Track Frame with Illuminated Left Rail */
+.card-border-exp {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.16),
+    inset 2px 0 0 0 rgba(255, 255, 255, 0.18),
+    0 14px 40px -12px rgba(0, 0, 0, 0.85);
+}
+
+.card-border-exp:hover {
+  border-color: rgba(255, 255, 255, 0.26);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
+    inset 2px 0 0 0 rgba(255, 255, 255, 0.38),
+    0 20px 45px -12px rgba(0, 0, 0, 0.95);
+  transform: translateY(-2px);
+}
+
+/* 5. VENTURES & FLAGSHIP PROJECTS: Kinetic Traction Portal (Emerald Glow & Dual Stroke) */
+.card-border-ventures {
+  border: 1px solid rgba(52, 211, 153, 0.24);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(52, 211, 153, 0.38),
+    inset 0 0 20px -4px rgba(52, 211, 153, 0.06),
+    0 12px 36px -10px rgba(0, 0, 0, 0.85);
+}
+
+.card-border-ventures::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20%;
+  right: 20%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.65), transparent);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.card-border-ventures:hover {
+  border-color: rgba(52, 211, 153, 0.5);
+  box-shadow: 
+    inset 0 1px 2px 0 rgba(52, 211, 153, 0.55),
+    inset 0 0 30px -4px rgba(52, 211, 153, 0.15),
+    0 20px 45px -10px rgba(0, 0, 0, 0.9);
+  transform: translateY(-2px);
+}
+
+/* 6. SOCIAL CONNECT DOCK: Executive Terminal Dock with Bottom Shelf Shadow */
+.card-border-connect {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.04),
+    0 12px 36px -10px rgba(0, 0, 0, 0.85);
+}
+
+.card-border-connect:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.08),
+    0 18px 42px -10px rgba(0, 0, 0, 0.95);
+  transform: translateY(-2px);
+}
+
+/* 7. MUSIC PLAYER CARD: Acoustic Glass with Top Radial Edge Glow */
+.card-border-music {
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.24),
+    inset 0 0 20px 0 rgba(0, 0, 0, 0.6),
+    0 12px 36px -10px rgba(0, 0, 0, 0.85);
+}
+
+.card-border-music:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.38),
+    inset 0 0 24px 0 rgba(0, 0, 0, 0.7),
+    0 18px 42px -10px rgba(0, 0, 0, 0.95);
+  transform: translateY(-2px);
+}
+
+/* 8. IMPACT METRICS BAR: Brushed Metallic Executive Ticker */
+.card-border-metrics {
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  background: linear-gradient(90deg, rgba(13, 13, 16, 0.96) 0%, rgba(9, 9, 11, 0.98) 50%, rgba(13, 13, 16, 0.96) 100%);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.18),
+    0 10px 30px -10px rgba(0, 0, 0, 0.85);
+}
+
+.card-border-metrics:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
+    0 15px 35px -10px rgba(0, 0, 0, 0.95);
+}
+
+/* =========================================================================
+   LIGHT THEME DESIGN SYSTEM (LINEAR / APPLE / VERCEL STYLE)
+   ========================================================================= */
+
+html.light {
+  color-scheme: light;
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
+  --border-card: rgba(0, 0, 0, 0.08);
+  --border-card-hover: rgba(0, 0, 0, 0.16);
+  --text-primary: #09090b;
+  --text-secondary: #52525b;
+  --text-muted: #71717a;
+  --accent-white: #000000;
+  --accent-glow: rgba(0, 0, 0, 0.04);
+}
+
+html.light body {
+  background-color: #f8fafc;
+  color: #09090b;
+}
+
+/* Light Mode Isometric Grid Background */
+html.light .iso-grid-bg {
+  background-color: #f8fafc;
+  background-image: radial-gradient(circle at 50% 0%, rgba(0, 0, 0, 0.03), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='138.56' viewBox='0 0 80 138.56'%3E%3Cpath d='M40 0 L80 23.09 L80 69.28 L40 92.38 L0 69.28 L0 23.09 Z M40 46.19 L40 0 M40 46.19 L0 69.28 M40 46.19 L80 69.28 M40 92.38 L80 115.47 L80 161.66 L40 184.75 L0 161.66 L0 115.47 Z' fill='none' stroke='rgba(0,0,0,0.045)' stroke-width='1'/%3E%3Cpath d='M40 138.56 L40 92.38 M40 138.56 L0 115.47 M40 138.56 L80 115.47' fill='none' stroke='rgba(0,0,0,0.045)' stroke-width='1'/%3E%3C/svg%3E");
+}
+
+/* Light Mode Bento Card Surface */
+html.light .bento-card {
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 12px 32px -10px rgba(0, 0, 0, 0.06);
+}
+
+/* 1. Hero Info Card (Light) */
+html.light .card-border-hero {
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    0 12px 32px -10px rgba(0, 0, 0, 0.06);
+}
+html.light .card-border-hero::before {
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.15), transparent);
+}
+html.light .card-border-hero:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    0 18px 40px -10px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* 2. Photo Polaroid Card (Light) */
+html.light .card-border-photo {
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  box-shadow: 
+    inset 0 0 0 1px rgba(0, 0, 0, 0.04),
+    0 12px 32px -10px rgba(0, 0, 0, 0.06);
+}
+html.light .card-border-photo:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+  box-shadow: 
+    inset 0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 18px 40px -10px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* 3. Stack Card (Light) */
+html.light .card-border-stack {
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    0 10px 28px -10px rgba(0, 0, 0, 0.05);
+}
+html.light .card-border-stack:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    0 16px 36px -10px rgba(0, 0, 0, 0.09);
+  transform: translateY(-2px);
+}
+
+/* 4. Experience Card (Light) */
+html.light .card-border-exp {
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  box-shadow: 
+    inset 2px 0 0 0 rgba(16, 185, 129, 0.5),
+    0 12px 32px -10px rgba(0, 0, 0, 0.06);
+}
+html.light .card-border-exp:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+  box-shadow: 
+    inset 2px 0 0 0 rgba(16, 185, 129, 0.75),
+    0 18px 40px -10px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* 5. Ventures Card (Light) */
+html.light .card-border-ventures {
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(16, 185, 129, 0.25),
+    0 12px 32px -10px rgba(16, 185, 129, 0.1);
+}
+html.light .card-border-ventures::before {
+  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.7), transparent);
+}
+html.light .card-border-ventures:hover {
+  border-color: rgba(16, 185, 129, 0.65);
+  box-shadow: 
+    inset 0 1px 2px 0 rgba(16, 185, 129, 0.4),
+    0 18px 40px -10px rgba(16, 185, 129, 0.18);
+  transform: translateY(-2px);
+}
+
+/* 6. Social Connect (Light) */
+html.light .card-border-connect {
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    0 10px 28px -10px rgba(0, 0, 0, 0.05);
+}
+html.light .card-border-connect:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    0 16px 36px -10px rgba(0, 0, 0, 0.09);
+  transform: translateY(-2px);
+}
+
+/* 7. Music Card (Light) */
+html.light .card-border-music {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 32px -10px rgba(0, 0, 0, 0.08);
+}
+html.light .card-border-music:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+/* 8. Impact Metrics (Light) */
+html.light .card-border-metrics {
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  background: #ffffff;
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    0 8px 24px -8px rgba(0, 0, 0, 0.05);
+}
+html.light .card-border-metrics:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Watermark Text in Light Mode */
+html.light .watermark-text {
+  color: rgba(0, 0, 0, 0.035) !important;
+}
+
+/* Scrollbar in Light Mode */
+html.light ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+html.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Light Mode Typography & Color Overrides */
+html.light .text-white {
+  color: #09090b !important;
+}
+html.light .text-zinc-100 {
+  color: #18181b !important;
+}
+html.light .text-zinc-200 {
+  color: #27272a !important;
+}
+html.light .text-zinc-300 {
+  color: #3f3f46 !important;
+}
+html.light .text-zinc-400 {
+  color: #52525b !important;
+}
+html.light .text-zinc-500 {
+  color: #71717a !important;
+}
+html.light .text-zinc-600 {
+  color: #94a3b8 !important;
+}
+html.light .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* Retain high-contrast white text inside MusicCard and PhotoCard overlays */
+html.light .card-border-music .text-white,
+html.light .card-border-music .text-zinc-300,
+html.light .card-border-music .text-zinc-400,
+html.light .card-border-photo .text-zinc-200,
+html.light .card-border-photo .text-zinc-300 {
+  color: #ffffff !important;
+}
+
+/* Dark surface pills to light surface pills */
+html.light .bg-\[\#0e0e11\],
+html.light .bg-\[\#0c0c0e\],
+html.light .bg-\[\#0b0b0e\],
+html.light .bg-\[\#0a0a0c\],
+html.light .bg-\[\#111114\],
+html.light .bg-\[\#0d0d10\],
+html.light .bg-\[\#121215\],
+html.light .bg-\[\#151518\],
+html.light .bg-\[\#18181b\],
+html.light .bg-\[\#18181c\] {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .hover\:bg-\[\#151518\]:hover,
+html.light .hover\:bg-\[\#18181c\]:hover {
+  background-color: #e2e8f0 !important;
+}
+
+/* Translucent backgrounds */
+html.light .bg-white\/\[0\.04\],
+html.light .bg-white\/\[0\.05\],
+html.light .bg-white\/\[0\.06\],
+html.light .bg-white\/5 {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+html.light .bg-white\/10,
+html.light .bg-white\/\[0\.08\] {
+  background-color: rgba(0, 0, 0, 0.07) !important;
+}
+html.light .hover\:bg-white\/10:hover,
+html.light .hover\:bg-white\/\[0\.08\]:hover,
+html.light .hover\:bg-white\/20:hover {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+html.light .hover\:bg-white\/\[0\.04\]:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Translucent borders */
+html.light .border-white\/5 {
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+html.light .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.09) !important;
+}
+html.light .border-white\/15,
+html.light .border-white\/20 {
+  border-color: rgba(0, 0, 0, 0.14) !important;
+}
+html.light .hover\:border-white\/15:hover,
+html.light .hover\:border-white\/20:hover,
+html.light .hover\:border-white\/25:hover,
+html.light .hover\:border-white\/30:hover {
+  border-color: rgba(0, 0, 0, 0.22) !important;
+}
+
+/* Modals in Light Mode */
+html.light .bg-\[\#09090b\] {
+  background-color: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.2) !important;
+}
+html.light .bg-\[\#09090b\] .bg-\[\#0e0e11\] {
+  background-color: #f8fafc !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+html.light .bg-\[\#09090b\] .border-b,
+html.light .bg-\[\#09090b\] .border-t {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Faint watermark header (like INFO, EXP, PRO in garvit.xyz) */
+.watermark-text {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  color: rgba(255, 255, 255, 0.035);
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1c1c1f;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Equalizer animations */
+@keyframes eq-bounce-1 {
+  0%, 100% { height: 4px; }
+  50% { height: 18px; }
+}
+
+@keyframes eq-bounce-2 {
+  0%, 100% { height: 16px; }
+  50% { height: 6px; }
+}
+
+@keyframes eq-bounce-3 {
+  0%, 100% { height: 8px; }
+  50% { height: 22px; }
+}
+
+@keyframes eq-bounce-4 {
+  0%, 100% { height: 14px; }
+  50% { height: 4px; }
+}
+
+.eq-bar-1 { animation: eq-bounce-1 0.8s ease-in-out infinite; }
+.eq-bar-2 { animation: eq-bounce-2 0.6s ease-in-out infinite; }
+.eq-bar-3 { animation: eq-bounce-3 0.9s ease-in-out infinite; }
+.eq-bar-4 { animation: eq-bounce-4 0.7s ease-in-out infinite; }
+
+/* Pulsing status dot */
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.4); opacity: 0; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.pulsing-dot {
+  position: relative;
+}
+
+.pulsing-dot::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background-color: #38bdf8;
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  z-index: 0;
+}
+
+/* =========================================================================
+   DUAL-MODE RESPONSIVE ARCHITECTURE:
+   Mode 1: Square Bento Portfolio (Desktop & Ctrl -- Zoom-Out)
+           - Viewport >= 960px AND height >= 680px
+           - 100vh viewport, centered square/golden proportion dashboard
+           - Zero screen scrollbar, cards fit proportionally
+   Mode 2: Mobile Responsive Mode (Mobile & Ctrl ++ Zoom-In)
+           - Viewport < 960px OR height < 680px
+           - Fluid vertical scroll (overflow-y-auto)
+           - Full card heights, no squishing, touch-friendly
+   ========================================================================= */
+
+@media (min-width: 960px) and (min-height: 680px) {
+  .portfolio-shell {
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+  }
+
+  .portfolio-square-frame {
+    width: 100%;
+    max-width: 1020px;
+    height: min(96vh, 830px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.4rem;
+    min-height: 0;
+  }
+
+  .portfolio-bento-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.4rem;
+    min-height: 0;
+  }
+
+  .portfolio-row-1 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 0.45rem;
+    flex: 1.15;
+    min-height: 0;
+  }
+
+  .portfolio-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 0.45rem;
+    flex: 1.15;
+    min-height: 0;
+  }
+
+  .portfolio-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.45rem;
+    flex: 0.95;
+    min-height: 0;
+  }
+
+  .portfolio-row-4 {
+    flex-shrink: 0;
+    min-height: 0;
+  }
+
+  .portfolio-card-item {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .portfolio-photo-wrap {
+    height: 100%;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 959px), (max-height: 679px) {
+  .portfolio-shell {
+    min-height: 100vh;
+    height: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 1.25rem 0.75rem 3rem 0.75rem;
+  }
+
+  .portfolio-square-frame {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    height: auto;
+  }
+
+  .portfolio-bento-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: 100%;
+    height: auto;
+  }
+
+  .portfolio-row-1,
+  .portfolio-row-2,
+  .portfolio-row-3 {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: 100%;
+    height: auto;
+  }
+
+  .portfolio-row-4 {
+    width: 100%;
+    height: auto;
+  }
+
+  .portfolio-card-item {
+    height: auto;
+    min-height: auto;
+  }
+
+  .portfolio-photo-wrap {
+    height: 280px;
+    min-height: 280px;
+  }
+}
