@@ -120,52 +120,51 @@ export default function HorizontalTimeline({ onOpen }: { onOpen: (id: string) =>
             ))}
 
             <div className="arc-feature" style={{ top: geo.apexY + 128, width: Math.min(760, geo.r * 1.3) }}>
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.article key={m.id} className={`arc-card k-${m.kind}`} initial={{ opacity: 0, y: 24, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -16, scale: 0.98 }} transition={{ duration: 0.4, ease: EASE }}>
-                  <button className="arc-media" onClick={() => m.image && onOpen(m.id)} disabled={!m.image} aria-label={m.image ? `Open photo: ${m.title}` : undefined}>
-                    {m.image ? (
-                      <>
-                        <span className="tl-media-bg" style={{ backgroundImage: `url("${m.image}")` }} aria-hidden />
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={m.image} alt={`${m.title}, ${m.org}`} />
-                        <span className="tl-zoom-hint" aria-hidden>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-                          </svg>
-                        </span>
-                      </>
-                    ) : (
-                      <span className={`tl-ph k-${m.kind}`}>
-                        <Icon kind={m.kind} size={28} />
-                        <span>Photo: {m.imageHint}</span>
+              {/* keyed remount with an entrance only: no exit queue, so the card can never lag behind the dial */}
+              <motion.article key={m.id} className={`arc-card k-${m.kind}`} initial={{ opacity: 0, y: 18, scale: 0.985 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.4, ease: EASE }}>
+                <button className="arc-media" onClick={() => m.image && onOpen(m.id)} disabled={!m.image} aria-label={m.image ? `Open photo: ${m.title}` : undefined}>
+                  {m.image ? (
+                    <>
+                      <span className="tl-media-bg" style={{ backgroundImage: `url("${m.image}")` }} aria-hidden />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={m.image} alt={`${m.title}, ${m.org}`} />
+                      <span className="tl-zoom-hint" aria-hidden>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                        </svg>
                       </span>
-                    )}
-                  </button>
-                  <div className="arc-body">
-                    <div className="arc-meta">
-                      <span className="arc-kind">
-                        <i /> {m.kind}
-                      </span>
-                      <span>{m.date}</span>
-                    </div>
-                    <h3>{m.title}</h3>
-                    <p className="arc-org">{m.org}</p>
-                    <p className="arc-text">{m.body}</p>
-                    {m.points && (
-                      <ul className="arc-points">
-                        {m.points.map((p) => (
-                          <li key={p}>{p}</li>
-                        ))}
-                      </ul>
-                    )}
-                    {m.stat && (
-                      <span className="arc-stat">
-                        <Icon kind={m.kind} size={12} /> {m.stat}
-                      </span>
-                    )}
+                    </>
+                  ) : (
+                    <span className={`tl-ph k-${m.kind}`}>
+                      <Icon kind={m.kind} size={28} />
+                      <span>Photo: {m.imageHint}</span>
+                    </span>
+                  )}
+                </button>
+                <div className="arc-body">
+                  <div className="arc-meta">
+                    <span className="arc-kind">
+                      <i /> {m.kind}
+                    </span>
+                    <span>{m.date}</span>
                   </div>
-                </motion.article>
-              </AnimatePresence>
+                  <h3>{m.title}</h3>
+                  <p className="arc-org">{m.org}</p>
+                  <p className="arc-text">{m.body}</p>
+                  {m.points && (
+                    <ul className="arc-points">
+                      {m.points.map((p) => (
+                        <li key={p}>{p}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {m.stat && (
+                    <span className="arc-stat">
+                      <Icon kind={m.kind} size={12} /> {m.stat}
+                    </span>
+                  )}
+                </div>
+              </motion.article>
             </div>
 
             <div className="arc-foot">
