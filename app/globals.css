@@ -905,7 +905,7 @@ a.org:hover { border-bottom-color: var(--accent); color: var(--accent); }
 .mf-body { animation: m-breathe 4s ease-in-out infinite; transform-origin: 100px 200px; }
 @keyframes m-breathe { 50% { transform: scaleY(1.015); } }
 .mf-pupil { transform: translate(var(--px, 0px), var(--py, 0px)); transition: transform 0.12s linear; }
-.mbtn.thinking .mf-pupil { transform: translate(2.6px, -3px); transition-duration: 0.4s; }
+.mbtn.thinking .mf-pupil { transform: translate(2.2px, -1.4px); transition-duration: 0.4s; }
 .mf-lid { transform-box: fill-box; transform-origin: top; transform: scaleY(0); animation: m-blink 5s infinite; }
 @keyframes m-blink { 0%, 93%, 100% { transform: scaleY(0); } 96% { transform: scaleY(1); } }
 .mf-brows { transition: transform 0.35s var(--ease); }

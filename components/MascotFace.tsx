@@ -1,67 +1,73 @@
 import { useId } from 'react';
 
 /**
- * Mini Ram: a shaded, Memoji-style Ram (curly hair, glossy eyes, big grin, dark suit) that breaks out
- * of a round portal. Pupils follow --px/--py set by the parent; blink, brows and wave are CSS.
+ * Mini Ram: a polished, professional portrait of Ram (styled curls, light beard, calm smile, suit and tie)
+ * that breaks out of a round portal. Pupils follow --px/--py set by the parent; blink, brows and wave are CSS.
  */
 export function MascotFace({ size = 84 }: { size?: number }) {
   const id = useId().replace(/:/g, '');
   const u = (n: string) => `${id}-${n}`;
   const url = (n: string) => `url(#${u(n)})`;
 
-  const curlsBack: [number, number, number][] = [
-    [62, 84, 16], [70, 64, 18], [88, 50, 19], [110, 47, 19], [129, 57, 18], [141, 76, 15], [58, 100, 9], [143, 97, 9],
+  // tight, tidy curls: a dense crown that sits close to the head
+  const crownBack: [number, number, number][] = [
+    [70, 74, 13], [80, 60, 14], [94, 52, 15], [108, 51, 15], [121, 57, 14], [131, 70, 12.5], [66, 88, 8], [135, 86, 8],
   ];
-  const curlsFront: [number, number, number][] = [
-    [68, 76, 12], [83, 66, 13], [100, 62, 13.5], [117, 64, 13], [131, 74, 11.5], [76, 56, 9], [124, 53, 9],
+  const crownFront: [number, number, number][] = [
+    [72, 72, 8.5], [82, 65, 9], [93, 61, 9.5], [104, 60, 9.5], [115, 62, 9], [125, 67, 8.5], [87, 53, 7.5], [100, 50, 8], [113, 52, 7.5], [76, 82, 6], [128, 79, 6],
   ];
-  const eye = (cx: number, side: 'l' | 'r') => (
-    <g key={side}>
-      <clipPath id={u(`eye-${side}`)}>
-        <ellipse cx={cx} cy="106" rx="9.2" ry="8.4" />
-      </clipPath>
-      <ellipse cx={cx} cy="106" rx="9.2" ry="8.4" fill={url('sclera')} />
-      <g clipPath={url(`eye-${side}`)}>
-        <g className="mf-pupil">
-          <circle cx={cx} cy="106.5" r="5.8" fill={url('iris')} />
-          <circle cx={cx} cy="106.5" r="2.7" fill="#120a06" />
-          <circle cx={cx + 2} cy="104.2" r="1.7" fill="#fff" />
-          <circle cx={cx - 1.6} cy="108.6" r="0.8" fill="#fff" opacity="0.8" />
+
+  const eye = (cx: number, side: 'l' | 'r') => {
+    const almond = `M${cx - 8} 104 Q${cx} 97 ${cx + 8} 104 Q${cx} 109.6 ${cx - 8} 104Z`;
+    return (
+      <g key={side}>
+        <clipPath id={u(`eye-${side}`)}>
+          <path d={almond} />
+        </clipPath>
+        <path d={almond} fill="#f7f3ef" />
+        <g clipPath={url(`eye-${side}`)}>
+          <g className="mf-pupil">
+            <circle cx={cx} cy="103.6" r="4.1" fill={url('iris')} />
+            <circle cx={cx} cy="103.6" r="1.9" fill="#100804" />
+            <circle cx={cx + 1.4} cy="102.2" r="1.1" fill="#fff" />
+          </g>
+          <ellipse className="mf-lid" cx={cx} cy="96" rx="9.5" ry="14" fill="#d2946b" />
         </g>
-        <ellipse className="mf-lid" cx={cx} cy="97" rx="10.5" ry="17.5" fill="#d39168" />
+        {/* upper lid line, crease and a faint lower lid */}
+        <path d={`M${cx - 8.4} 104 Q${cx} 96.6 ${cx + 8.4} 104`} stroke="#22140d" strokeWidth="1.9" strokeLinecap="round" fill="none" />
+        <path d={`M${cx - 6.5} 99.6 Q${cx} 95.6 ${cx + 6.5} 99.6`} stroke="#9a5d3a" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.55" />
+        <path d={`M${cx - 6} 107.6 Q${cx} 110 ${cx + 6} 107.6`} stroke="#9a5d3a" strokeWidth="0.9" strokeLinecap="round" fill="none" opacity="0.45" />
       </g>
-      <path d={`M${cx - 9.6} 104.5 Q${cx} 95.5 ${cx + 9.6} 104.5`} stroke="#1a110d" strokeWidth="2.4" strokeLinecap="round" fill="none" />
-      <path d={`M${side === 'l' ? cx - 9 : cx + 9} 103.8 l${side === 'l' ? -2.6 : 2.6} -1.8`} stroke="#1a110d" strokeWidth="1.6" strokeLinecap="round" />
-    </g>
-  );
+    );
+  };
 
   return (
     <svg className="mface" width={size} height={size} viewBox="0 0 200 200" aria-hidden>
       <defs>
-        <radialGradient id={u('skin')} cx="45%" cy="38%" r="70%">
-          <stop offset="0" stopColor="#ecb48e" />
-          <stop offset="0.6" stopColor="#d5966c" />
-          <stop offset="1" stopColor="#b2714b" />
+        <radialGradient id={u('skin')} cx="46%" cy="36%" r="72%">
+          <stop offset="0" stopColor="#e6ab84" />
+          <stop offset="0.6" stopColor="#cf9067" />
+          <stop offset="1" stopColor="#a8694a" />
         </radialGradient>
-        <radialGradient id={u('hair')} cx="40%" cy="30%" r="75%">
-          <stop offset="0" stopColor="#4a3329" />
-          <stop offset="0.55" stopColor="#24170f" />
-          <stop offset="1" stopColor="#0f0906" />
+        <radialGradient id={u('hair')} cx="42%" cy="28%" r="78%">
+          <stop offset="0" stopColor="#3d2b22" />
+          <stop offset="0.55" stopColor="#1d130d" />
+          <stop offset="1" stopColor="#0c0705" />
         </radialGradient>
         <linearGradient id={u('suit')} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#4a4a52" />
-          <stop offset="1" stopColor="#1c1c21" />
+          <stop offset="0" stopColor="#3b3f4a" />
+          <stop offset="1" stopColor="#191b21" />
+        </linearGradient>
+        <linearGradient id={u('tie')} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#24406b" />
+          <stop offset="1" stopColor="#152741" />
         </linearGradient>
         <radialGradient id={u('iris')} cx="50%" cy="40%" r="60%">
-          <stop offset="0" stopColor="#8a5a34" />
-          <stop offset="1" stopColor="#2b1609" />
-        </radialGradient>
-        <radialGradient id={u('sclera')} cx="50%" cy="35%" r="70%">
-          <stop offset="0.6" stopColor="#ffffff" />
-          <stop offset="1" stopColor="#e3dcd6" />
+          <stop offset="0" stopColor="#7a4d2b" />
+          <stop offset="1" stopColor="#2a1509" />
         </radialGradient>
         <radialGradient id={u('portal')} cx="50%" cy="30%" r="75%">
-          <stop offset="0" style={{ stopColor: 'var(--accent)', stopOpacity: 0.35 }} />
+          <stop offset="0" style={{ stopColor: 'var(--accent)', stopOpacity: 0.3 }} />
           <stop offset="0.7" style={{ stopColor: 'var(--surface-2)' }} />
           <stop offset="1" style={{ stopColor: 'var(--surface)' }} />
         </radialGradient>
@@ -83,72 +89,81 @@ export function MascotFace({ size = 84 }: { size?: number }) {
 
       <g clipPath={url('frame')}>
         <g className="mf-body">
-          {/* suit, open collar */}
-          <path d="M26 206C28 176 58 158 100 158s72 18 74 48z" fill={url('suit')} />
-          <path d="M84 158l16 30 16-30z" fill="#f7f7f8" />
-          <path d="M84 158l-8 12 14 10zM116 158l8 12-14 10z" fill="#e4e4e8" />
-          <path d="M68 163l32 43H86L60 170zM132 163l-32 43h14l26-36z" fill="#2c2c33" />
-          <path d="M68 163l-8 7 4 3z" fill="#5a5a63" />
-          <rect x="86" y="136" width="28" height="26" rx="11" fill="#b9774f" />
-          <ellipse cx="100" cy="146" rx="15" ry="6" fill="#8e5434" opacity="0.45" />
+          {/* suit, shirt and tie */}
+          <path d="M24 206c2-30 32-46 76-46s74 16 76 46z" fill={url('suit')} />
+          <path d="M83 160l17 34 17-34z" fill="#f6f7f9" />
+          <path d="M83 160l-7 11 15 9zM117 160l7 11-15 9z" fill="#e2e5ea" />
+          <path d="M96 166h8l2 5-3 3h-6l-3-3z" fill={url('tie')} />
+          <path d="M97 174h6l5 30h-16z" fill={url('tie')} />
+          <path d="M98.5 178l3 0" stroke="#3d5f93" strokeWidth="1" opacity="0.6" />
+          <path d="M66 164l34 42H86L58 172zM134 164l-34 42h14l28-34z" fill="#2a2d35" />
+          <path d="M66 164l-8 8 4 3z" fill="#555a66" />
+          <path d="M134 164l8 8-4 3z" fill="#555a66" />
+          <rect x="87" y="138" width="26" height="26" rx="10" fill="#b5754f" />
+          <ellipse cx="100" cy="148" rx="14" ry="6" fill="#7f472b" opacity="0.4" />
         </g>
 
         <g className="mf-head">
-          {/* hair behind the head */}
-          <g fill={url('hair')}>{curlsBack.map(([x, y, r], k) => <circle key={k} cx={x} cy={y} r={r} />)}</g>
+          {/* hair behind */}
+          <g fill={url('hair')}>{crownBack.map(([x, y, r], k) => <circle key={k} cx={x} cy={y} r={r} />)}</g>
 
-          {/* ears and face */}
-          <ellipse cx="57" cy="108" rx="7.5" ry="10.5" fill="#c4825a" />
-          <ellipse cx="143" cy="108" rx="7.5" ry="10.5" fill="#c4825a" />
-          <path d="M60 108c-1-3 3-6 4-2" stroke="#9c5d39" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-          <path d="M140 108c1-3-3-6-4-2" stroke="#9c5d39" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-          <path d="M59 102C59 72 77 60 100 60s41 12 41 42c0 28-17 50-41 50S59 130 59 102z" fill={url('skin')} />
-          <ellipse cx="88" cy="84" rx="16" ry="7" fill="#fff" opacity="0.13" />
-          {/* light stubble around the mouth and chin */}
-          <path d="M76 126c4 16 14 24 24 24s20-8 24-24c-6 6-14 8-24 8s-18-2-24-8z" fill="#3a271d" opacity="0.14" />
-          <path d="M88 122q12-5 24 0" stroke="#3a271d" strokeWidth="3.4" strokeLinecap="round" opacity="0.22" fill="none" />
+          {/* ears */}
+          <ellipse cx="62" cy="106" rx="5.6" ry="8.6" fill="#c3825b" />
+          <ellipse cx="138" cy="106" rx="5.6" ry="8.6" fill="#c3825b" />
+          <path d="M64 104c-1-2 2-4 3-1" stroke="#97583a" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+          <path d="M136 104c1-2-2-4-3-1" stroke="#97583a" strokeWidth="1.3" fill="none" strokeLinecap="round" />
 
-          {/* hair in front: curls along the hairline, with shine */}
-          <g fill={url('hair')}>{curlsFront.map(([x, y, r], k) => <circle key={k} cx={x} cy={y} r={r} />)}</g>
-          <g stroke="#7a5747" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.55">
-            <path d="M80 62q4-5 9-3" />
-            <path d="M96 57q5-5 10-2" />
-            <path d="M113 59q5-4 9-1" />
-            <path d="M64 72q3-5 8-4" />
-            <path d="M127 68q4-3 8 0" />
-            <path d="M86 46q5-5 11-3" />
+          {/* face: an oval with a defined jaw */}
+          <path d="M64 98c0-24 15-36 36-36s36 12 36 36c0 18-5 32-14 42-7 8-14 12-22 12s-15-4-22-12c-9-10-14-24-14-42z" fill={url('skin')} />
+          {/* temples fade into short sides */}
+          <path d="M64 96c0-10 3-18 8-23l-2 24z" fill="#1d130d" opacity="0.55" />
+          <path d="M136 96c0-10-3-18-8-23l2 24z" fill="#1d130d" opacity="0.55" />
+          <ellipse cx="90" cy="80" rx="14" ry="6" fill="#fff" opacity="0.1" />
+          {/* side shading for depth */}
+          <path d="M126 92c4 14 2 30-6 42 6-4 12-14 13-28 1-6-2-11-7-14z" fill="#8f5333" opacity="0.18" />
+
+          {/* light beard along the jaw, and a moustache */}
+          <path d="M68 116c3 14 10 24 18 30 4 3 9 5 14 5s10-2 14-5c8-6 15-16 18-30-3 6-8 12-12 14-3 1-6 0-8-2-3 2-7 3-12 3s-9-1-12-3c-2 2-5 3-8 2-4-2-9-8-12-14z" fill="#2a1a12" opacity="0.22" />
+          <path d="M88 122.5q12-6.5 24 0q-5 1.5-12 1.5t-12-1.5z" fill="#24160f" opacity="0.6" />
+
+          {/* hair in front: styled curls along the hairline, with soft shine */}
+          <g fill={url('hair')}>{crownFront.map(([x, y, r], k) => <circle key={k} cx={x} cy={y} r={r} />)}</g>
+          <g stroke="#6b4c3d" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.6">
+            <path d="M88 60q3-3 7-2" />
+            <path d="M99 56q4-3 8-1" />
+            <path d="M111 58q3-3 7-1" />
+            <path d="M78 66q3-3 6-2" />
+            <path d="M121 64q3-2 6 0" />
+            <path d="M95 46q4-3 8-1" />
           </g>
 
-          {/* brows */}
-          <g className="mf-brows" stroke="#1a110d" strokeWidth="4.4" strokeLinecap="round" fill="none">
-            <path d="M74 92q10-7 20-1" />
-            <path d="M106 91q10-6 20 1" />
+          {/* brows: straighter, confident */}
+          <g className="mf-brows" stroke="#1d120c" strokeLinecap="round" fill="none">
+            <path d="M77 92.5q8-4 17-1.5" strokeWidth="3.4" />
+            <path d="M106 91q9-2.5 17 1.5" strokeWidth="3.4" />
           </g>
 
           {/* eyes */}
-          {eye(84, 'l')}
-          {eye(116, 'r')}
+          {eye(86, 'l')}
+          {eye(114, 'r')}
 
           {/* nose */}
-          <path d="M101 108q-2 9-6 13q5 3 10 0" stroke="#9c5d39" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.8" />
-          <ellipse cx="103" cy="114" rx="2" ry="3.5" fill="#fff" opacity="0.18" />
+          <path d="M101 104q1 8 3 13" stroke="#9a5d3a" strokeWidth="1.4" strokeLinecap="round" fill="none" opacity="0.55" />
+          <path d="M95 117.5q2 2.5 5 2.5t5-2.5" stroke="#8a4f31" strokeWidth="1.6" strokeLinecap="round" fill="none" opacity="0.8" />
+          <ellipse cx="101" cy="111" rx="1.6" ry="3.4" fill="#fff" opacity="0.16" />
 
-          {/* cheeks */}
-          <ellipse cx="73" cy="122" rx="7" ry="4" fill="#e8705a" opacity="0.22" />
-          <ellipse cx="127" cy="122" rx="7" ry="4" fill="#e8705a" opacity="0.22" />
-
-          {/* big grin */}
-          <path d="M84 128q16 20 32 0q-16 5-32 0z" fill="#5c1d15" />
-          <path d="M86.5 129q13.5 4.5 27 0l-1.4 4q-12 3.5-24.2 0z" fill="#fff" />
-          <ellipse cx="100" cy="136.2" rx="6" ry="2.2" fill="#d8605a" />
-          <path d="M83 127.5q17 6 34 0" stroke="#7a3b2c" strokeWidth="1.6" strokeLinecap="round" fill="none" opacity="0.6" />
+          {/* calm, confident smile */}
+          <path d="M90 128.5q10 7.5 20 0q-10 2.2-20 0z" fill="#5a2318" />
+          <path d="M91.6 129q8.4 2 16.8 0l-0.8 1.7q-7.6 1.6-15.2 0z" fill="#fbf7f2" />
+          <path d="M89 128q11 8.5 22 0" stroke="#7d3b2a" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+          <path d="M94 135.5q6 2 12 0" stroke="#a8583f" strokeWidth="1.1" strokeLinecap="round" fill="none" opacity="0.45" />
         </g>
 
         {/* waving hand */}
         <g className="mf-wave">
           <g transform="translate(-26 -2)">
-          <path d="M160 206c-2-22 2-40 8-52" stroke={url('suit')} strokeWidth="18" strokeLinecap="round" fill="none" />
-          <path d="M162 150c-2-8 0-20 3-26 2-4 7-3 7 2l-1 14 2-20c0-5 7-5 7 0l-1 20 3-17c1-5 8-4 7 1l-3 19 4-11c2-4 8-2 6 3l-7 20c-3 7-9 11-17 10-6-1-9-7-10-15z" fill={url('skin')} />
+            <path d="M160 206c-2-22 2-40 8-52" stroke={url('suit')} strokeWidth="18" strokeLinecap="round" fill="none" />
+            <path d="M162 150c-2-8 0-20 3-26 2-4 7-3 7 2l-1 14 2-20c0-5 7-5 7 0l-1 20 3-17c1-5 8-4 7 1l-3 19 4-11c2-4 8-2 6 3l-7 20c-3 7-9 11-17 10-6-1-9-7-10-15z" fill={url('skin')} />
           </g>
         </g>
       </g>

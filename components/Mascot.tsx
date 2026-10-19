@@ -52,9 +52,9 @@ export default function Mascot() {
       const dx = x - (r.left + r.width / 2),
         dy = y - (r.top + r.height * 0.45);
       const d = Math.hypot(dx, dy) || 1;
-      const k = Math.min(1, d / 260) * 2.6;
+      const k = Math.min(1, d / 260) * 2.4;
       b.style.setProperty('--px', `${((dx / d) * k).toFixed(2)}px`);
-      b.style.setProperty('--py', `${((dy / d) * k).toFixed(2)}px`);
+      b.style.setProperty('--py', `${((dy / d) * k * 0.45).toFixed(2)}px`);
     };
     const onMove = (e: PointerEvent) => {
       x = e.clientX;
