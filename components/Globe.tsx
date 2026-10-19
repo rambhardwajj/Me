@@ -3,28 +3,64 @@
 import { useEffect, useRef } from 'react';
 import { GLOBE_POINTS } from '@/lib/globe-points';
 
+type Vec = [number, number, number];
+export type GlobeStop = { lat: number; lon: number };
+
+const toVec = (lat: number, lon: number): Vec => {
+  const la = (lat * Math.PI) / 180,
+    lo = (lon * Math.PI) / 180;
+  return [Math.cos(la) * Math.sin(lo), Math.sin(la), Math.cos(la) * Math.cos(lo)];
+};
+
 /** Land dots as unit vectors, computed once. */
 const VECTORS = (() => {
   const v = new Float32Array((GLOBE_POINTS.length / 2) * 3);
   for (let i = 0, j = 0; i < GLOBE_POINTS.length; i += 2, j += 3) {
-    const lat = (GLOBE_POINTS[i] * Math.PI) / 180;
-    const lon = (GLOBE_POINTS[i + 1] * Math.PI) / 180;
-    v[j] = Math.cos(lat) * Math.sin(lon);
-    v[j + 1] = Math.sin(lat);
-    v[j + 2] = Math.cos(lat) * Math.cos(lon);
+    const [x, y, z] = toVec(GLOBE_POINTS[i], GLOBE_POINTS[i + 1]);
+    v[j] = x;
+    v[j + 1] = y;
+    v[j + 2] = z;
   }
   return v;
 })();
 
-const COLOR = '103, 198, 255'; // cyan-blue dots
+const DOT = '103, 198, 255'; // cyan-blue land dots
+const ARC = '143, 176, 255'; // journey arcs
+const HOT = '255, 196, 87'; // current stop
+
+const DWELL = 3.2; // seconds at each stop (including the flight)
+const FLY = 1.4; // seconds to fly to the next stop
+const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const wrap = (a: number) => Math.atan2(Math.sin(a), Math.cos(a));
+
+/** Point along the great circle between a and b, lifted above the surface in the middle. */
+function arcPoint(a: Vec, b: Vec, t: number): Vec {
+  const dot = Math.max(-1, Math.min(1, a[0] * b[0] + a[1] * b[1] + a[2] * b[2]));
+  const om = Math.acos(dot);
+  let p: Vec;
+  if (om < 1e-4) p = a;
+  else {
+    const s = Math.sin(om),
+      k1 = Math.sin((1 - t) * om) / s,
+      k2 = Math.sin(t * om) / s;
+    p = [a[0] * k1 + b[0] * k2, a[1] * k1 + b[1] * k2, a[2] * k1 + b[2] * k2];
+  }
+  const lift = 1 + Math.min(0.17, 0.06 + om * 0.1) * Math.sin(Math.PI * t);
+  return [p[0] * lift, p[1] * lift, p[2] * lift];
+}
 
 /**
- * A slowly rotating globe made of continent dots, drawn in two layers around `children`:
- * the whole sphere behind them, and the near-side dots faintly in front, like a hologram.
+ * A globe of continent dots that tours `stops`: it flies to each one, draws a glowing arc from
+ * the previous stop and leaves a pulsing marker behind. Drag to spin it; the tour resumes after.
+ * Drawn in two layers around `children`: the full sphere behind, near-side dots faintly in front.
  */
-export default function Globe({ children }: { children?: React.ReactNode }) {
+export default function Globe({ stops = [], onStop, children }: { stops?: GlobeStop[]; onStop?: (i: number) => void; children?: React.ReactNode }) {
   const backRef = useRef<HTMLCanvasElement>(null);
   const frontRef = useRef<HTMLCanvasElement>(null);
+  const cb = useRef(onStop);
+  useEffect(() => {
+    cb.current = onStop;
+  });
 
   useEffect(() => {
     const cv = backRef.current;
@@ -34,6 +70,7 @@ export default function Globe({ children }: { children?: React.ReactNode }) {
     const fctx = fcv.getContext('2d');
     if (!ctx || !fctx) return;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const S = stops.map((s) => ({ ...s, v: toVec(s.lat, s.lon) }));
 
     let w = 0,
       h = 0,
@@ -49,53 +86,135 @@ export default function Globe({ children }: { children?: React.ReactNode }) {
     const ro = new ResizeObserver(resize);
     ro.observe(cv);
 
-    // pointer nudges spin and tilt a little
-    let px = 0,
-      py = 0;
-    const onMove = (e: PointerEvent) => {
-      px = (e.clientX / window.innerWidth) * 2 - 1;
-      py = (e.clientY / window.innerHeight) * 2 - 1;
-    };
-    window.addEventListener('pointermove', onMove, { passive: true });
+    // aim so the stop lands in the upper-left of the globe, clear of the portrait in the middle
+    const OFFSET_LON = 40,
+      OFFSET_LAT = 34;
+    const toTarget = (i: number) => ({
+      r: -((S[i].lon + OFFSET_LON) * Math.PI) / 180,
+      t: Math.max(-0.9, Math.min(0.7, ((S[i].lat - OFFSET_LAT) * Math.PI) / 180)),
+    });
 
-    const tilt = 0.32;
-    let rot = -1.2, // start facing India (the facing longitude is −rot)
-      nx = 0,
-      ny = 0,
+    // camera: rot spins around the vertical axis (facing longitude is −rot), tilt leans the pole towards us
+    let rot = S.length ? toTarget(0).r : -1.2;
+    let tilt = S.length ? toTarget(0).t : 0.32;
+
+    // tour state
+    let stop = 0,
+      clock = 0,
+      stopStart = performance.now(), // tour timing uses the wall clock, so throttled frames don't slow it down
+      fromRot = rot,
+      fromTilt = tilt,
+      dragging = false,
+      resumeAt = 0,
+      lastX = 0,
+      lastY = 0,
       raf = 0,
       last = performance.now(),
       visible = true;
+    cb.current?.(0);
 
-    const draw = () => {
+    // drag to spin
+    const onDown = (e: PointerEvent) => {
+      dragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      fcv.setPointerCapture(e.pointerId);
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!dragging) return;
+      rot += (e.clientX - lastX) * 0.008;
+      tilt = Math.max(-0.9, Math.min(0.9, tilt + (e.clientY - lastY) * 0.006));
+      lastX = e.clientX;
+      lastY = e.clientY;
+    };
+    const onUp = () => {
+      if (!dragging) return;
+      dragging = false;
+      resumeAt = performance.now() + 2500;
+      fromRot = rot;
+      fromTilt = tilt;
+      clock = 0;
+      stopStart = resumeAt;
+    };
+    fcv.addEventListener('pointerdown', onDown);
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+
+    const project = (v: Vec, R: number, cx: number, cy: number, cr: number, sr: number, ct: number, st: number) => {
+      const x1 = v[0] * cr + v[2] * sr;
+      const z1 = -v[0] * sr + v[2] * cr;
+      const y2 = v[1] * ct - z1 * st;
+      const z2 = v[1] * st + z1 * ct;
+      return { x: cx + x1 * R, y: cy - y2 * R, z: z2 };
+    };
+
+    const draw = (now: number) => {
       ctx.clearRect(0, 0, cv.width, cv.height);
       fctx.clearRect(0, 0, fcv.width, fcv.height);
-      const R = Math.min(w, h) * 0.48 * dpr;
+      const R = Math.min(w, h) * 0.42 * dpr; // leaves room for arcs lifted above the surface
       const cx = (w * dpr) / 2,
         cy = (h * dpr) / 2;
-      const cr = Math.cos(rot + nx),
-        sr = Math.sin(rot + nx);
-      const t = tilt + ny;
-      const ct = Math.cos(t),
-        st = Math.sin(t);
+      const cr = Math.cos(rot),
+        sr = Math.sin(rot),
+        ct = Math.cos(tilt),
+        st = Math.sin(tilt);
+
+      // land dots
       for (let j = 0; j < VECTORS.length; j += 3) {
-        const x0 = VECTORS[j],
-          y0 = VECTORS[j + 1],
-          z0 = VECTORS[j + 2];
-        // spin around the vertical axis, then tilt towards the viewer
-        const x1 = x0 * cr + z0 * sr;
-        const z1 = -x0 * sr + z0 * cr;
-        const y2 = y0 * ct - z1 * st;
-        const z2 = y0 * st + z1 * ct;
-        const front = z2 > 0;
-        const a = front ? 0.5 + 0.5 * z2 : 0.08 + 0.1 * (1 + z2);
-        const s = (front ? 1.4 + 1.0 * z2 : 0.9) * dpr;
-        const X = cx + x1 * R - s / 2,
-          Y = cy - y2 * R - s / 2;
-        ctx.fillStyle = `rgba(${COLOR}, ${a.toFixed(3)})`;
-        ctx.fillRect(X, Y, s, s);
-        if (z2 > 0.15) {
-          fctx.fillStyle = `rgba(${COLOR}, ${(0.5 * z2).toFixed(3)})`;
-          fctx.fillRect(X, Y, s, s);
+        const p = project([VECTORS[j], VECTORS[j + 1], VECTORS[j + 2]], R, cx, cy, cr, sr, ct, st);
+        const front = p.z > 0;
+        const a = front ? 0.45 + 0.5 * p.z : 0.07 + 0.09 * (1 + p.z);
+        const s = (front ? 1.3 + 1.0 * p.z : 0.9) * dpr;
+        ctx.fillStyle = `rgba(${DOT}, ${a.toFixed(3)})`;
+        ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
+        if (p.z > 0.15) {
+          fctx.fillStyle = `rgba(${DOT}, ${(0.45 * p.z).toFixed(3)})`;
+          fctx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
+        }
+      }
+      if (!S.length) return;
+
+      // arcs between stops visited so far; the newest one draws in as we fly
+      const flyT = Math.min(1, clock / FLY);
+      ctx.lineCap = 'round';
+      for (let i = 1; i <= stop; i++) {
+        const a = S[i - 1].v,
+          b = S[i].v;
+        const end = i === stop ? ease(flyT) : 1;
+        const steps = 48;
+        ctx.lineWidth = (i === stop ? 2.2 : 1.3) * dpr;
+        let prev: { x: number; y: number; z: number } | null = null;
+        for (let k = 0; k <= steps * end; k++) {
+          const p = project(arcPoint(a, b, k / steps), R, cx, cy, cr, sr, ct, st);
+          if (prev && (p.z > -0.05 || prev.z > -0.05)) {
+            const alpha = (i === stop ? 0.95 : 0.4) * (p.z > 0 ? 1 : 0.35);
+            ctx.strokeStyle = `rgba(${i === stop ? HOT : ARC}, ${alpha})`;
+            ctx.beginPath();
+            ctx.moveTo(prev.x, prev.y);
+            ctx.lineTo(p.x, p.y);
+            ctx.stroke();
+          }
+          prev = p;
+        }
+      }
+
+      // markers at visited stops, the current one pulsing
+      for (let i = 0; i <= stop; i++) {
+        const p = project(S[i].v, R, cx, cy, cr, sr, ct, st);
+        if (p.z < 0) continue;
+        const current = i === stop;
+        const r = (current ? 4.2 : 2.6) * dpr;
+        ctx.fillStyle = `rgba(${current ? HOT : ARC}, ${current ? 1 : 0.8})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+        ctx.fill();
+        if (current) {
+          const pulse = ((now / 1000) % 1.6) / 1.6;
+          ctx.strokeStyle = `rgba(${HOT}, ${0.7 * (1 - pulse)})`;
+          ctx.lineWidth = 1.5 * dpr;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, r + pulse * 18 * dpr, 0, Math.PI * 2);
+          ctx.stroke();
         }
       }
     };
@@ -103,10 +222,24 @@ export default function Globe({ children }: { children?: React.ReactNode }) {
     const loop = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
-      rot -= dt * 0.12; // west to east, like the real Earth
-      nx += (px * 0.35 - nx) * 0.04;
-      ny += (py * 0.12 - ny) * 0.04;
-      draw();
+      if (!dragging && now > resumeAt && S.length) {
+        clock = (now - stopStart) / 1000;
+        const target = toTarget(stop);
+        const k = ease(Math.min(1, clock / FLY));
+        rot = fromRot + wrap(target.r - fromRot) * k;
+        tilt = fromTilt + (target.t - fromTilt) * k;
+        if (clock >= DWELL) {
+          stop = (stop + 1) % S.length;
+          clock = 0;
+          stopStart = now;
+          fromRot = rot;
+          fromTilt = tilt;
+          cb.current?.(stop);
+        }
+      } else if (!dragging && !S.length) {
+        rot -= dt * 0.12;
+      }
+      draw(now);
       raf = visible ? requestAnimationFrame(loop) : 0;
     };
 
@@ -119,16 +252,21 @@ export default function Globe({ children }: { children?: React.ReactNode }) {
     });
     io.observe(cv);
 
-    if (reduce) draw();
-    else raf = requestAnimationFrame(loop);
+    if (reduce) {
+      stop = S.length - 1;
+      clock = FLY;
+      draw(0);
+    } else raf = requestAnimationFrame(loop);
 
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
       io.disconnect();
+      fcv.removeEventListener('pointerdown', onDown);
       window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
     };
-  }, []);
+  }, [stops]);
 
   return (
     <div className="globe-stage">

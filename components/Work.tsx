@@ -132,10 +132,6 @@ export default function Work() {
                 <Reveal delay={0.15}>
                   <div className="pj-story">
                     <div>
-                      <span className="label">The problem</span>
-                      <p>{x.problem}</p>
-                    </div>
-                    <div>
                       <span className="label">What I did</span>
                       <ul>
                         {x.did.map((d) => (

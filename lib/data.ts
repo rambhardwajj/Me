@@ -105,6 +105,19 @@ export const PERSONAS: Persona[] = [
   },
 ];
 
+/** Stops the hero globe flies through, in order. */
+export const GLOBE_STOPS: { place: string; lat: number; lon: number; year: string; text: string }[] = [
+  { place: 'Mathura', lat: 27.49, lon: 77.67, year: '2019', text: 'Scored 91% in Class 12' },
+  { place: 'Delhi', lat: 28.68, lon: 77.21, year: '2019', text: 'Joined Ramjas College, University of Delhi' },
+  { place: 'Chicago', lat: 41.88, lon: -87.63, year: '2021', text: 'Represented India at a world dance battle · Top 16 worldwide' },
+  { place: 'Noida', lat: 28.54, lon: 77.33, year: '2022', text: 'MCA at Amity · Rank 1 coder of the batch' },
+  { place: 'Gurugram', lat: 28.46, lon: 77.03, year: '2024', text: 'Ciena · 4 of 14,000 to win its annual award' },
+  { place: 'Noida', lat: 28.62, lon: 77.37, year: '2025', text: 'Newral · engineer to Product Manager' },
+  { place: 'Bangalore', lat: 12.97, lon: 77.59, year: '2026', text: 'Won the YC VibeCon Wingathon' },
+  { place: 'United States', lat: 37.77, lon: -122.42, year: '2026', text: 'Shipped Upto, an iOS app, for a US client' },
+  { place: 'Gurugram', lat: 28.46, lon: 77.03, year: '2026', text: 'PGP at Masters’ Union · building LeetCase' },
+];
+
 export const COMPANIES = ['Newral', 'Ciena', 'Skyex AI Mobility', 'Masters’ Union', '100xSchool'];
 
 /** Small proof badges floating around the hero photo. */

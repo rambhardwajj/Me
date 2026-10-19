@@ -4,7 +4,6 @@ import Hero from '@/components/Hero';
 import Personas from '@/components/Personas';
 import Journey from '@/components/Journey';
 import Work from '@/components/Work';
-import Skills from '@/components/Skills';
 import Contact from '@/components/Contact';
 
 export default function Home() {
@@ -16,7 +15,6 @@ export default function Home() {
         <Personas />
         <Journey />
         <Work />
-        <Skills />
         <Contact />
       </main>
     </Motion>
