@@ -6,6 +6,7 @@ import Journey from '@/components/Journey';
 import Experience from '@/components/Experience';
 import Work from '@/components/Work';
 import Contact from '@/components/Contact';
+import Mascot from '@/components/Mascot';
 
 export default function Home() {
   return (
@@ -19,6 +20,7 @@ export default function Home() {
         <Work />
         <Contact />
       </main>
+      <Mascot />
     </Motion>
   );
 }

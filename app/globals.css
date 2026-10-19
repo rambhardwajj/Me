@@ -883,3 +883,69 @@ a.org:hover { border-bottom-color: var(--accent); color: var(--accent); }
   .xp-rail { left: 15px; }
 }
 .ct h2 em { font-style: normal; background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* ==========================================================================
+   Mini Ram: the mascot, its speech bubbles and the chat panel
+   ========================================================================== */
+.mascot { position: fixed; right: 20px; bottom: 20px; z-index: 90; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; pointer-events: none; }
+.mascot > * { pointer-events: auto; }
+
+.mbtn { position: relative; width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; overflow: hidden;
+  background: radial-gradient(circle at 50% 30%, var(--surface-3), var(--surface) 75%); border: 1px solid rgba(var(--accent-rgb), 0.45);
+  box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.08), 0 14px 40px -10px rgba(0, 0, 0, 0.6), 0 0 24px rgba(var(--accent-rgb), 0.25); transition: transform 0.4s var(--ease), box-shadow 0.4s; }
+.mbtn .mface { margin-top: 10px; animation: m-bob 3.6s ease-in-out infinite; }
+.mbtn:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 0 0 5px rgba(var(--accent-rgb), 0.14), 0 18px 44px -10px rgba(0, 0, 0, 0.6), 0 0 32px rgba(var(--accent-rgb), 0.4); }
+.mbtn-dot { position: absolute; right: 9px; top: 9px; width: 10px; height: 10px; border-radius: 50%; background: var(--ok); border: 2px solid var(--surface); }
+.mbtn.open .mbtn-dot { display: none; }
+@keyframes m-bob { 50% { transform: translateY(-3px); } }
+.mf-eyes { transform-origin: 60px 59px; animation: m-blink 4.8s infinite; }
+@keyframes m-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+.mf-wave { transform-origin: 96px 100px; transform: rotate(40deg) translateY(14px); opacity: 0; transition: transform 0.4s var(--ease), opacity 0.3s; }
+.mbtn:hover .mf-wave, .mchat-av .mf-wave { opacity: 1; transform: none; }
+.mbtn:hover .mf-wave { animation: m-wave 0.9s ease-in-out 2; }
+@keyframes m-wave { 25% { transform: rotate(-14deg); } 75% { transform: rotate(10deg); } }
+
+/* speech cloud */
+.mbubble { position: relative; max-width: 250px; margin-right: 14px; padding: 11px 14px; border-radius: 16px 16px 4px 16px; text-align: left; font-size: 13.5px; line-height: 1.45; color: var(--text);
+  background: var(--surface); border: 1px solid rgba(var(--accent-rgb), 0.4); box-shadow: inset 0 1px 0 var(--hi), var(--shadow-lg), 0 0 20px rgba(var(--accent-rgb), 0.15); cursor: pointer; }
+.mbubble::after { content: ''; position: absolute; right: 18px; bottom: -7px; width: 12px; height: 12px; background: var(--surface); border-right: 1px solid rgba(var(--accent-rgb), 0.4); border-bottom: 1px solid rgba(var(--accent-rgb), 0.4); transform: rotate(45deg); }
+
+/* chat panel */
+.mchat { width: min(370px, calc(100vw - 32px)); height: min(540px, calc(100svh - 130px)); display: flex; flex-direction: column; overflow: hidden; transform-origin: bottom right;
+  border-radius: 20px; background: var(--surface); border: 1px solid var(--line-strong); box-shadow: inset 0 1px 0 var(--hi), var(--shadow-lg), 0 0 40px rgba(var(--accent-rgb), 0.12); }
+.mchat-head { display: flex; align-items: center; gap: 11px; padding: 12px 12px 12px 14px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.08), transparent); }
+.mchat-av { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: var(--surface-2); border: 1px solid rgba(var(--accent-rgb), 0.4); }
+.mchat-av .mface { margin-top: 6px; }
+.mchat-head b { display: block; font-size: 14.5px; font-weight: 600; letter-spacing: -0.01em; }
+.mchat-head small { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted); }
+.mchat-head small i { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); }
+.mchat-x { margin-left: auto; width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; color: var(--text-2); }
+.mchat-x:hover { background: var(--surface-2); color: var(--text); }
+.mchat-list { flex: 1; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 8px; padding: 14px; }
+.mmsg { max-width: 86%; padding: 9px 12px; border-radius: 14px; font-size: 13.5px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.mmsg.assistant { align-self: flex-start; background: var(--surface-2); border: 1px solid var(--line); border-bottom-left-radius: 4px; color: var(--text); }
+.mmsg.user { align-self: flex-end; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border-bottom-right-radius: 4px; }
+.mtyping { display: inline-flex; gap: 4px; padding: 4px 2px; }
+.mtyping i { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: m-type 1s infinite; }
+.mtyping i:nth-child(2) { animation-delay: 0.15s; }
+.mtyping i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes m-type { 0%, 60%, 100% { opacity: 0.3; transform: none; } 30% { opacity: 1; transform: translateY(-3px); } }
+.mchat-sugg { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.mchat-sugg button { padding: 6px 11px; border-radius: 999px; font-size: 12.5px; color: var(--text-2); background: var(--surface); border: 1px solid var(--line-strong); transition: color 0.2s, border-color 0.2s; }
+.mchat-sugg button:hover { color: var(--text); border-color: rgba(var(--accent-rgb), 0.6); }
+.mchat-form { display: flex; gap: 8px; padding: 10px 12px 6px; border-top: 1px solid var(--line); }
+.mchat-form input { flex: 1; min-width: 0; height: 40px; padding: 0 12px; border-radius: 10px; font: inherit; font-size: 14px; color: var(--text); background: var(--surface-2); border: 1px solid var(--line-strong); outline: none; transition: border-color 0.2s; }
+.mchat-form input:focus { border-color: rgba(var(--accent-rgb), 0.7); }
+.mchat-form button { flex: none; width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; color: var(--on-primary); background: var(--primary); transition: opacity 0.2s; }
+.mchat-form button:disabled { opacity: 0.35; cursor: default; }
+.mchat-note { padding: 0 14px 10px; font-size: 10.5px; color: var(--muted); text-align: center; }
+
+@media (max-width: 640px) {
+  .mascot { right: 12px; bottom: 12px; }
+  .mbtn { width: 60px; height: 60px; }
+  .mbtn .mface { width: 54px; height: 54px; margin-top: 8px; }
+  .mchat { height: min(560px, calc(100svh - 100px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mbtn .mface, .mf-eyes, .mtyping i { animation: none; }
+}
