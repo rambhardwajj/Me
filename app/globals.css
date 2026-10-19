@@ -890,20 +890,30 @@ a.org:hover { border-bottom-color: var(--accent); color: var(--accent); }
 .mascot { position: fixed; right: 20px; bottom: 20px; z-index: 90; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; pointer-events: none; }
 .mascot > * { pointer-events: auto; }
 
-.mbtn { position: relative; width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; overflow: hidden;
-  background: radial-gradient(circle at 50% 30%, var(--surface-3), var(--surface) 75%); border: 1px solid rgba(var(--accent-rgb), 0.45);
-  box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.08), 0 14px 40px -10px rgba(0, 0, 0, 0.6), 0 0 24px rgba(var(--accent-rgb), 0.25); transition: transform 0.4s var(--ease), box-shadow 0.4s; }
-.mbtn .mface { margin-top: 10px; animation: m-bob 3.6s ease-in-out infinite; }
-.mbtn:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 0 0 5px rgba(var(--accent-rgb), 0.14), 0 18px 44px -10px rgba(0, 0, 0, 0.6), 0 0 32px rgba(var(--accent-rgb), 0.4); }
-.mbtn-dot { position: absolute; right: 9px; top: 9px; width: 10px; height: 10px; border-radius: 50%; background: var(--ok); border: 2px solid var(--surface); }
+.mbtn { position: relative; width: 88px; height: 88px; display: grid; place-items: center; background: none; border: 0; padding: 0; transition: transform 0.45s var(--ease); }
+.mbtn .mface { overflow: visible; filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.45)); }
+[data-theme='light'] .mbtn .mface { filter: drop-shadow(0 12px 18px rgba(9, 9, 11, 0.18)); }
+.mbtn:hover { transform: translateY(-4px) scale(1.05); }
+.mbtn-dot { position: absolute; right: 10px; top: 32px; width: 12px; height: 12px; border-radius: 50%; background: var(--ok); border: 2px solid var(--bg); box-shadow: 0 0 10px color-mix(in srgb, var(--ok) 70%, transparent); }
 .mbtn.open .mbtn-dot { display: none; }
-@keyframes m-bob { 50% { transform: translateY(-3px); } }
-.mf-eyes { transform-origin: 60px 59px; animation: m-blink 4.8s infinite; }
-@keyframes m-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
-.mf-wave { transform-origin: 96px 100px; transform: rotate(40deg) translateY(14px); opacity: 0; transition: transform 0.4s var(--ease), opacity 0.3s; }
-.mbtn:hover .mf-wave, .mchat-av .mf-wave { opacity: 1; transform: none; }
-.mbtn:hover .mf-wave { animation: m-wave 0.9s ease-in-out 2; }
-@keyframes m-wave { 25% { transform: rotate(-14deg); } 75% { transform: rotate(10deg); } }
+
+/* character motion */
+.mf-orbit { transform-origin: 100px 124px; animation: m-orbit 7s linear infinite; }
+@keyframes m-orbit { to { transform: rotate(360deg); } }
+.mf-head { transform-origin: 100px 150px; animation: m-sway 6s ease-in-out infinite; transition: transform 0.5s var(--ease); }
+@keyframes m-sway { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-2deg); } 70% { transform: rotate(1.5deg); } }
+.mf-body { animation: m-breathe 4s ease-in-out infinite; transform-origin: 100px 200px; }
+@keyframes m-breathe { 50% { transform: scaleY(1.015); } }
+.mf-pupil { transform: translate(var(--px, 0px), var(--py, 0px)); transition: transform 0.12s linear; }
+.mbtn.thinking .mf-pupil { transform: translate(2.6px, -3px); transition-duration: 0.4s; }
+.mf-lid { transform-box: fill-box; transform-origin: top; transform: scaleY(0); animation: m-blink 5s infinite; }
+@keyframes m-blink { 0%, 93%, 100% { transform: scaleY(0); } 96% { transform: scaleY(1); } }
+.mf-brows { transition: transform 0.35s var(--ease); }
+.mbtn:hover .mf-brows { transform: translateY(-2.5px); }
+.mbtn:hover .mf-head { animation: none; transform: rotate(-5deg); }
+.mf-wave { transform-origin: 142px 200px; transform: translate(14px, 40px) rotate(18deg); opacity: 0; transition: transform 0.45s var(--ease), opacity 0.3s; }
+.mbtn:hover .mf-wave { opacity: 1; transform: none; animation: m-wave 0.8s ease-in-out 0.35s 2; }
+@keyframes m-wave { 25% { transform: rotate(-10deg); } 75% { transform: rotate(8deg); } }
 
 /* speech cloud */
 .mbubble { position: relative; max-width: 250px; margin-right: 14px; padding: 11px 14px; border-radius: 16px 16px 4px 16px; text-align: left; font-size: 13.5px; line-height: 1.45; color: var(--text);
@@ -914,8 +924,8 @@ a.org:hover { border-bottom-color: var(--accent); color: var(--accent); }
 .mchat { width: min(370px, calc(100vw - 32px)); height: min(540px, calc(100svh - 130px)); display: flex; flex-direction: column; overflow: hidden; transform-origin: bottom right;
   border-radius: 20px; background: var(--surface); border: 1px solid var(--line-strong); box-shadow: inset 0 1px 0 var(--hi), var(--shadow-lg), 0 0 40px rgba(var(--accent-rgb), 0.12); }
 .mchat-head { display: flex; align-items: center; gap: 11px; padding: 12px 12px 12px 14px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.08), transparent); }
-.mchat-av { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: var(--surface-2); border: 1px solid rgba(var(--accent-rgb), 0.4); }
-.mchat-av .mface { margin-top: 6px; }
+.mchat-av { width: 44px; height: 44px; display: grid; place-items: center; }
+.mchat-av .mface { overflow: visible; }
 .mchat-head b { display: block; font-size: 14.5px; font-weight: 600; letter-spacing: -0.01em; }
 .mchat-head small { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted); }
 .mchat-head small i { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); }
@@ -942,10 +952,11 @@ a.org:hover { border-bottom-color: var(--accent); color: var(--accent); }
 
 @media (max-width: 640px) {
   .mascot { right: 12px; bottom: 12px; }
-  .mbtn { width: 60px; height: 60px; }
-  .mbtn .mface { width: 54px; height: 54px; margin-top: 8px; }
+  .mbtn { width: 72px; height: 72px; }
+  .mbtn .mface { width: 72px; height: 72px; }
+  .mbtn-dot { right: 8px; top: 26px; }
   .mchat { height: min(560px, calc(100svh - 100px)); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .mbtn .mface, .mf-eyes, .mtyping i { animation: none; }
+  .mf-orbit, .mf-head, .mf-body, .mf-lid, .mtyping i { animation: none; }
 }

@@ -33,10 +33,40 @@ export default function Mascot() {
   const openRef = useRef(open);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     openRef.current = open;
   }, [open]);
+
+  // the eyes follow the cursor around the page
+  useEffect(() => {
+    let raf = 0,
+      x = 0,
+      y = 0;
+    const update = () => {
+      raf = 0;
+      const b = btnRef.current;
+      if (!b) return;
+      const r = b.getBoundingClientRect();
+      const dx = x - (r.left + r.width / 2),
+        dy = y - (r.top + r.height * 0.45);
+      const d = Math.hypot(dx, dy) || 1;
+      const k = Math.min(1, d / 260) * 2.6;
+      b.style.setProperty('--px', `${((dx / d) * k).toFixed(2)}px`);
+      b.style.setProperty('--py', `${((dy / d) * k).toFixed(2)}px`);
+    };
+    const onMove = (e: PointerEvent) => {
+      x = e.clientX;
+      y = e.clientY;
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('pointermove', onMove);
+    };
+  }, []);
 
   // pop a comment as each section arrives
   useEffect(() => {
@@ -136,7 +166,7 @@ export default function Mascot() {
           >
             <header className="mchat-head">
               <span className="mchat-av">
-                <MascotFace size={34} />
+                <MascotFace size={44} />
               </span>
               <span>
                 <b>Mini Ram</b>
@@ -210,7 +240,8 @@ export default function Mascot() {
       </AnimatePresence>
 
       <motion.button
-        className={`mbtn ${open ? 'open' : ''}`}
+        ref={btnRef}
+        className={`mbtn ${open ? 'open' : ''} ${busy ? 'thinking' : ''}`}
         onClick={() => show(!open)}
         aria-label={open ? 'Close chat with Mini Ram' : 'Chat with Mini Ram, Ram’s AI sidekick'}
         aria-expanded={open}
@@ -218,7 +249,7 @@ export default function Mascot() {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ delay: 1.2, duration: 0.7, ease: EASE }}
       >
-        <MascotFace size={64} />
+        <MascotFace size={88} />
         <span className="mbtn-dot" aria-hidden />
       </motion.button>
     </div>
