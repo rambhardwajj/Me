@@ -3,6 +3,7 @@
 import { motion, useScroll } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { PROFILE } from '@/lib/data';
+import { ThemeToggle } from './Theme';
 
 const LINKS = [
   { id: 'top', label: 'Home' },
@@ -35,7 +36,7 @@ export default function Nav() {
   }, []);
 
   return (
-    <motion.header className={`nav ${scrolled ? 'scrolled' : ''}`} initial={{ y: -76 }} animate={{ y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}>
+    <motion.header className={`nav ${scrolled ? 'scrolled' : ''}`} initial={{ y: -68 }} animate={{ y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}>
       <div className="wrap nav-in">
         <a href="#top" className="nav-name">
           <i aria-hidden>RB</i> {PROFILE.name}
@@ -47,9 +48,12 @@ export default function Nav() {
             </a>
           ))}
         </nav>
-        <a href={`mailto:${PROFILE.email}`} className="nav-cta">
-          Get in touch
-        </a>
+        <div className="nav-right">
+          <ThemeToggle />
+          <a href={`mailto:${PROFILE.email}`} className="nav-cta">
+            Get in touch
+          </a>
+        </div>
       </div>
       <motion.div className="nav-bar" style={{ scaleX: scrollYProgress, opacity: scrolled ? 1 : 0 }} />
     </motion.header>

@@ -24,9 +24,6 @@ const VECTORS = (() => {
   return v;
 })();
 
-const DOT = '103, 198, 255'; // cyan-blue land dots
-const ARC = '143, 176, 255'; // journey arcs
-const HOT = '255, 196, 87'; // current stop
 
 const DWELL = 3.2; // seconds at each stop (including the flight)
 const FLY = 1.4; // seconds to fly to the next stop
@@ -71,6 +68,21 @@ export default function Globe({ stops = [], onStop, children }: { stops?: GlobeS
     if (!ctx || !fctx) return;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const S = stops.map((s) => ({ ...s, v: toVec(s.lat, s.lon) }));
+
+    // colours come from the theme tokens ("r, g, b"), re-read whenever the theme flips
+    let DOT = '228, 228, 231',
+      HOT = '255, 255, 255';
+    const readColors = () => {
+      const cs = getComputedStyle(document.documentElement);
+      DOT = cs.getPropertyValue('--globe-dot').trim() || DOT;
+      HOT = cs.getPropertyValue('--accent-rgb').trim() || HOT;
+    };
+    readColors();
+    const themeWatch = new MutationObserver(() => {
+      readColors();
+      if (reduce) draw(0);
+    });
+    themeWatch.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
     let w = 0,
       h = 0,
@@ -187,8 +199,8 @@ export default function Globe({ stops = [], onStop, children }: { stops?: GlobeS
         for (let k = 0; k <= steps * end; k++) {
           const p = project(arcPoint(a, b, k / steps), R, cx, cy, cr, sr, ct, st);
           if (prev && (p.z > -0.05 || prev.z > -0.05)) {
-            const alpha = (i === stop ? 0.95 : 0.4) * (p.z > 0 ? 1 : 0.35);
-            ctx.strokeStyle = `rgba(${i === stop ? HOT : ARC}, ${alpha})`;
+            const alpha = (i === stop ? 0.95 : 0.35) * (p.z > 0 ? 1 : 0.35);
+            ctx.strokeStyle = `rgba(${HOT}, ${i === stop ? alpha : alpha * 0.8})`;
             ctx.beginPath();
             ctx.moveTo(prev.x, prev.y);
             ctx.lineTo(p.x, p.y);
@@ -204,7 +216,7 @@ export default function Globe({ stops = [], onStop, children }: { stops?: GlobeS
         if (p.z < 0) continue;
         const current = i === stop;
         const r = (current ? 4.2 : 2.6) * dpr;
-        ctx.fillStyle = `rgba(${current ? HOT : ARC}, ${current ? 1 : 0.8})`;
+        ctx.fillStyle = `rgba(${current ? HOT : DOT}, ${current ? 1 : 0.6})`;
         ctx.beginPath();
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx.fill();
@@ -262,6 +274,7 @@ export default function Globe({ stops = [], onStop, children }: { stops?: GlobeS
       cancelAnimationFrame(raf);
       ro.disconnect();
       io.disconnect();
+      themeWatch.disconnect();
       fcv.removeEventListener('pointerdown', onDown);
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);

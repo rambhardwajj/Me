@@ -24,7 +24,7 @@ function ArcItem({ m, i, progress, geo, onPick }: { m: Moment; i: number; progre
   const opacity = useTransform(angle, (a) => (Math.abs(a) > 98 ? 0 : 1 - Math.max(0, Math.abs(a) - STEP) / 110));
   // dates show for the neighbours; the item at the apex is described by the featured card instead
   const labelOpacity = useTransform(angle, (a) => Math.min(1, Math.abs(a) / (STEP * 0.7)) * Math.max(0, 1 - Math.max(0, Math.abs(a) - STEP) / (STEP * 1.4)));
-  const glow = useTransform(focus, (f) => `0 0 0 ${2 + f * 4}px rgba(47, 107, 255, ${0.15 + f * 0.35}), 0 0 ${f * 40}px ${f * 6}px rgba(47, 107, 255, ${f * 0.5})`);
+  const glow = useTransform(focus, (f) => `0 0 0 ${1 + f * 2}px color-mix(in srgb, var(--text) ${Math.round(18 + f * 62)}%, transparent), 0 0 ${f * 40}px ${f * 4}px color-mix(in srgb, var(--text) ${Math.round(f * 18)}%, transparent)`);
 
   return (
     <motion.button className={`arc-item k-${m.kind}`} style={{ x, y, opacity }} onClick={() => onPick(i)} aria-label={`${m.date}: ${m.title}`}>
@@ -97,14 +97,14 @@ export default function HorizontalTimeline({ onOpen }: { onOpen: (id: string) =>
             <svg className="arc-svg" width={geo.w} height={geo.h} aria-hidden>
               <defs>
                 <linearGradient id="arc-past" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0" stopColor="#2f6bff" stopOpacity="0" />
-                  <stop offset="0.5" stopColor="#5b8cff" stopOpacity="1" />
-                  <stop offset="0.5" stopColor="#ffffff" stopOpacity="0.16" />
-                  <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
+                  <stop offset="0" stopColor="currentColor" stopOpacity="0" />
+                  <stop offset="0.5" stopColor="currentColor" stopOpacity="0.9" />
+                  <stop offset="0.5" stopColor="currentColor" stopOpacity="0.14" />
+                  <stop offset="1" stopColor="currentColor" stopOpacity="0" />
                 </linearGradient>
               </defs>
               <path d={`M ${geo.cx - geo.r} ${geo.cy} A ${geo.r} ${geo.r} 0 0 1 ${geo.cx + geo.r} ${geo.cy}`} fill="none" stroke="url(#arc-past)" strokeWidth="2" />
-              <path d={`M ${geo.cx - geo.r + 48} ${geo.cy} A ${geo.r - 48} ${geo.r - 48} 0 0 1 ${geo.cx + geo.r - 48} ${geo.cy}`} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1" strokeDasharray="2 8" />
+              <path d={`M ${geo.cx - geo.r + 48} ${geo.cy} A ${geo.r - 48} ${geo.r - 48} 0 0 1 ${geo.cx + geo.r - 48} ${geo.cy}`} fill="none" stroke="currentColor" strokeOpacity="0.08" strokeWidth="1" strokeDasharray="2 8" />
             </svg>
 
             <div className="arc-apex" style={{ top: geo.apexY - 78 }}>
