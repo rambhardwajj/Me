@@ -1,9 +1,9 @@
 'use client';
 
-import { AnimatePresence, motion, useScroll } from 'framer-motion';
+import { AnimatePresence, motion, useInView } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { EXPERIENCE, PROFILE, type Job } from '@/lib/data';
-import { EASE, Lines, Reveal } from './Motion';
+import { CountUp, EASE, Lines, Reveal } from './Motion';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const parse = (ym: string) => {
@@ -137,10 +137,103 @@ function JobModal({ job, onClose }: { job: Job; onClose: () => void }) {
   );
 }
 
-/** Jobs and internships as compact tiles on a centre line; click one for the full story. */
+/** Newral's promotion ladder: each step lights up in turn once the tile is in view. */
+function Ladder({ job }: { job: Job }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const seen = useInView(ref, { once: true, amount: 0.6 });
+  const steps = [...job.roles].reverse();
+  return (
+    <span className="bx-ladder" ref={ref}>
+      {steps.map((r, i) => (
+        <motion.span
+          key={r.title}
+          initial={{ opacity: 0.25, x: -8 }}
+          animate={seen ? { opacity: 1, x: 0 } : {}}
+          transition={{ delay: 0.25 + i * 0.35, duration: 0.5, ease: EASE }}
+          className={i === steps.length - 1 ? 'top' : ''}
+        >
+          <i />
+          <b>{r.title}</b>
+          <span>{label(r.start)}</span>
+        </motion.span>
+      ))}
+    </span>
+  );
+}
+
+function Metric({ m }: { m: Job['metrics'][number] }) {
+  return (
+    <div className="bx-metric">
+      <b>{typeof m.value === 'number' ? <CountUp value={m.value} decimals={m.value % 1 ? 1 : 0} prefix={m.prefix} suffix={m.suffix} /> : m.value}</b>
+      <span>{m.label}</span>
+    </div>
+  );
+}
+
+/** One bento tile: brand glow, cursor spotlight, animated border; click for the full story. */
+function Tile({ job, i, onOpen }: { job: Job; i: number; onOpen: (j: Job) => void }) {
+  const s = span(job);
+  return (
+    <motion.button
+      className={`bx bx-${job.slug}`}
+      style={{ ['--a' as string]: job.accent }}
+      onClick={() => onOpen(job)}
+      onPointerMove={(e) => {
+        const r = e.currentTarget.getBoundingClientRect();
+        e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
+        e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
+      }}
+      aria-label={`${job.company}, ${job.roles[0].title}. Show details`}
+      initial={{ opacity: 0, y: 30, scale: 0.97 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.7, ease: EASE, delay: i * 0.08 }}
+    >
+      <span className="bx-glow" aria-hidden />
+      <span className="bx-top">
+        <Logo job={job} size={job.slug === 'newral' ? 46 : 38} />
+        <span className="bx-type">{job.type}</span>
+      </span>
+      <span className="bx-name">
+        <b>{job.company}</b>
+        <span>
+          {job.roles[0].title}
+          {job.roles.length > 1 && <em> · {job.roles.length} roles</em>}
+        </span>
+        <small>
+          {s.text} · {s.length} · {job.location}
+        </small>
+      </span>
+
+      {job.slug === 'newral' && <Ladder job={job} />}
+
+      <span className="bx-metrics">
+        {job.metrics.map((m) => (
+          <Metric key={m.label} m={m} />
+        ))}
+      </span>
+
+      {job.highlights?.[0] && job.slug === 'newral' && (
+        <span className="bx-award">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+            <path d="m12 2 2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z" />
+          </svg>
+          {job.highlights[0]}
+        </span>
+      )}
+
+      <span className="bx-more" aria-hidden>
+        View details
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M7 17 17 7M8 7h9v9" />
+        </svg>
+      </span>
+    </motion.button>
+  );
+}
+
+/** Jobs and internships as an animated bento grid; click a tile for everything done there. */
 export default function Experience() {
-  const list = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: list, offset: ['start 70%', 'end 60%'] });
   const [open, setOpen] = useState<Job | null>(null);
   const closeModal = useCallback(() => setOpen(null), []);
 
@@ -163,46 +256,10 @@ export default function Experience() {
           )}
         </header>
 
-        <div className="exp-list" ref={list}>
-          <div className="exp-line" aria-hidden>
-            <motion.i style={{ scaleY: scrollYProgress }} />
-          </div>
-
-          {EXPERIENCE.map((job, i) => {
-            const side = i % 2 === 0 ? 'left' : 'right';
-            const s = span(job);
-            return (
-              <div key={job.company} className={`exp-row ${side}`}>
-                <span className={`exp-node ${i === 0 ? 'now' : ''}`} aria-hidden />
-                <motion.button
-                  className="exp-card"
-                  onClick={() => setOpen(job)}
-                  aria-label={`${job.company}, ${job.roles[0].title}. Show details`}
-                  initial={{ opacity: 0, x: side === 'left' ? -30 : 30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, amount: 0.4 }}
-                  transition={{ duration: 0.6, ease: EASE }}
-                >
-                  <Logo job={job} />
-                  <span className="exp-main">
-                    <b>{job.company}</b>
-                    <span className="exp-role">
-                      {job.roles[0].title}
-                      {job.roles.length > 1 && <em> · {job.roles.length} roles</em>}
-                    </span>
-                    <span className="exp-when">
-                      {s.text} · {s.length}
-                    </span>
-                  </span>
-                  <span className="exp-open" aria-hidden>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M7 17 17 7M8 7h9v9" />
-                    </svg>
-                  </span>
-                </motion.button>
-              </div>
-            );
-          })}
+        <div className="bento">
+          {EXPERIENCE.map((job, i) => (
+            <Tile key={job.slug} job={job} i={i} onOpen={setOpen} />
+          ))}
         </div>
       </div>
 

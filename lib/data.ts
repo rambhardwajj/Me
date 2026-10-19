@@ -119,6 +119,10 @@ export const GLOBE_STOPS: { place: string; lat: number; lon: number; year: strin
 ];
 
 export type Job = {
+  slug: 'trucost' | 'newral' | 'ciena' | 'ingenious';
+  accent: string;
+  /** Headline numbers for the bento tile. `value` counts up when numeric. */
+  metrics: { prefix?: string; value: number | string; suffix?: string; label: string }[];
   company: string;
   logo: { text: string; bg: string; fg?: string; src?: string };
   type: 'Full-time' | 'Contract' | 'Internship';
@@ -134,6 +138,13 @@ export type Job = {
 /** Jobs and internships only, newest first (from the résumé). */
 export const EXPERIENCE: Job[] = [
   {
+    slug: 'trucost',
+    accent: '#a855f7',
+    metrics: [
+      { value: 100, label: 'drivers onboarded' },
+      { prefix: '₹', value: 2.5, suffix: 'L', label: 'contract closed' },
+      { value: 2, label: 'app stores, live' },
+    ],
     company: 'TruCost · Skyex AI Mobility',
     logo: { text: 'T', bg: 'linear-gradient(135deg, #7c3aed, #ec4899)', src: '/images/logos/trucost.png' },
     type: 'Contract',
@@ -166,6 +177,13 @@ export const EXPERIENCE: Job[] = [
     ],
   },
   {
+    slug: 'newral',
+    accent: '#3b82f6',
+    metrics: [
+      { prefix: '+', value: 75, suffix: '%', label: 'revenue growth' },
+      { value: 2, suffix: '×', label: 'user engagement' },
+      { prefix: '−', value: 50, suffix: '%', label: 'cloud costs' },
+    ],
     company: 'Newral',
     logo: { text: 'N', bg: 'linear-gradient(135deg, #2563eb, #1e3a8a)', src: '/images/logos/newral.png' },
     type: 'Full-time',
@@ -226,6 +244,12 @@ export const EXPERIENCE: Job[] = [
     ],
   },
   {
+    slug: 'ciena',
+    accent: '#ef4444',
+    metrics: [
+      { value: 4, suffix: ' / 14,000', label: 'won the annual award' },
+      { prefix: '$', value: 30, suffix: 'K+', label: 'saved a year' },
+    ],
     company: 'Ciena',
     logo: { text: 'C', bg: 'linear-gradient(135deg, #e11d48, #9f1239)', src: '/images/logos/ciena.png' },
     type: 'Full-time',
@@ -267,6 +291,9 @@ export const EXPERIENCE: Job[] = [
     ],
   },
   {
+    slug: 'ingenious',
+    accent: '#14b8a6',
+    metrics: [{ value: 'ISRO', label: 'blockchain research project' }],
     company: 'Ingenious Research Solutions',
     logo: { text: 'IR', bg: 'linear-gradient(135deg, #0d9488, #115e59)', src: '/images/logos/ingenious.png' },
     type: 'Internship',
