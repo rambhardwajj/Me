@@ -118,6 +118,62 @@ export const GLOBE_STOPS: { place: string; lat: number; lon: number; year: strin
   { place: 'Gurugram', lat: 28.46, lon: 77.03, year: '2026', text: 'PGP at Masters’ Union · building LeetCase' },
 ];
 
+export type Job = {
+  company: string;
+  logo: { text: string; bg: string; fg?: string };
+  type: 'Full-time' | 'Contract' | 'Internship';
+  location: string;
+  url?: string;
+  summary: string;
+  /** Newest first; a company with promotions lists every role. Dates are 'YYYY-MM'; end omitted = present. */
+  roles: { title: string; start: string; end?: string }[];
+};
+
+/** Jobs and internships only, newest first (from the résumé). */
+export const EXPERIENCE: Job[] = [
+  {
+    company: 'TruCost · Skyex AI Mobility',
+    logo: { text: 'T', bg: 'linear-gradient(135deg, #7c3aed, #ec4899)' },
+    type: 'Contract',
+    location: 'Remote',
+    url: 'https://trucostrides.com/',
+    summary: 'Owned the product end to end: shipped Android and iOS ride-hailing apps with an in-cab headrest tablet, onboarded 100 drivers and closed a ₹2.5L contract.',
+    roles: [{ title: 'Product Manager', start: '2026-06', end: '2026-10' }],
+  },
+  {
+    company: 'Newral',
+    logo: { text: 'N', bg: 'linear-gradient(135deg, #2563eb, #1e3a8a)' },
+    type: 'Full-time',
+    location: 'Noida',
+    summary: 'Grew from engineer to Product Manager in seven months: drove 75% revenue growth through pricing and GTM, doubled engagement and cut cloud costs 50%.',
+    roles: [
+      { title: 'Product Manager', start: '2026-05', end: '2026-05' },
+      { title: 'Product Tech Lead', start: '2025-12', end: '2026-04' },
+      { title: 'Software Engineer', start: '2025-10', end: '2025-11' },
+    ],
+  },
+  {
+    company: 'Ciena',
+    logo: { text: 'C', bg: 'linear-gradient(135deg, #e11d48, #9f1239)' },
+    type: 'Full-time',
+    location: 'Gurugram',
+    url: 'https://www.ciena.com',
+    summary: 'Led enterprise automation and tool adoption: saved 4+ hours a day across 5+ global teams, cut SLA breaches 35% and removed $30K+ in annual software spend.',
+    roles: [
+      { title: 'IT Applications Solutions Engineer', start: '2024-07', end: '2025-10' },
+      { title: 'IT/Ops Intern', start: '2024-01', end: '2024-06' },
+    ],
+  },
+  {
+    company: 'Ingenious Research Solutions',
+    logo: { text: 'IR', bg: 'linear-gradient(135deg, #0d9488, #115e59)' },
+    type: 'Internship',
+    location: 'Noida',
+    summary: 'Supported an ISRO project introducing a blockchain-based prototype to improve data security in distributed systems.',
+    roles: [{ title: 'Research Intern', start: '2023-06', end: '2023-07' }],
+  },
+];
+
 export const COMPANIES = ['Newral', 'Ciena', 'Skyex AI Mobility', 'Masters’ Union', '100xSchool'];
 
 /** Small proof badges floating around the hero photo. */

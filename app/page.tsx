@@ -3,6 +3,7 @@ import Nav from '@/components/Nav';
 import Hero from '@/components/Hero';
 import Personas from '@/components/Personas';
 import Journey from '@/components/Journey';
+import Experience from '@/components/Experience';
 import Work from '@/components/Work';
 import Contact from '@/components/Contact';
 
@@ -14,6 +15,7 @@ export default function Home() {
         <Hero />
         <Personas />
         <Journey />
+        <Experience />
         <Work />
         <Contact />
       </main>
