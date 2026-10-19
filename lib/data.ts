@@ -125,8 +125,10 @@ export type Job = {
   location: string;
   url?: string;
   summary: string;
+  /** Recognition earned there, shown in the details modal. */
+  highlights?: string[];
   /** Newest first; a company with promotions lists every role. Dates are 'YYYY-MM'; end omitted = present. */
-  roles: { title: string; start: string; end?: string }[];
+  roles: { title: string; start: string; end?: string; groups: { heading?: string; points: string[] }[] }[];
 };
 
 /** Jobs and internships only, newest first (from the résumé). */
@@ -137,19 +139,90 @@ export const EXPERIENCE: Job[] = [
     type: 'Contract',
     location: 'Remote',
     url: 'https://trucostrides.com/',
-    summary: 'Owned the product end to end: shipped Android and iOS ride-hailing apps with an in-cab headrest tablet, onboarded 100 drivers and closed a ₹2.5L contract.',
-    roles: [{ title: 'Product Manager', start: '2026-06', end: '2026-10' }],
+    summary: 'Shipped Android and iOS ride-hailing apps with an in-cab tablet, onboarded 100 drivers and closed a ₹2.5L contract.',
+    roles: [
+      {
+        title: 'Product Manager',
+        start: '2026-06',
+        end: '2026-10',
+        groups: [
+          {
+            heading: 'Mobile apps & device connectivity',
+            points: [
+              'Delivered an Uber-style ride-hailing app on Android and iOS, live on the Play Store and App Store, with 100 drivers onboarded',
+              'Designed the Bluetooth connectivity architecture pairing the driver’s phone with an in-cab tablet mounted on the seat headrest',
+            ],
+          },
+          {
+            heading: 'Delivery, client & monetisation',
+            points: [
+              'Negotiated and closed a ₹2.5L contract, acting as the single point of contact for scope, priorities and sign-offs',
+              'Hired and led the development team, coordinating with the client and running sprints to ship both apps on schedule',
+              'Drove monetisation through in-cab tablet advertising and pricing strategy, balancing ad revenue with a good rider experience',
+            ],
+          },
+        ],
+      },
+    ],
   },
   {
     company: 'Newral',
     logo: { text: 'N', bg: 'linear-gradient(135deg, #2563eb, #1e3a8a)' },
     type: 'Full-time',
     location: 'Noida',
-    summary: 'Grew from engineer to Product Manager in seven months: drove 75% revenue growth through pricing and GTM, doubled engagement and cut cloud costs 50%.',
+    summary: 'Engineer to Product Manager in seven months: 75% revenue growth, 2× engagement and 50% lower cloud costs.',
+    highlights: ['Best Employee, 2025', 'Won the YC VibeCon Wingathon, representing Newral'],
     roles: [
-      { title: 'Product Manager', start: '2026-05', end: '2026-05' },
-      { title: 'Product Tech Lead', start: '2025-12', end: '2026-04' },
-      { title: 'Software Engineer', start: '2025-10', end: '2025-11' },
+      {
+        title: 'Product Manager',
+        start: '2026-05',
+        end: '2026-05',
+        groups: [
+          {
+            heading: 'Product strategy & go-to-market',
+            points: [
+              'Drove 75% revenue growth by defining product positioning, pricing strategy and product decisions alongside the founder',
+              'Doubled user engagement through feature launches and product experiments that improved adoption and retention',
+              'Increased platform traffic by 25% by optimising acquisition funnels through product-led growth initiatives and automations',
+            ],
+          },
+          {
+            heading: 'Product operations & platform optimisation',
+            points: [
+              'Reduced cloud costs by 50% by evaluating infrastructure vendors and leading the migration to a cost-efficient cloud platform',
+              'Prioritised and launched AI automation workflows, saving 90+ hours a month across reporting and reconciliation',
+              'Built an automated customer feedback system, raising client satisfaction by 21% and speeding up issue resolution',
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Product Tech Lead',
+        start: '2025-12',
+        end: '2026-04',
+        groups: [
+          {
+            heading: 'Platform scalability & cost',
+            points: [
+              'Reduced operational costs by 30% by leading the AWS and GCP migration to ACE Cloud with zero business downtime',
+              'Optimised the platform architecture, cutting infrastructure costs by 40% while improving scalability and code quality',
+            ],
+          },
+          {
+            heading: 'Process & leadership',
+            points: [
+              'Designed the company’s first KPI-driven performance framework to establish recognition and accountability',
+              'Improved sprint efficiency by 20% by introducing structured Jira workflows, sprint planning and execution tracking',
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Software Engineer',
+        start: '2025-10',
+        end: '2025-11',
+        groups: [{ points: ['Built AI SaaS products, including an LMS and a voice agent platform, for enterprise learning, automation and content delivery'] }],
+      },
     ],
   },
   {
@@ -158,10 +231,39 @@ export const EXPERIENCE: Job[] = [
     type: 'Full-time',
     location: 'Gurugram',
     url: 'https://www.ciena.com',
-    summary: 'Led enterprise automation and tool adoption: saved 4+ hours a day across 5+ global teams, cut SLA breaches 35% and removed $30K+ in annual software spend.',
+    summary: 'Enterprise automation and tool adoption: 4+ hours a day saved, 35% fewer SLA breaches, $30K+ a year cut.',
+    highlights: ['EDST Customer’s First Award: first new grad ever, 4 of 14,000', 'Top 10, CienaGPT AI Hackathon (of 800+)'],
     roles: [
-      { title: 'IT Applications Solutions Engineer', start: '2024-07', end: '2025-10' },
-      { title: 'IT/Ops Intern', start: '2024-01', end: '2024-06' },
+      {
+        title: 'IT Applications Solutions Engineer',
+        start: '2024-07',
+        end: '2025-10',
+        groups: [
+          {
+            heading: 'Product operations, enterprise automation & adoption',
+            points: [
+              'Led product automation initiatives, cutting 4+ hours of daily effort across 5+ global teams through workflow redesign',
+              'Produced 30+ promotional videos as a knowledge base, enabling self-learning and driving internal tool adoption at scale',
+              'Reduced SLA breaches by 35% through new workflows and cross-functional collaboration',
+              'Eliminated $30K+ in annual software costs by auditing enterprise licences and de-provisioning unused accounts',
+              'Evaluated application performance and ROI to recommend enterprise product investments and procurement decisions',
+            ],
+          },
+        ],
+      },
+      {
+        title: 'IT/Ops Intern',
+        start: '2024-01',
+        end: '2024-06',
+        groups: [
+          {
+            points: [
+              'Supported 300+ enterprise users, resolving 100+ product support requests and improving adoption across 8 platforms',
+              'Built a Python workflow automation, removing 3+ hours of daily manual effort across 180 employees and 9 teams',
+            ],
+          },
+        ],
+      },
     ],
   },
   {
@@ -169,8 +271,15 @@ export const EXPERIENCE: Job[] = [
     logo: { text: 'IR', bg: 'linear-gradient(135deg, #0d9488, #115e59)' },
     type: 'Internship',
     location: 'Noida',
-    summary: 'Supported an ISRO project introducing a blockchain-based prototype to improve data security in distributed systems.',
-    roles: [{ title: 'Research Intern', start: '2023-06', end: '2023-07' }],
+    summary: 'Supported an ISRO project on blockchain-based data security for distributed systems.',
+    roles: [
+      {
+        title: 'Research Intern',
+        start: '2023-06',
+        end: '2023-07',
+        groups: [{ points: ['Supported ISRO’s project introducing a blockchain-based prototype to improve data security in distributed systems'] }],
+      },
+    ],
   },
 ];
 
