@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useInView } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { EXPERIENCE, PROFILE, type Job } from '@/lib/data';
 import { CountUp, EASE, Lines, Reveal } from './Motion';
+import { useMediaQuery } from './TimelineParts';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const parse = (ym: string) => {
@@ -138,114 +139,168 @@ function JobModal({ job, onClose }: { job: Job; onClose: () => void }) {
 }
 
 const CHECK = (
-  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
     <path d="M5 12.5 10 17 19 7" />
   </svg>
 );
 
-/** Newral: a panel inside a chamfered frame; a highlight climbs the promotion ladder. */
-function PromotionArt({ job }: { job: Job }) {
+/** Ingenious: three blocks of a chain; on hover each one locks in turn and the chain verifies. */
+function ChainArt() {
+  return (
+    <span className="art art-chain" aria-hidden>
+      <span className="chain">
+        {[0, 1, 2].map((k) => (
+          <span className="chain-seg" key={k} style={{ ['--i' as string]: k }}>
+            {k > 0 && (
+              <span className="chain-link">
+                <i />
+              </span>
+            )}
+            <span className="blk">
+              <svg className="blk-lock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                <path className="shk" d="M8 11V8a4 4 0 0 1 8 0v3" />
+                <rect x="5" y="11" width="14" height="10" rx="2.5" />
+              </svg>
+              <code>block {k + 1}</code>
+              <span className="sk" />
+              <span className="sk s" />
+            </span>
+          </span>
+        ))}
+      </span>
+      <span className="art-status">
+        <span className="st-idle">ISRO · blockchain prototype</span>
+        <span className="st-hot">{CHECK} Distributed data secured</span>
+      </span>
+    </span>
+  );
+}
+
+const AUDIT = [false, true, false, true];
+
+/** Ciena: a licence audit; on hover the unused seats get de-provisioned and the savings land. */
+function AuditArt() {
+  return (
+    <span className="art art-audit" aria-hidden>
+      <span className="award-chip">★ EDST award · 4 of 14,000</span>
+      <span className="audit">
+        <span className="audit-head">
+          <code>Licence audit</code>
+          <small>Enterprise apps</small>
+        </span>
+        {AUDIT.map((unused, k) => (
+          <span className={`audit-row ${unused ? 'unused' : ''}`} key={k} style={{ ['--i' as string]: k }}>
+            <i className="av" />
+            <span className="sk" />
+            <em>
+              <span className="t-idle">{unused ? 'Unused' : 'Active'}</span>
+              <span className="t-hot">{unused ? 'Removed' : 'Active'}</span>
+            </em>
+          </span>
+        ))}
+        <span className="audit-foot">
+          <span>Annual spend</span>
+          <b>
+            <span className="t-idle">Auditing…</span>
+            <span className="t-hot">−$30K+ / yr</span>
+          </b>
+        </span>
+      </span>
+    </span>
+  );
+}
+
+/** Newral: the promotion ladder replays on hover while the revenue line draws in. */
+function LadderArt({ job }: { job: Job }) {
   const steps = [...job.roles].reverse();
   return (
-    <span className="art art-promo" aria-hidden>
-      <svg className="promo-frame" viewBox="0 0 400 300" preserveAspectRatio="none" fill="none" stroke="currentColor" vectorEffect="non-scaling-stroke">
-        <path d="M0 150 H40 L70 120 V70 L100 40 H300 L330 70 V120 L360 150 H400" vectorEffect="non-scaling-stroke" />
-        <path d="M0 162 H34 L58 186 V300 M400 162 H366 L342 186 V300" vectorEffect="non-scaling-stroke" />
-      </svg>
-      <span className="promo-card">
-        <span className="promo-head">
-          <Logo job={job} size={40} />
+    <span className="art art-ladder" aria-hidden>
+      <span className="lad-card">
+        <span className="lad-head">
+          <Logo job={job} size={30} />
+          <code>Career at {job.company}</code>
         </span>
-        <span className="promo-rows">
+        <span className="lad-rows">
           {steps.map((r) => (
-            <span className="promo-row" key={r.title}>
+            <span className="lad-row" key={r.title}>
               {r.title}
               <small>{label(r.start)}</small>
             </span>
           ))}
-          <span className="promo-hl" />
+          <span className="lad-hl" />
         </span>
-        {job.highlights?.[0] && <span className="promo-foot">{job.highlights[0]}</span>}
+        {job.highlights?.[0] && <span className="lad-foot">★ {job.highlights[0]}</span>}
+      </span>
+      <span className="chart-card">
+        <span className="chart-head">
+          <code>Revenue</code>
+          <b>+75%</b>
+        </span>
+        <svg viewBox="0 0 160 64" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="chart-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="currentColor" stopOpacity="0.28" />
+              <stop offset="1" stopColor="currentColor" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <path className="chart-area" d="M0 56 C20 54 30 50 46 46 S72 40 86 34 S112 26 124 18 S146 8 160 4 V64 H0Z" fill="url(#chart-fill)" />
+          <path className="chart-line" pathLength={100} d="M0 56 C20 54 30 50 46 46 S72 40 86 34 S112 26 124 18 S146 8 160 4" fill="none" stroke="currentColor" strokeWidth="2" />
+        </svg>
       </span>
     </span>
   );
 }
 
-/** TruCost: a beam runs down the line through the emblem while both app stores tick live. */
-function BeamArt() {
+/** TruCost: the driver's phone pairs with the in-cab tablet over Bluetooth; rides flow, ads play. */
+function PairArt() {
   return (
-    <span className="art art-beam" aria-hidden>
-      <span className="beam-line">
-        <i />
-      </span>
-      <span className="beam-chip l">{CHECK} Play Store</span>
-      <span className="emblem emblem-beam">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M5 17h14M6.5 17v2M17.5 17v2M4 13l1.6-5A2 2 0 0 1 7.5 6.6h9a2 2 0 0 1 1.9 1.4L20 13M4 13h16v4H4z" />
-          <circle cx="7.5" cy="15" r=".6" fill="currentColor" />
-          <circle cx="16.5" cy="15" r=".6" fill="currentColor" />
-        </svg>
-      </span>
-      <span className="beam-chip r">{CHECK} App Store</span>
-    </span>
-  );
-}
-
-/** Ciena: the award emblem on a raised plate, rings rippling out. */
-function AwardArt() {
-  return (
-    <span className="art art-plate" aria-hidden>
-      <span className="ring" />
-      <span className="ring" />
-      <span className="ring" />
-      <span className="emblem">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5v1.5A3 3 0 0 0 8 10.4M16 6h3v1.5a3 3 0 0 1-3 2.9M12 13v3.5M8.5 20h7M9.5 20l.8-3.5h3.4l.8 3.5" />
-        </svg>
-      </span>
-      <span className="plate" />
-      <span className="plate-bar">
-        <b>EDST</b> Customer’s First Award
-      </span>
-    </span>
-  );
-}
-
-const LOG_STEPS = ['Research', 'Blockchain prototype', 'Data security', 'Distributed systems'];
-
-/** Ingenious: a running job toast that branches into a log of steps, each lighting up in turn. */
-function LogArt({ job }: { job: Job }) {
-  return (
-    <span className="art art-log" aria-hidden>
-      <span className="log-toast">
-        <svg className="log-spin" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-          {Array.from({ length: 8 }, (_, k) => (
-            <circle key={k} cx={8 + 6 * Math.cos((k * Math.PI) / 4)} cy={8 + 6 * Math.sin((k * Math.PI) / 4)} r="1.1" opacity={0.25 + (k / 8) * 0.75} />
-          ))}
-        </svg>
-        <code>ISRO · securing distributed data</code>
-        <small>{label(job.roles[0].start)}</small>
-      </span>
-      <svg className="log-branch" viewBox="0 0 60 70" fill="none" stroke="currentColor">
-        <path d="M2 0 V22 L29 49 V70" />
-      </svg>
-      <span className="log-steps">
-        {LOG_STEPS.map((t, k) => (
-          <span className="log-step" key={t} style={{ ['--i' as string]: k }}>
-            <i />
-            <code>{t}</code>
+    <span className="art art-pair" aria-hidden>
+      <span className="pair">
+        <span className="dev phone">
+          <span className="scr">
+            <span className="route">
+              <i className="car" />
+            </span>
+            <span className="sk" />
+            <span className="sk s" />
           </span>
-        ))}
+        </span>
+        <span className="bt">
+          <span className="bt-line">
+            <i />
+            <i />
+            <i />
+          </span>
+          <span className="bt-ico">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 7l10 10-5 5V2l5 5L7 17" />
+            </svg>
+          </span>
+        </span>
+        <span className="dev tab">
+          <span className="scr">
+            <span className="ad">
+              <code>Ad</code>
+            </span>
+            <span className="sk" />
+            <span className="sk s" />
+            <span className="paired">{CHECK} Paired</span>
+          </span>
+        </span>
+      </span>
+      <span className="stores">
+        <span>{CHECK} Play Store</span>
+        <span>{CHECK} App Store</span>
       </span>
     </span>
   );
 }
 
 function Art({ job }: { job: Job }) {
-  if (job.slug === 'newral') return <PromotionArt job={job} />;
-  if (job.slug === 'trucost') return <BeamArt />;
-  if (job.slug === 'ciena') return <AwardArt />;
-  return <LogArt job={job} />;
+  if (job.slug === 'ingenious') return <ChainArt />;
+  if (job.slug === 'ciena') return <AuditArt />;
+  if (job.slug === 'newral') return <LadderArt job={job} />;
+  return <PairArt />;
 }
 
 function Metric({ m }: { m: Job['metrics'][number] }) {
@@ -257,46 +312,58 @@ function Metric({ m }: { m: Job['metrics'][number] }) {
   );
 }
 
-/** One bento tile: an animated mini-interface for the company plus the short story; click for everything. */
-function Tile({ job, i, onOpen }: { job: Job; i: number; onOpen: (j: Job) => void }) {
-  const ref = useRef<HTMLButtonElement>(null);
-  const seen = useInView(ref, { once: true, amount: 0.35 });
+/** One bento tile: its mini-interface plays on hover (or once in view on touch screens); click for everything. */
+function Tile({ job, step, onOpen, register }: { job: Job; step: number; onOpen: (j: Job) => void; register: (el: HTMLElement | null) => void }) {
+  const ref = useRef<HTMLButtonElement | null>(null);
+  const seen = useInView(ref, { once: true, amount: 0.5 });
+  const canHover = useMediaQuery('(hover: hover)');
+  const [hover, setHover] = useState(false);
+  const hot = canHover ? hover : seen;
   return (
     <motion.button
-      ref={ref}
-      className={`bx bx-${job.slug}`}
-      data-in={seen ? '' : undefined}
+      ref={(el) => {
+        ref.current = el;
+        register(el);
+      }}
+      className={`bx bx-${job.slug} ${hot ? 'hot' : ''}`}
       onClick={() => onOpen(job)}
+      onPointerEnter={() => setHover(true)}
+      onPointerLeave={() => setHover(false)}
+      onFocus={() => setHover(true)}
+      onBlur={() => setHover(false)}
       onPointerMove={(e) => {
         const r = e.currentTarget.getBoundingClientRect();
         e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
         e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
       }}
-      aria-label={`${job.company}, ${job.roles[0].title}. Show details`}
+      aria-label={`${String(step).padStart(2, '0')}: ${job.company}, ${job.roles[0].title}. Show details`}
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.7, ease: EASE, delay: i * 0.08 }}
+      transition={{ duration: 0.7, ease: EASE, delay: step * 0.1 }}
     >
       <span className="bx-glow" aria-hidden />
-      <span className="bx-copy">
-        <span className="bx-title">
-          <Logo job={job} size={22} />
-          <b>{job.company}</b>
-          <span className="bx-type">{job.type}</span>
-        </span>
-        <span className="bx-role">
-          {job.roles[0].title}
-          {job.roles.length > 1 && <em> · {job.roles.length} roles</em>} <em>· {span(job).text}</em>
-        </span>
-        <span className="bx-sum">{job.summary}</span>
-        <span className="bx-metrics">
-          {job.metrics.map((m) => (
-            <Metric key={m.label} m={m} />
-          ))}
+      <span className="bx-in">
+        <Art job={job} />
+        <span className="bx-copy">
+          <span className="bx-title">
+            <span className="bx-step">{String(step).padStart(2, '0')}</span>
+            <Logo job={job} size={22} />
+            <b>{job.company}</b>
+            <span className="bx-type">{job.type}</span>
+          </span>
+          <span className="bx-role">
+            {job.roles[0].title}
+            {job.roles.length > 1 && <em> · {job.roles.length} roles</em>} <em>· {span(job).text}</em>
+          </span>
+          <span className="bx-sum">{job.summary}</span>
+          <span className="bx-metrics">
+            {job.metrics.map((m) => (
+              <Metric key={m.label} m={m} />
+            ))}
+          </span>
         </span>
       </span>
-      <Art job={job} />
       <span className="bx-more" aria-hidden>
         Details
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -307,10 +374,95 @@ function Tile({ job, i, onOpen }: { job: Job; i: number; onOpen: (j: Job) => voi
   );
 }
 
-/** Jobs and internships as an animated bento grid; click a tile for everything done there. */
+type Seg = { d: string; x: number; y: number; dir: 'right' | 'down' | 'left'; year: string };
+
+/** Line between two tiles through the gap: straight when they sit side by side or stacked, an elbow otherwise. */
+function link(a: DOMRect, b: DOMRect, o: DOMRect, year: string): Seg {
+  const ax = (v: number) => v - o.left,
+    ay = (v: number) => v - o.top;
+  const overlapY = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+  const overlapX = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+  if (b.left >= a.right - 1 && overlapY > 40) {
+    const y = ay((Math.max(a.top, b.top) + Math.min(a.bottom, b.bottom)) / 2);
+    return { d: `M ${ax(a.right)} ${y} H ${ax(b.left)}`, x: ax((a.right + b.left) / 2), y, dir: 'right', year };
+  }
+  if (b.top >= a.bottom - 1 && overlapX > 40) {
+    const x = ax((Math.max(a.left, b.left) + Math.min(a.right, b.right)) / 2);
+    return { d: `M ${x} ${ay(a.bottom)} V ${ay(b.top)}`, x, y: ay((a.bottom + b.top) / 2), dir: 'down', year };
+  }
+  const x1 = ax(a.left + a.width / 2),
+    x2 = ax(b.left + b.width / 2),
+    mid = ay((a.bottom + b.top) / 2);
+  return { d: `M ${x1} ${ay(a.bottom)} V ${mid} H ${x2} V ${ay(b.top)}`, x: (x1 + x2) / 2, y: mid, dir: x2 > x1 ? 'right' : 'left', year };
+}
+
+/** The sequence lines: drawn in order once the grid is in view, with a pulse running along each. */
+function Flow({ box, tiles, jobs }: { box: React.RefObject<HTMLDivElement | null>; tiles: React.RefObject<(HTMLElement | null)[]>; jobs: Job[] }) {
+  const [segs, setSegs] = useState<Seg[]>([]);
+  const [size, setSize] = useState({ w: 0, h: 0 });
+  const seen = useInView(box, { once: true, amount: 0.15 });
+
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const measure = () => {
+      const o = el.getBoundingClientRect();
+      const out: Seg[] = [];
+      for (let i = 1; i < jobs.length; i++) {
+        const a = tiles.current[i - 1],
+          b = tiles.current[i];
+        if (!a || !b) continue;
+        const r = jobs[i].roles;
+        out.push(link(a.getBoundingClientRect(), b.getBoundingClientRect(), o, r[r.length - 1].start.slice(0, 4)));
+      }
+      setSegs(out);
+      setSize({ w: o.width, h: o.height });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [box, tiles, jobs]);
+
+  return (
+    <div className="flow" aria-hidden>
+      <svg width={size.w} height={size.h}>
+        {segs.map((s, i) => (
+          <g key={i}>
+            <motion.path d={s.d} className="flow-base" initial={{ pathLength: 0 }} animate={seen ? { pathLength: 1 } : {}} transition={{ delay: 0.4 + i * 0.35, duration: 0.6, ease: EASE }} />
+            <path d={s.d} className="flow-pulse" pathLength={100} style={{ animationDelay: `${1.4 + i * 0.5}s` }} />
+          </g>
+        ))}
+      </svg>
+      {segs.map((s, i) => (
+        <motion.span
+          key={i}
+          className="flow-node"
+          data-dir={s.dir}
+          style={{ left: s.x, top: s.y }}
+          initial={{ opacity: 0, scale: 0.4 }}
+          animate={seen ? { opacity: 1, scale: 1 } : {}}
+          transition={{ delay: 0.7 + i * 0.35, duration: 0.5, ease: EASE }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 6l6 6-6 6" />
+          </svg>
+          <b className="flow-year">{s.year}</b>
+        </motion.span>
+      ))}
+    </div>
+  );
+}
+
+/** Oldest first, so the lines read as "what came next". */
+const TIMELINE = [...EXPERIENCE].reverse();
+
+/** Jobs and internships as a chronological bento; click a tile for everything done there. */
 export default function Experience() {
   const [open, setOpen] = useState<Job | null>(null);
   const closeModal = useCallback(() => setOpen(null), []);
+  const box = useRef<HTMLDivElement>(null);
+  const tiles = useRef<(HTMLElement | null)[]>([]);
 
   return (
     <section className="sec exp" id="experience">
@@ -323,7 +475,7 @@ export default function Experience() {
             </h2>
           </div>
           <Reveal delay={0.1}>
-            <p>Four teams, from research intern to product manager. Open any card for the full story.</p>
+            <p>Four teams in order, from research intern to product manager. Hover a card to see the work, open it for the full story.</p>
           </Reveal>
           {PROFILE.resume && (
             <Reveal delay={0.1}>
@@ -334,10 +486,19 @@ export default function Experience() {
           )}
         </header>
 
-        <div className="bento">
-          {EXPERIENCE.map((job, i) => (
-            <Tile key={job.slug} job={job} i={i} onOpen={setOpen} />
+        <div className="bento" ref={box}>
+          {TIMELINE.map((job, i) => (
+            <Tile
+              key={job.slug}
+              job={job}
+              step={i + 1}
+              onOpen={setOpen}
+              register={(el) => {
+                tiles.current[i] = el;
+              }}
+            />
           ))}
+          <Flow box={box} tiles={tiles} jobs={TIMELINE} />
         </div>
       </div>
 
