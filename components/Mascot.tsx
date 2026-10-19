@@ -132,7 +132,7 @@ export default function Mascot() {
         body: JSON.stringify({ messages: next.filter((m) => m !== GREETING) }),
       });
       if (res.status === 503) return write(`My brain isn’t plugged in yet 🔌 Meanwhile, Ram is one email away: ${PROFILE.email}`);
-      if (res.status === 429) return write('That’s a lot of questions! Give me a few minutes and try again.');
+      if (res.status === 429) return write('I’m getting a lot of questions right now 😅 Give me a minute and ask again.');
       if (!res.ok || !res.body) return write(`Something went wrong on my side. You can always email Ram at ${PROFILE.email}.`);
       const reader = res.body.getReader();
       const dec = new TextDecoder();

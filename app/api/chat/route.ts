@@ -2,7 +2,7 @@ import { buildKnowledge } from '@/lib/knowledge';
 import { PROFILE } from '@/lib/data';
 
 const CLAUDE_MODEL = 'claude-haiku-5-5';
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 const MAX_TURNS = 12;
 const MAX_CHARS = 600;
 
@@ -68,6 +68,7 @@ export async function POST(req: Request) {
         headers: { 'content-type': 'application/json', 'x-api-key': claude!, 'anthropic-version': '2023-06-01' },
         body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 400, system: SYSTEM, messages, stream: true }),
       });
+  if (upstream.status === 429) return Response.json({ error: 'busy' }, { status: 429 });
   if (!upstream.ok || !upstream.body) {
     console.error('chat upstream', upstream.status, (await upstream.text().catch(() => '')).slice(0, 300));
     return Response.json({ error: 'upstream' }, { status: 502 });
