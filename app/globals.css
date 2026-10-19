@@ -753,25 +753,39 @@ a.org:hover { border-bottom-color: var(--text); }
 /* ==========================================================================
    Contact
    ========================================================================== */
-.contact { position: relative; padding: clamp(110px, 16vh, 180px) 0 40px; border-top: 1px solid var(--line); background: var(--bg); overflow: hidden; }
-.contact::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0 / 28px 28px; -webkit-mask-image: radial-gradient(70% 60% at 20% 30%, #000, transparent 75%); mask-image: radial-gradient(70% 60% at 20% 30%, #000, transparent 75%); }
-.contact .wrap { position: relative; }
-.contact h2 { font-size: clamp(44px, 7vw, 104px); font-weight: 600; line-height: 1; letter-spacing: -0.055em; }
-.contact h2 em { font-style: normal; color: var(--muted); }
-.contact-mail { display: inline-flex; align-items: center; gap: 14px; margin-top: clamp(28px, 5vh, 48px); font-size: clamp(17px, 2vw, 26px); font-weight: 500; letter-spacing: -0.02em; word-break: break-all; }
-.contact-mail svg { flex: none; color: var(--muted); transition: transform 0.4s var(--ease), color 0.3s; }
-.contact-mail:hover svg { transform: translate(4px, -4px); color: var(--text); }
-.contact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: clamp(64px, 12vh, 112px); padding-top: 28px; border-top: 1px solid var(--line); }
-.contact-grid .label { color: var(--muted); display: block; margin-bottom: 8px; }
-.contact-grid a, .contact-grid p { font-size: 14.5px; color: var(--text-2); }
-.contact-grid ul { list-style: none; display: grid; gap: 4px; }
-.foot { display: flex; justify-content: space-between; gap: 16px; margin-top: 64px; color: var(--muted); font-size: 13px; flex-wrap: wrap; }
+.contact { position: relative; padding: clamp(72px, 10vh, 110px) 0 28px; border-top: 1px solid var(--line); background: var(--bg); }
+.ct { position: relative; isolation: isolate; overflow: hidden; display: grid; grid-template-columns: 1.15fr 0.85fr; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); box-shadow: inset 0 1px 0 var(--hi), var(--shadow); }
+.ct::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(420px 260px at 0% 0%, rgba(var(--accent-rgb), 0.12), transparent 70%), radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0 / 16px 16px;
+  -webkit-mask-image: linear-gradient(90deg, #000 30%, transparent 70%); mask-image: linear-gradient(90deg, #000 30%, transparent 70%); }
+.ct-main { padding: clamp(28px, 4vw, 44px); }
+.ct-main .kicker { margin-bottom: 14px; }
+.ct h2 { font-size: clamp(30px, 3.4vw, 44px); font-weight: 600; line-height: 1.08; letter-spacing: -0.04em; }
+.ct p { margin-top: 12px; max-width: 420px; font-size: 15px; color: var(--text-2); }
+.ct-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.ct-copy { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border-radius: 10px; font-size: 14.5px; font-weight: 500; color: var(--text); background: var(--surface-2); border: 1px solid var(--line-strong); transition: border-color 0.25s, color 0.25s; }
+.ct-copy:hover { border-color: rgba(var(--accent-rgb), 0.6); }
+.ct-copy.done { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 50%, transparent); }
+.ct-meta { display: grid; align-content: center; border-left: 1px solid var(--line); }
+.ct-meta > div { display: grid; grid-template-columns: 100px 1fr; align-items: center; gap: 12px; padding: 16px clamp(20px, 3vw, 32px); border-top: 1px solid var(--line); }
+.ct-meta > div:first-child { border-top: 0; }
+.ct-meta dt { font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+.ct-meta dd { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 14px; color: var(--text); overflow-wrap: anywhere; }
+.ct-meta .socials { gap: 14px; }
+.ct-live { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 22%, transparent); animation: live 2s ease-in-out infinite; }
+@keyframes live { 50% { opacity: 0.4; } }
+.foot { display: flex; justify-content: space-between; gap: 16px; margin-top: 28px; color: var(--muted); font-size: 13px; flex-wrap: wrap; }
+@media (max-width: 860px) {
+  .ct { grid-template-columns: 1fr; }
+  .ct-meta { border-left: 0; border-top: 1px solid var(--line); }
+  .ct-meta > div { grid-template-columns: 88px 1fr; padding: 14px 22px; }
+}
+@media (prefers-reduced-motion: reduce) { .ct-live { animation: none; } }
 
 /* ===== responsive ===== */
 @media (max-width: 860px) {
   .nav-links { display: none; }
   .sec-head { grid-template-columns: 1fr; }
-  .contact-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 420px) {
   .nav-cta { display: none; }
@@ -824,13 +838,10 @@ a.org:hover { border-bottom-color: var(--accent); color: var(--accent); }
 .xm-roles > li.latest::before { background: var(--accent); border-color: var(--accent); }
 .xm-highlights span svg { color: var(--accent); }
 
-/* work + contact */
+/* work */
 .pj-no { color: var(--accent); }
 .pj-rail button.on { border-color: rgba(var(--accent-rgb), 0.4); }
 .pj-story li::before, .tl-points li::before, .xm-group li::before { content: '→'; color: var(--accent); }
-.contact h2 em { background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 0.08em; }
-.contact-mail svg { color: var(--accent); }
-.contact::after { content: ''; position: absolute; right: -10%; bottom: -30%; width: 60%; height: 80%; pointer-events: none; background: radial-gradient(closest-side, rgba(var(--accent-rgb), 0.12), transparent); }
 
 /* warm orange: reserved for recognition (awards, achievements) */
 .k-Achievement { --k: var(--warm); }
@@ -871,3 +882,4 @@ a.org:hover { border-bottom-color: var(--accent); color: var(--accent); }
   .xp-big { font-size: 26px; }
   .xp-rail { left: 15px; }
 }
+.ct h2 em { font-style: normal; background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }

@@ -1,8 +1,10 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { PROFILE } from '@/lib/data';
-import { Arrow, Lines, Reveal } from './Motion';
+import { EASE } from './Motion';
+import { Socials } from './Socials';
 
 function LocalTime() {
   const [t, setT] = useState('');
@@ -16,57 +18,76 @@ function LocalTime() {
   return <>{t || '—'} IST</>;
 }
 
-export default function Contact() {
-  const elsewhere = [
-    { label: 'LinkedIn', href: PROFILE.linkedin },
-    { label: 'GitHub', href: PROFILE.github },
-    { label: 'X / Twitter', href: PROFILE.x },
-    { label: 'Instagram', href: PROFILE.instagram },
-    ...(PROFILE.resume ? [{ label: 'Résumé (PDF)', href: PROFILE.resume }] : []),
-  ];
+/** Copies the address; the label flips to "Copied" for a moment. */
+function CopyEmail() {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(PROFILE.email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {}
+  };
+  return (
+    <button className={`ct-copy ${copied ? 'done' : ''}`} onClick={copy} aria-label="Copy email address">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        {copied ? <path d="M5 12.5 10 17 19 7" /> : <path d="M9 9h10v10H9zM5 15V5h10" />}
+      </svg>
+      <span>{copied ? 'Copied' : 'Copy email'}</span>
+    </button>
+  );
+}
 
+/** One compact card: the ask on the left, the essentials on the right; a slim footer below. */
+export default function Contact() {
   return (
     <section className="contact" id="contact">
       <div className="wrap">
-        <span className="label kicker">Contact</span>
-        <h2>
-          <Lines inView lines={['Let’s build', <em key="e">what’s next.</em>]} />
-        </h2>
-        <Reveal delay={0.15}>
-          <a className="contact-mail" href={`mailto:${PROFILE.email}`}>
-            <span className="link">{PROFILE.email}</span>
-            <Arrow size={26} diagonal />
-          </a>
-        </Reveal>
+        <motion.div className="ct" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }} transition={{ duration: 0.8, ease: EASE }}>
+          <div className="ct-main">
+            <span className="label kicker">Contact</span>
+            <h2>
+              Let’s build <em>what’s next.</em>
+            </h2>
+            <p>{PROFILE.status}.</p>
+            <div className="ct-actions">
+              <a className="btn-primary" href={`mailto:${PROFILE.email}`}>
+                Email me
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M7 17 17 7M8 7h9v9" />
+                </svg>
+              </a>
+              <CopyEmail />
+            </div>
+          </div>
 
-        <Reveal className="contact-grid" delay={0.1}>
-          <div>
-            <span className="label">Looking for</span>
-            <p>{PROFILE.status}</p>
-          </div>
-          <div>
-            <span className="label">Based in</span>
-            <p>{PROFILE.location}</p>
-          </div>
-          <div>
-            <span className="label">Local time</span>
-            <p>
-              <LocalTime />
-            </p>
-          </div>
-          <div>
-            <span className="label">Elsewhere</span>
-            <ul>
-              {elsewhere.map((l) => (
-                <li key={l.label}>
-                  <a className="link" href={l.href} target="_blank" rel="noreferrer">
-                    {l.label} ↗
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Reveal>
+          <dl className="ct-meta">
+            <div>
+              <dt>Email</dt>
+              <dd>
+                <a className="link" href={`mailto:${PROFILE.email}`}>
+                  {PROFILE.email}
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt>Based in</dt>
+              <dd>{PROFILE.location}</dd>
+            </div>
+            <div>
+              <dt>Local time</dt>
+              <dd>
+                <i className="ct-live" aria-hidden /> <LocalTime />
+              </dd>
+            </div>
+            <div>
+              <dt>Elsewhere</dt>
+              <dd>
+                <Socials />
+              </dd>
+            </div>
+          </dl>
+        </motion.div>
 
         <footer className="foot">
           <span>
