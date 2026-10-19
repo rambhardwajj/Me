@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion, useInView } from 'framer-motion';
+import { AnimatePresence, motion, useInView, useScroll, useSpring } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { EXPERIENCE, PROFILE, type Job } from '@/lib/data';
 import { CountUp, EASE, Lines, Reveal } from './Motion';
@@ -176,17 +176,20 @@ function ChainArt() {
   );
 }
 
+
 const AUDIT = [false, true, false, true];
 
-/** Ciena: a licence audit; on hover the unused seats get de-provisioned and the savings land. */
+/** Ciena: a licence audit; on hover the unused seats are de-provisioned and the savings land. */
 function AuditArt() {
   return (
     <span className="art art-audit" aria-hidden>
-      <span className="award-chip">★ EDST award · 4 of 14,000</span>
       <span className="audit">
         <span className="audit-head">
           <code>Licence audit</code>
-          <small>Enterprise apps</small>
+          <small>
+            <span className="t-idle">Scanning</span>
+            <span className="t-hot">Done</span>
+          </small>
         </span>
         {AUDIT.map((unused, k) => (
           <span className={`audit-row ${unused ? 'unused' : ''}`} key={k} style={{ ['--i' as string]: k }}>
@@ -199,10 +202,10 @@ function AuditArt() {
           </span>
         ))}
         <span className="audit-foot">
-          <span>Annual spend</span>
+          <span>Saved / year</span>
           <b>
-            <span className="t-idle">Auditing…</span>
-            <span className="t-hot">−$30K+ / yr</span>
+            <span className="t-idle">—</span>
+            <span className="t-hot">$30K+</span>
           </b>
         </span>
       </span>
@@ -210,15 +213,15 @@ function AuditArt() {
   );
 }
 
-/** Newral: the promotion ladder replays on hover while the revenue line draws in. */
+/** Newral: on hover the highlight climbs the promotion ladder and the award pops. */
 function LadderArt({ job }: { job: Job }) {
   const steps = [...job.roles].reverse();
   return (
     <span className="art art-ladder" aria-hidden>
       <span className="lad-card">
         <span className="lad-head">
-          <Logo job={job} size={30} />
-          <code>Career at {job.company}</code>
+          <Logo job={job} size={20} />
+          <code>{job.company} · role history</code>
         </span>
         <span className="lad-rows">
           {steps.map((r) => (
@@ -229,24 +232,8 @@ function LadderArt({ job }: { job: Job }) {
           ))}
           <span className="lad-hl" />
         </span>
-        {job.highlights?.[0] && <span className="lad-foot">★ {job.highlights[0]}</span>}
       </span>
-      <span className="chart-card">
-        <span className="chart-head">
-          <code>Revenue</code>
-          <b>+75%</b>
-        </span>
-        <svg viewBox="0 0 160 64" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="chart-fill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="currentColor" stopOpacity="0.28" />
-              <stop offset="1" stopColor="currentColor" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          <path className="chart-area" d="M0 56 C20 54 30 50 46 46 S72 40 86 34 S112 26 124 18 S146 8 160 4 V64 H0Z" fill="url(#chart-fill)" />
-          <path className="chart-line" pathLength={100} d="M0 56 C20 54 30 50 46 46 S72 40 86 34 S112 26 124 18 S146 8 160 4" fill="none" stroke="currentColor" strokeWidth="2" />
-        </svg>
-      </span>
+      {job.highlights?.[0] && <span className="lad-award">★ {job.highlights[0]}</span>}
     </span>
   );
 }
@@ -262,7 +249,6 @@ function PairArt() {
               <i className="car" />
             </span>
             <span className="sk" />
-            <span className="sk s" />
           </span>
         </span>
         <span className="bt">
@@ -272,7 +258,7 @@ function PairArt() {
             <i />
           </span>
           <span className="bt-ico">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M7 7l10 10-5 5V2l5 5L7 17" />
             </svg>
           </span>
@@ -283,7 +269,6 @@ function PairArt() {
               <code>Ad</code>
             </span>
             <span className="sk" />
-            <span className="sk s" />
             <span className="paired">{CHECK} Paired</span>
           </span>
         </span>
@@ -303,166 +288,96 @@ function Art({ job }: { job: Job }) {
   return <PairArt />;
 }
 
-function Metric({ m }: { m: Job['metrics'][number] }) {
-  return (
-    <span className="bx-metric">
-      <b>{typeof m.value === 'number' ? <CountUp value={m.value} decimals={m.value % 1 ? 1 : 0} prefix={m.prefix} suffix={m.suffix} /> : m.value}</b>
-      {m.label}
-    </span>
-  );
-}
-
-/** One bento tile: its mini-interface plays on hover (or once in view on touch screens); click for everything. */
-function Tile({ job, step, onOpen, register }: { job: Job; step: number; onOpen: (j: Job) => void; register: (el: HTMLElement | null) => void }) {
-  const ref = useRef<HTMLButtonElement | null>(null);
+/** One stop on the timeline: a big year on one side, the card on the other, a node on the rail between. */
+function Stop({ job, i, onOpen }: { job: Job; i: number; onOpen: (j: Job) => void }) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const item = useRef<HTMLLIElement>(null);
   const seen = useInView(ref, { once: true, amount: 0.5 });
+  const reached = useInView(item, { once: true, margin: '0px 0px -45% 0px' });
   const canHover = useMediaQuery('(hover: hover)');
   const [hover, setHover] = useState(false);
   const hot = canHover ? hover : seen;
+  const first = job.roles[job.roles.length - 1];
+  const kpi = job.metrics[0];
+  const side = i % 2 === 0 ? 'left' : 'right';
+
   return (
-    <motion.button
-      ref={(el) => {
-        ref.current = el;
-        register(el);
-      }}
-      className={`bx bx-${job.slug} ${hot ? 'hot' : ''}`}
-      onClick={() => onOpen(job)}
-      onPointerEnter={() => setHover(true)}
-      onPointerLeave={() => setHover(false)}
-      onFocus={() => setHover(true)}
-      onBlur={() => setHover(false)}
-      onPointerMove={(e) => {
-        const r = e.currentTarget.getBoundingClientRect();
-        e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
-        e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
-      }}
-      aria-label={`${String(step).padStart(2, '0')}: ${job.company}, ${job.roles[0].title}. Show details`}
-      initial={{ opacity: 0, y: 24 }}
+    <motion.li
+      ref={item}
+      className={`xp-item ${side} xp-${job.slug} ${reached ? 'on' : ''} ${hot ? 'hot' : ''}`}
+      initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.7, ease: EASE, delay: step * 0.1 }}
+      viewport={{ once: true, amount: 0.25 }}
+      transition={{ duration: 0.8, ease: EASE }}
     >
-      <span className="bx-glow" aria-hidden />
-      <span className="bx-in">
-        <Art job={job} />
-        <span className="bx-copy">
-          <span className="bx-title">
-            <span className="bx-step">{String(step).padStart(2, '0')}</span>
-            <Logo job={job} size={22} />
-            <b>{job.company}</b>
-            <span className="bx-type">{job.type}</span>
-          </span>
-          <span className="bx-role">
-            {job.roles[0].title}
-            {job.roles.length > 1 && <em> · {job.roles.length} roles</em>} <em>· {span(job).text}</em>
-          </span>
-          <span className="bx-sum">{job.summary}</span>
-          <span className="bx-metrics">
-            {job.metrics.map((m) => (
-              <Metric key={m.label} m={m} />
-            ))}
-          </span>
+      <span className="xp-side" aria-hidden>
+        <b className="xp-big">{first.start.slice(0, 4)}</b>
+        <span className="xp-type">
+          {job.type} · {job.location}
         </span>
       </span>
-      <span className="bx-more" aria-hidden>
-        Details
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M7 17 17 7M8 7h9v9" />
-        </svg>
+      <span className="xp-node" aria-hidden>
+        <i />
       </span>
-    </motion.button>
+      <button
+        ref={ref}
+        className="xp-card"
+        onClick={() => onOpen(job)}
+        onPointerEnter={() => setHover(true)}
+        onPointerLeave={() => setHover(false)}
+        onFocus={() => setHover(true)}
+        onBlur={() => setHover(false)}
+        onPointerMove={(e) => {
+          const r = e.currentTarget.getBoundingClientRect();
+          e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
+          e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
+        }}
+        aria-label={`${job.company}, ${job.roles[0].title}. Show details`}
+      >
+        <span className="xp-glow" aria-hidden />
+        <Art job={job} />
+        <span className="xp-body">
+          <span className="xp-meta">
+            <span className="xp-step">{String(TIMELINE.length - i).padStart(2, '0')}</span>
+            {span(job).text}
+          </span>
+          <span className="xp-co">
+            <Logo job={job} size={22} />
+            <b>{job.company}</b>
+          </span>
+          <span className="xp-role">
+            {job.roles[0].title}
+            {job.roles.length > 1 && <em> · {job.roles.length} roles</em>}
+          </span>
+          <span className="xp-sum">{job.summary}</span>
+          <span className="xp-kpi">
+            <span>
+              <b>{typeof kpi.value === 'number' ? <CountUp value={kpi.value} decimals={kpi.value % 1 ? 1 : 0} prefix={kpi.prefix} suffix={kpi.suffix} /> : kpi.value}</b>
+              <small>{kpi.label}</small>
+            </span>
+            <span className="xp-go" aria-hidden>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M7 17 17 7M8 7h9v9" />
+              </svg>
+            </span>
+          </span>
+        </span>
+      </button>
+    </motion.li>
   );
 }
 
-type Seg = { d: string; x: number; y: number; dir: 'right' | 'down' | 'left'; year: string };
+/** Newest first; the step numbers count down to where it started. */
+const TIMELINE = EXPERIENCE;
 
-/** Line between two tiles through the gap: straight when they sit side by side or stacked, an elbow otherwise. */
-function link(a: DOMRect, b: DOMRect, o: DOMRect, year: string): Seg {
-  const ax = (v: number) => v - o.left,
-    ay = (v: number) => v - o.top;
-  const overlapY = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
-  const overlapX = Math.min(a.right, b.right) - Math.max(a.left, b.left);
-  if (b.left >= a.right - 1 && overlapY > 40) {
-    const y = ay((Math.max(a.top, b.top) + Math.min(a.bottom, b.bottom)) / 2);
-    return { d: `M ${ax(a.right)} ${y} H ${ax(b.left)}`, x: ax((a.right + b.left) / 2), y, dir: 'right', year };
-  }
-  if (b.top >= a.bottom - 1 && overlapX > 40) {
-    const x = ax((Math.max(a.left, b.left) + Math.min(a.right, b.right)) / 2);
-    return { d: `M ${x} ${ay(a.bottom)} V ${ay(b.top)}`, x, y: ay((a.bottom + b.top) / 2), dir: 'down', year };
-  }
-  const x1 = ax(a.left + a.width / 2),
-    x2 = ax(b.left + b.width / 2),
-    mid = ay((a.bottom + b.top) / 2);
-  return { d: `M ${x1} ${ay(a.bottom)} V ${mid} H ${x2} V ${ay(b.top)}`, x: (x1 + x2) / 2, y: mid, dir: x2 > x1 ? 'right' : 'left', year };
-}
-
-/** The sequence lines: drawn in order once the grid is in view, with a pulse running along each. */
-function Flow({ box, tiles, jobs }: { box: React.RefObject<HTMLDivElement | null>; tiles: React.RefObject<(HTMLElement | null)[]>; jobs: Job[] }) {
-  const [segs, setSegs] = useState<Seg[]>([]);
-  const [size, setSize] = useState({ w: 0, h: 0 });
-  const seen = useInView(box, { once: true, amount: 0.15 });
-
-  useEffect(() => {
-    const el = box.current;
-    if (!el) return;
-    const measure = () => {
-      const o = el.getBoundingClientRect();
-      const out: Seg[] = [];
-      for (let i = 1; i < jobs.length; i++) {
-        const a = tiles.current[i - 1],
-          b = tiles.current[i];
-        if (!a || !b) continue;
-        const r = jobs[i].roles;
-        out.push(link(a.getBoundingClientRect(), b.getBoundingClientRect(), o, r[r.length - 1].start.slice(0, 4)));
-      }
-      setSegs(out);
-      setSize({ w: o.width, h: o.height });
-    };
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [box, tiles, jobs]);
-
-  return (
-    <div className="flow" aria-hidden>
-      <svg width={size.w} height={size.h}>
-        {segs.map((s, i) => (
-          <g key={i}>
-            <motion.path d={s.d} className="flow-base" initial={{ pathLength: 0 }} animate={seen ? { pathLength: 1 } : {}} transition={{ delay: 0.4 + i * 0.35, duration: 0.6, ease: EASE }} />
-            <path d={s.d} className="flow-pulse" pathLength={100} style={{ animationDelay: `${1.4 + i * 0.5}s` }} />
-          </g>
-        ))}
-      </svg>
-      {segs.map((s, i) => (
-        <motion.span
-          key={i}
-          className="flow-node"
-          data-dir={s.dir}
-          style={{ left: s.x, top: s.y }}
-          initial={{ opacity: 0, scale: 0.4 }}
-          animate={seen ? { opacity: 1, scale: 1 } : {}}
-          transition={{ delay: 0.7 + i * 0.35, duration: 0.5, ease: EASE }}
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 6l6 6-6 6" />
-          </svg>
-          <b className="flow-year">{s.year}</b>
-        </motion.span>
-      ))}
-    </div>
-  );
-}
-
-/** Oldest first, so the lines read as "what came next". */
-const TIMELINE = [...EXPERIENCE].reverse();
-
-/** Jobs and internships as a chronological bento; click a tile for everything done there. */
+/** Jobs and internships on one rail; each card opens everything done there. */
 export default function Experience() {
   const [open, setOpen] = useState<Job | null>(null);
   const closeModal = useCallback(() => setOpen(null), []);
-  const box = useRef<HTMLDivElement>(null);
-  const tiles = useRef<(HTMLElement | null)[]>([]);
+  const list = useRef<HTMLDivElement>(null);
+  // the rail fills as the timeline scrolls past the middle of the screen
+  const { scrollYProgress } = useScroll({ target: list, offset: ['start 60%', 'end 60%'] });
+  const fill = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.4 });
 
   return (
     <section className="sec exp" id="experience">
@@ -475,7 +390,7 @@ export default function Experience() {
             </h2>
           </div>
           <Reveal delay={0.1}>
-            <p>Four teams in order, from research intern to product manager. Hover a card to see the work, open it for the full story.</p>
+            <p>Latest first, back to where it started. Hover a card to see the work; open it for the full story.</p>
           </Reveal>
           {PROFILE.resume && (
             <Reveal delay={0.1}>
@@ -486,19 +401,15 @@ export default function Experience() {
           )}
         </header>
 
-        <div className="bento" ref={box}>
-          {TIMELINE.map((job, i) => (
-            <Tile
-              key={job.slug}
-              job={job}
-              step={i + 1}
-              onOpen={setOpen}
-              register={(el) => {
-                tiles.current[i] = el;
-              }}
-            />
-          ))}
-          <Flow box={box} tiles={tiles} jobs={TIMELINE} />
+        <div className="xp" ref={list}>
+          <span className="xp-rail" aria-hidden>
+            <motion.i className="xp-fill" style={{ scaleY: fill }} />
+          </span>
+          <ol className="xp-list">
+            {TIMELINE.map((job, i) => (
+              <Stop key={job.slug} job={job} i={i} onOpen={setOpen} />
+            ))}
+          </ol>
         </div>
       </div>
 
