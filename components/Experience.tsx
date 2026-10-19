@@ -34,8 +34,13 @@ const span = (job: Job) => {
 
 function Logo({ job, size = 34 }: { job: Job; size?: number }) {
   return (
-    <span className="exp-logo" style={{ background: job.logo.bg, color: job.logo.fg ?? '#fff', width: size, height: size, fontSize: size * 0.4 }} aria-hidden>
-      {job.logo.text}
+    <span className="exp-logo" style={{ background: job.logo.src ? '#fff' : job.logo.bg, color: job.logo.fg ?? '#fff', width: size, height: size, fontSize: size * 0.4 }} aria-hidden>
+      {job.logo.src ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={job.logo.src} alt="" />
+      ) : (
+        job.logo.text
+      )}
     </span>
   );
 }

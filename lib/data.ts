@@ -120,7 +120,7 @@ export const GLOBE_STOPS: { place: string; lat: number; lon: number; year: strin
 
 export type Job = {
   company: string;
-  logo: { text: string; bg: string; fg?: string };
+  logo: { text: string; bg: string; fg?: string; src?: string };
   type: 'Full-time' | 'Contract' | 'Internship';
   location: string;
   url?: string;
@@ -135,7 +135,7 @@ export type Job = {
 export const EXPERIENCE: Job[] = [
   {
     company: 'TruCost · Skyex AI Mobility',
-    logo: { text: 'T', bg: 'linear-gradient(135deg, #7c3aed, #ec4899)' },
+    logo: { text: 'T', bg: 'linear-gradient(135deg, #7c3aed, #ec4899)', src: '/images/logos/trucost.png' },
     type: 'Contract',
     location: 'Remote',
     url: 'https://trucostrides.com/',
@@ -167,7 +167,7 @@ export const EXPERIENCE: Job[] = [
   },
   {
     company: 'Newral',
-    logo: { text: 'N', bg: 'linear-gradient(135deg, #2563eb, #1e3a8a)' },
+    logo: { text: 'N', bg: 'linear-gradient(135deg, #2563eb, #1e3a8a)', src: '/images/logos/newral.png' },
     type: 'Full-time',
     location: 'Noida',
     summary: 'Engineer to Product Manager in seven months: 75% revenue growth, 2× engagement and 50% lower cloud costs.',
@@ -227,7 +227,7 @@ export const EXPERIENCE: Job[] = [
   },
   {
     company: 'Ciena',
-    logo: { text: 'C', bg: 'linear-gradient(135deg, #e11d48, #9f1239)' },
+    logo: { text: 'C', bg: 'linear-gradient(135deg, #e11d48, #9f1239)', src: '/images/logos/ciena.png' },
     type: 'Full-time',
     location: 'Gurugram',
     url: 'https://www.ciena.com',
@@ -268,7 +268,7 @@ export const EXPERIENCE: Job[] = [
   },
   {
     company: 'Ingenious Research Solutions',
-    logo: { text: 'IR', bg: 'linear-gradient(135deg, #0d9488, #115e59)' },
+    logo: { text: 'IR', bg: 'linear-gradient(135deg, #0d9488, #115e59)', src: '/images/logos/ingenious.png' },
     type: 'Internship',
     location: 'Noida',
     summary: 'Supported an ISRO project on blockchain-based data security for distributed systems.',
