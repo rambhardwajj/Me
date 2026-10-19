@@ -1,7 +1,8 @@
 import { buildKnowledge } from '@/lib/knowledge';
 import { PROFILE } from '@/lib/data';
 
-const MODEL = 'claude-haiku-5-5';
+const CLAUDE_MODEL = 'claude-haiku-5-5';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const MAX_TURNS = 12;
 const MAX_CHARS = 600;
 
@@ -31,8 +32,10 @@ function limited(ip: string) {
 type Msg = { role: 'user' | 'assistant'; content: string };
 
 export async function POST(req: Request) {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) return Response.json({ error: 'not-configured' }, { status: 503 });
+  // Gemini when its key is set, otherwise Claude
+  const gemini = process.env.GEMINI_API_KEY;
+  const claude = process.env.ANTHROPIC_API_KEY;
+  if (!gemini && !claude) return Response.json({ error: 'not-configured' }, { status: 503 });
 
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anon';
   if (limited(ip)) return Response.json({ error: 'rate-limited' }, { status: 429 });
@@ -50,12 +53,29 @@ export async function POST(req: Request) {
   while (messages.length && messages[0].role !== 'user') messages.shift();
   if (!messages.length || messages[messages.length - 1].role !== 'user') return Response.json({ error: 'bad-request' }, { status: 400 });
 
-  const upstream = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model: MODEL, max_tokens: 400, system: SYSTEM, messages, stream: true }),
-  });
-  if (!upstream.ok || !upstream.body) return Response.json({ error: 'upstream' }, { status: 502 });
+  const upstream = gemini
+    ? await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:streamGenerateContent?alt=sse`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-goog-api-key': gemini },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM }] },
+          contents: messages.map((m) => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })),
+          generationConfig: { maxOutputTokens: 500, temperature: 0.4, thinkingConfig: { thinkingBudget: 0 } },
+        }),
+      })
+    : await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-api-key': claude!, 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 400, system: SYSTEM, messages, stream: true }),
+      });
+  if (!upstream.ok || !upstream.body) {
+    console.error('chat upstream', upstream.status, (await upstream.text().catch(() => '')).slice(0, 300));
+    return Response.json({ error: 'upstream' }, { status: 502 });
+  }
+
+  /** Text carried by one SSE event, for either provider. */
+  const textOf = (ev: { type?: string; delta?: { type?: string; text?: string }; candidates?: { content?: { parts?: { text?: string }[] } }[] }) =>
+    gemini ? (ev.candidates?.[0]?.content?.parts ?? []).map((p) => p.text ?? '').join('') : ev.type === 'content_block_delta' && ev.delta?.type === 'text_delta' ? (ev.delta.text ?? '') : '';
 
   // re-stream only the text deltas as plain text
   const reader = upstream.body.getReader();
@@ -74,8 +94,8 @@ export async function POST(req: Request) {
           for (const line of lines) {
             if (!line.startsWith('data:')) continue;
             try {
-              const ev = JSON.parse(line.slice(5));
-              if (ev.type === 'content_block_delta' && ev.delta?.type === 'text_delta') controller.enqueue(encoder.encode(ev.delta.text));
+              const text = textOf(JSON.parse(line.slice(5)));
+              if (text) controller.enqueue(encoder.encode(text));
             } catch {}
           }
         }
