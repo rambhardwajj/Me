@@ -20,7 +20,7 @@
   --on-primary: #09090b;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 24px 60px -24px rgba(0, 0, 0, 0.7);
   --shadow-lg: 0 40px 100px -20px rgba(0, 0, 0, 0.8);
-  --glass: rgba(9, 9, 11, 0.72);
+  --glass: rgba(9, 9, 11, 0.92);
   --globe-dot: 228, 228, 231;
   --globe-hot: 255, 255, 255;
   --ok: #22c55e;
@@ -47,7 +47,7 @@
   --on-primary: #fafafa;
   --shadow: 0 1px 2px rgba(9, 9, 11, 0.05), 0 24px 50px -28px rgba(9, 9, 11, 0.18);
   --shadow-lg: 0 40px 90px -30px rgba(9, 9, 11, 0.3);
-  --glass: rgba(250, 250, 250, 0.78);
+  --glass: rgba(250, 250, 250, 0.94);
   --globe-dot: 39, 39, 42;
   --globe-hot: 9, 9, 11;
   --ok: #16a34a;
@@ -76,7 +76,7 @@
     --on-primary: #fafafa;
     --shadow: 0 1px 2px rgba(9, 9, 11, 0.05), 0 24px 50px -28px rgba(9, 9, 11, 0.18);
     --shadow-lg: 0 40px 90px -30px rgba(9, 9, 11, 0.3);
-    --glass: rgba(250, 250, 250, 0.78);
+    --glass: rgba(250, 250, 250, 0.94);
     --globe-dot: 39, 39, 42;
     --globe-hot: 9, 9, 11;
     --ok: #16a34a;
@@ -960,3 +960,44 @@ a.org:hover { border-bottom-color: var(--accent); color: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   .mf-orbit, .mf-head, .mf-body, .mf-lid, .mtyping i { animation: none; }
 }
+
+/* ===== mobile nav ===== */
+.nav-burger { display: none; position: relative; width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--line-strong); background: var(--surface); }
+.nav-burger i { position: absolute; left: 10px; right: 10px; height: 1.5px; border-radius: 2px; background: var(--text); transition: transform 0.35s var(--ease), top 0.35s var(--ease); }
+.nav-burger i:first-child { top: 13px; }
+.nav-burger i:last-child { top: 21px; }
+.nav-burger.on i:first-child { top: 17px; transform: rotate(45deg); }
+.nav-burger.on i:last-child { top: 17px; transform: rotate(-45deg); }
+.nav-sheet { position: absolute; left: 0; right: 0; top: 100%; height: calc(100svh - 68px); overflow-y: auto; background: var(--bg); border-bottom: 1px solid var(--line); box-shadow: var(--shadow-lg); }
+.nav-sheet .wrap { display: grid; padding-top: 8px; padding-bottom: 14px; }
+.nav-sheet a { display: flex; align-items: baseline; gap: 14px; padding: 13px 4px; font-size: 18px; font-weight: 500; letter-spacing: -0.02em; color: var(--text-2); border-top: 1px solid var(--line); }
+.nav-sheet a:first-child { border-top: 0; }
+.nav-sheet a span { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.nav-sheet a.on { color: var(--text); }
+.nav-sheet a.on span { color: var(--accent); }
+@media (max-width: 860px) {
+  .nav-burger { display: block; }
+}
+@media (min-width: 861px) { .nav-sheet { display: none; } }
+
+/* keep Mini Ram clear of the footer */
+.foot { padding-right: 110px; }
+@media (max-width: 640px) {
+  .foot { padding-right: 0; padding-bottom: 84px; }
+}
+
+/* ===== review fixes ===== */
+/* hero stats: 2 + 1 on narrow phones so nothing is cut off */
+@media (max-width: 480px) {
+  .hero-proof { grid-template-columns: 1fr 1fr; }
+  .hero-proof div:last-child { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--line); }
+  .hero-proof div:nth-child(2) { border-left: 1px solid var(--line); }
+  .hero-proof div, .hero-proof div + div { padding: 13px 14px; }
+}
+/* the menu holds Contact on phones, so the header CTA can go */
+@media (max-width: 560px) { .nav-cta { display: none; } }
+/* work: shorter stops, no empty scroll between products */
+.pj-item { min-height: 50svh; padding: 22px 0; }
+.pj-stage-in { height: calc(100svh - 190px); }
+.nav.scrolled { background: var(--bg); }
+body:has(.nav-sheet) .mascot { display: none; }

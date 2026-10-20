@@ -49,7 +49,7 @@ function arcPoint(a: Vec, b: Vec, t: number): Vec {
 /**
  * A globe of continent dots that tours `stops`: it flies to each one, draws a glowing arc from
  * the previous stop and leaves a pulsing marker behind. Drag to spin it; the tour resumes after.
- * Drawn in two layers around `children`: the full sphere behind, near-side dots faintly in front.
+ * Drawn behind `children` (the portrait), so dots never cross the face; a clear layer on top only catches drags.
  */
 export default function Globe({ stops = [], onStop, children }: { stops?: GlobeStop[]; onStop?: (i: number) => void; children?: React.ReactNode }) {
   const backRef = useRef<HTMLCanvasElement>(null);
@@ -179,10 +179,6 @@ export default function Globe({ stops = [], onStop, children }: { stops?: GlobeS
         const s = (front ? 1.3 + 1.0 * p.z : 0.9) * dpr;
         ctx.fillStyle = `rgba(${DOT}, ${a.toFixed(3)})`;
         ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
-        if (p.z > 0.15) {
-          fctx.fillStyle = `rgba(${DOT}, ${(0.45 * p.z).toFixed(3)})`;
-          fctx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
-        }
       }
       if (!S.length) return;
 

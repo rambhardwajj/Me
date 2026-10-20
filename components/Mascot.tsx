@@ -6,7 +6,7 @@ import { PROFILE } from '@/lib/data';
 import { MascotFace } from './MascotFace';
 import { EASE } from './Motion';
 
-/** What Mini Ram says as each section scrolls into view (once each). */
+/** What Mini Ram says as each section scrolls into view (once per session, a few at most). */
 const COMMENTS: Record<string, string> = {
   top: 'Hey! I’m Mini Ram 👋 Drag that globe, it’s Ram’s journey.',
   personas: 'Three Rams, one person. Hover a side to meet him.',
@@ -15,6 +15,9 @@ const COMMENTS: Record<string, string> = {
   work: 'Tap any device to open the live product ↗',
   contact: 'Still curious? Click me and ask anything about Ram.',
 };
+
+/** At most this many comments per browser session. */
+const MAX_BUBBLES = 3;
 
 const SUGGESTIONS = ['What is Ram doing now?', 'What are his biggest wins?', 'Tell me about LeetCase', 'Why hire Ram as a PM?'];
 
@@ -70,12 +73,33 @@ export default function Mascot() {
 
   // pop a comment as each section arrives
   useEffect(() => {
+    // each comment shows at most once per browser session, three in total, never over the hero buttons
+    const seen = () => {
+      try {
+        return JSON.parse(sessionStorage.getItem('mini-ram-said') || '[]') as string[];
+      } catch {
+        return [...said.current];
+      }
+    };
+    const remember = (ids: string[]) => {
+      try {
+        sessionStorage.setItem('mini-ram-said', JSON.stringify(ids));
+      } catch {}
+    };
+    const coversCta = () => {
+      const cta = document.querySelector('.hero-cta')?.getBoundingClientRect();
+      const foot = document.querySelector('.foot')?.getBoundingClientRect();
+      const onCta = !!cta && cta.bottom > 0 && cta.top < window.innerHeight && (cta.bottom > window.innerHeight - 240 || window.innerWidth < 900);
+      return onCta || (!!foot && foot.top < window.innerHeight);
+    };
     const say = (id: string) => {
-      if (openRef.current || said.current.has(id)) return;
+      const ids = seen();
+      if (openRef.current || said.current.has(id) || ids.includes(id) || ids.length >= MAX_BUBBLES || coversCta()) return;
       said.current.add(id);
+      remember([...ids, id]);
       setBubble(COMMENTS[id]);
       clearTimeout(hideTimer.current);
-      hideTimer.current = setTimeout(() => setBubble(null), 5200);
+      hideTimer.current = setTimeout(() => setBubble(null), 5000);
     };
     const io = new IntersectionObserver(
       (entries) => entries.forEach((e) => e.isIntersecting && say(e.target.id)),
