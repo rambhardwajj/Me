@@ -1,8 +1,11 @@
 import { buildKnowledge } from '@/lib/knowledge';
 import { PROFILE } from '@/lib/data';
+import { localAnswer } from '@/lib/faq';
 
 const CLAUDE_MODEL = 'claude-haiku-5-5';
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
+/** Tried in order: on the free tier each model has its own daily quota, so one running dry isn't fatal. */
+const GEMINI_MODELS = [...new Set([process.env.GEMINI_MODEL, 'gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-flash-lite-latest'].filter(Boolean) as string[])];
+const ATTEMPT_MS = 12_000;
 const MAX_TURNS = 12;
 const MAX_CHARS = 600;
 
@@ -35,7 +38,6 @@ export async function POST(req: Request) {
   // Gemini when its key is set, otherwise Claude
   const gemini = process.env.GEMINI_API_KEY;
   const claude = process.env.ANTHROPIC_API_KEY;
-  if (!gemini && !claude) return Response.json({ error: 'not-configured' }, { status: 503 });
 
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anon';
   if (limited(ip)) return Response.json({ error: 'rate-limited' }, { status: 429 });
@@ -53,26 +55,41 @@ export async function POST(req: Request) {
   while (messages.length && messages[0].role !== 'user') messages.shift();
   if (!messages.length || messages[messages.length - 1].role !== 'user') return Response.json({ error: 'bad-request' }, { status: 400 });
 
-  const upstream = gemini
-    ? await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:streamGenerateContent?alt=sse`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-goog-api-key': gemini },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: SYSTEM }] },
-          contents: messages.map((m) => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })),
-          generationConfig: { maxOutputTokens: 500, temperature: 0.4, thinkingConfig: { thinkingBudget: 0 } },
-        }),
-      })
-    : await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-api-key': claude!, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 400, system: SYSTEM, messages, stream: true }),
-      });
-  if (upstream.status === 429) return Response.json({ error: 'busy' }, { status: 429 });
-  if (!upstream.ok || !upstream.body) {
-    console.error('chat upstream', upstream.status, (await upstream.text().catch(() => '')).slice(0, 300));
-    return Response.json({ error: 'upstream' }, { status: 502 });
+  const offline = () =>
+    new Response(localAnswer(messages[messages.length - 1].content), { headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store', 'x-mini-ram': 'offline' } });
+
+  /** One attempt with a timeout; null when it failed and the next option should be tried. */
+  const attempt = async (url: string, init: RequestInit, label: string) => {
+    try {
+      const res = await fetch(url, { ...init, signal: AbortSignal.timeout(ATTEMPT_MS) });
+      if (res.ok && res.body) return res;
+      console.error('chat upstream', label, res.status, (await res.text().catch(() => '')).slice(0, 200));
+    } catch (e) {
+      console.error('chat upstream', label, (e as Error).name);
+    }
+    return null;
+  };
+
+  let upstream: Response | null = null;
+  if (gemini) {
+    const body = JSON.stringify({
+      systemInstruction: { parts: [{ text: SYSTEM }] },
+      contents: messages.map((m) => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })),
+      generationConfig: { maxOutputTokens: 1024, temperature: 0.4 },
+    });
+    for (const model of GEMINI_MODELS) {
+      upstream = await attempt(`https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': gemini }, body }, model);
+      if (upstream) break;
+    }
+  } else if (claude) {
+    upstream = await attempt(
+      'https://api.anthropic.com/v1/messages',
+      { method: 'POST', headers: { 'content-type': 'application/json', 'x-api-key': claude, 'anthropic-version': '2023-06-01' }, body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 400, system: SYSTEM, messages, stream: true }) },
+      CLAUDE_MODEL,
+    );
   }
+  // every model unavailable (quota, outage, no key): answer from local data instead of erroring
+  if (!upstream?.body) return offline();
 
   /** Text carried by one SSE event, for either provider. */
   const textOf = (ev: { type?: string; delta?: { type?: string; text?: string }; candidates?: { content?: { parts?: { text?: string }[] } }[] }) =>
@@ -84,7 +101,8 @@ export async function POST(req: Request) {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
-      let buf = '';
+      let buf = '',
+        sent = false;
       try {
         while (true) {
           const { done, value } = await reader.read();
@@ -96,11 +114,17 @@ export async function POST(req: Request) {
             if (!line.startsWith('data:')) continue;
             try {
               const text = textOf(JSON.parse(line.slice(5)));
-              if (text) controller.enqueue(encoder.encode(text));
+              if (text) {
+                sent = true;
+                controller.enqueue(encoder.encode(text));
+              }
             } catch {}
           }
         }
+      } catch {
+        // stream cut off mid-way: keep whatever already went out
       } finally {
+        if (!sent) controller.enqueue(encoder.encode(localAnswer(messages[messages.length - 1].content)));
         controller.close();
       }
     },

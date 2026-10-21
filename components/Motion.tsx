@@ -47,16 +47,35 @@ export function Lines({ lines, delay = 0, inView = false }: { lines: React.React
 }
 
 /** Counts from 0 to `value` the first time it is seen. */
+/**
+ * Counts up to `value` once it scrolls into view. Renders the final value by default (server render,
+ * no JS, reduced motion), drops to 0 only while still off-screen, then animates when seen.
+ */
 export function CountUp({ value, decimals = 0, prefix = '', suffix = '' }: { value: number; decimals?: number; prefix?: string; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const seen = useInView(ref, { once: true, amount: 0.6 });
+  const seen = useInView(ref, { once: true, margin: '0px 0px -8% 0px' });
   const reduce = useReducedMotion();
-  const [n, setN] = useState(0);
+  const [n, setN] = useState(value);
+  const armed = useRef(false);
+
+  // off-screen at mount: reset to 0 so the count-up plays when it arrives (via animate, not a direct setState)
   useEffect(() => {
-    if (!seen) return;
-    const c = animate(0, value, { duration: reduce ? 0 : 1.4, ease: EASE, onUpdate: setN });
+    const el = ref.current;
+    if (reduce || !el) return;
+    const r = el.getBoundingClientRect();
+    if (r.top > window.innerHeight || r.bottom < 0) {
+      armed.current = true;
+      const c = animate(0, 0, { duration: 0, onUpdate: setN });
+      return () => c.stop();
+    }
+  }, [reduce]);
+
+  useEffect(() => {
+    if (!seen || reduce || !armed.current) return;
+    const c = animate(0, value, { duration: 1.4, ease: EASE, onUpdate: setN });
     return () => c.stop();
   }, [seen, value, reduce]);
+
   return (
     <span ref={ref}>
       {prefix}

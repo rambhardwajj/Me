@@ -24,7 +24,7 @@ export const PROFILE = {
   github: 'https://github.com/bhardwajram',
   x: 'https://x.com/ram_101001',
   instagram: 'https://www.instagram.com/likwid_z/',
-  resume: '', // TODO: add public/resume.pdf and set this to '/resume.pdf'
+  resume: '/Ram_Bhardwaj_Resume.pdf', // the PDF lives in public/
 };
 
 export type Metric = { prefix?: string; value: number; suffix?: string; decimals?: number; label: string; note: string };

@@ -2,11 +2,11 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { PROFILE } from '@/lib/data';
+import { localAnswer } from '@/lib/faq';
 import { MascotFace } from './MascotFace';
 import { EASE } from './Motion';
 
-/** What Mini Ram says as each section scrolls into view (once per session, a few at most). */
+/** What Mini Ram can say as a section scrolls into view; only the first one reached shows, once per session. */
 const COMMENTS: Record<string, string> = {
   top: 'Hey! I’m Mini Ram 👋 Drag that globe, it’s Ram’s journey.',
   personas: 'Three Rams, one person. Hover a side to meet him.',
@@ -16,8 +16,8 @@ const COMMENTS: Record<string, string> = {
   contact: 'Still curious? Click me and ask anything about Ram.',
 };
 
-/** At most this many comments per browser session. */
-const MAX_BUBBLES = 3;
+/** One comment per browser session. */
+const MAX_BUBBLES = 1;
 
 const SUGGESTIONS = ['What is Ram doing now?', 'What are his biggest wins?', 'Tell me about LeetCase', 'Why hire Ram as a PM?'];
 
@@ -73,7 +73,7 @@ export default function Mascot() {
 
   // pop a comment as each section arrives
   useEffect(() => {
-    // each comment shows at most once per browser session, three in total, never over the hero buttons
+    // one comment per browser session, never over the hero buttons or the footer
     const seen = () => {
       try {
         return JSON.parse(sessionStorage.getItem('mini-ram-said') || '[]') as string[];
@@ -90,7 +90,10 @@ export default function Mascot() {
       const cta = document.querySelector('.hero-cta')?.getBoundingClientRect();
       const foot = document.querySelector('.foot')?.getBoundingClientRect();
       const onCta = !!cta && cta.bottom > 0 && cta.top < window.innerHeight && (cta.bottom > window.innerHeight - 240 || window.innerWidth < 900);
-      return onCta || (!!foot && foot.top < window.innerHeight);
+      // on phones the hero is one long column, so wait until it has scrolled away entirely
+      const hero = document.getElementById('top')?.getBoundingClientRect();
+      const inHero = window.innerWidth < 900 && !!hero && hero.bottom > 80;
+      return onCta || inHero || (!!foot && foot.top < window.innerHeight);
     };
     const say = (id: string) => {
       const ids = seen();
@@ -155,9 +158,8 @@ export default function Mascot() {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ messages: next.filter((m) => m !== GREETING) }),
       });
-      if (res.status === 503) return write(`My brain isn’t plugged in yet 🔌 Meanwhile, Ram is one email away: ${PROFILE.email}`);
       if (res.status === 429) return write('I’m getting a lot of questions right now 😅 Give me a minute and ask again.');
-      if (!res.ok || !res.body) return write(`Something went wrong on my side. You can always email Ram at ${PROFILE.email}.`);
+      if (!res.ok || !res.body) return write(localAnswer(q));
       const reader = res.body.getReader();
       const dec = new TextDecoder();
       let out = '';
@@ -167,9 +169,9 @@ export default function Mascot() {
         out += dec.decode(value, { stream: true });
         write(out);
       }
-      if (!out) write(`Hmm, I drew a blank. Try rephrasing, or email Ram at ${PROFILE.email}.`);
+      if (!out) write(localAnswer(q));
     } catch {
-      write(`I couldn’t reach my brain just now. Ram’s email: ${PROFILE.email}`);
+      write(localAnswer(q));
     } finally {
       setBusy(false);
     }

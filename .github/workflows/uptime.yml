@@ -1,0 +1,28 @@
+# Checks every 6 hours that the site is up and that Mini Ram's AI (not its offline fallback) answers.
+# A failed run emails the repo owner (GitHub's default notification for failed scheduled workflows).
+name: Uptime
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Homepage responds
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 https://www.rambhardwaj.in/)
+          echo "homepage: $code"
+          test "$code" = "200"
+      - name: Mini Ram answers with the AI
+        run: |
+          curl -s -D headers.txt -o body.txt --max-time 60 -X POST https://www.rambhardwaj.in/api/chat \
+            -H 'content-type: application/json' \
+            -d '{"messages":[{"role":"user","content":"In one sentence, what does Ram do?"}]}'
+          echo "--- reply:"; cat body.txt; echo
+          grep -q '^HTTP/[0-9.]* 200' headers.txt || { echo "::error::chat did not return 200"; exit 1; }
+          test -s body.txt || { echo "::error::chat returned an empty reply"; exit 1; }
+          if grep -qi '^x-mini-ram: offline' headers.txt; then echo "::error::AI unavailable (quota or key); visitors are getting the offline answers"; exit 1; fi

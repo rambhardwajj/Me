@@ -6,6 +6,8 @@ import { PROJECTS } from '@/lib/data';
 import { EASE, Lines, Reveal } from './Motion';
 import type { Project } from '@/lib/data';
 import { ProductDevice } from './ProductScreens';
+import Link from 'next/link';
+import { hasCase } from '@/lib/cases';
 
 /** The device doubles as a link to the project when it has one. */
 function DeviceLink({ p }: { p: Project }) {
@@ -146,11 +148,20 @@ export default function Work() {
                         <span key={t}>{t}</span>
                       ))}
                     </div>
-                    {x.url && (
-                      <a className="pj-live" href={x.url} target="_blank" rel="noreferrer">
-                        Visit live <span aria-hidden>↗</span>
-                      </a>
-                    )}
+                    <div className="pj-links">
+                      {hasCase(x.id) && (
+                        <Link className="pj-case" href={`/work/${x.id}`}>
+                          Read case study <span aria-hidden>→</span>
+                        </Link>
+                      )}
+                      {x.url ? (
+                        <a className="pj-live" href={x.url} target="_blank" rel="noreferrer">
+                          Visit live <span aria-hidden>↗</span>
+                        </a>
+                      ) : (
+                        <span className="pj-soon">Case study coming soon</span>
+                      )}
+                    </div>
                   </div>
                 </Reveal>
               </article>
