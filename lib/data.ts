@@ -78,7 +78,7 @@ export const PERSONAS: Persona[] = [
     platform: 'Instagram',
     handle: '@likwid_z',
     url: 'https://www.instagram.com/likwid_z/',
-    name: 'The Dancer & Traveller',
+    name: 'World Finalist Footwork Dance Artist',
     tagline: 'Represented India on a world stage. Off the clock, chasing new cities and new stages.',
     chips: ['Top 16 worldwide', '10+ dance titles', 'Night-city wanderer'],
     photo: 'https://res.cloudinary.com/ewpg7mfj/image/upload/c_fill,g_face,ar_3:4,w_900,z_0.6/f_auto,q_auto/v1792300037/profilePic_cytsgf.png',
