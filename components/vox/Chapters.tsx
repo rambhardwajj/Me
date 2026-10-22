@@ -149,7 +149,7 @@ export function JourneyChapter() {
     <div className="vx-journey">
       <span className="vx-tear top" aria-hidden />
       {/* 03: the card tears away to reveal the dark chapter; Journey itself is untouched */}
-      <Chapter id="journey-card" len={1.25} card={CHAPTERS_V.journey} cardAt={[0.2, 0.8]} className="vx-jcard" />
+      <Chapter id="journey-card" len={1.6} card={CHAPTERS_V.journey} cardAt={[0.15, 0.7]} className="vx-jcard" />
       <Journey />
       <span className="vx-tear bottom" aria-hidden />
     </div>

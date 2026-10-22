@@ -20,7 +20,7 @@ export default function Home() {
   return (
     <div className="vox" data-theme="light">
       <noscript>
-        <style>{`.vox .vx-chap{height:auto!important;--p:1}.vox .vx-stage{position:relative;height:auto;overflow:visible}`}</style>
+        <style>{`.vox .vx-chap{height:auto!important;--p:1}.vox .vx-stage{position:relative;height:auto;overflow:visible}.vox .vx-jcard{margin-bottom:0}`}</style>
       </noscript>
       <VoxClock />
       <TopBar />

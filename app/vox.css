@@ -365,3 +365,9 @@ body:has(.vox) { background: #efe8dc; }
 .vx-journey .tl-row.on .tl-node { background: var(--red); border-color: var(--red); color: #fff; }
 .vx-journey .tl-node { background: var(--sheet); }
 .vx-journey .tl-end span { font-family: var(--mono); background: var(--kraft); }
+
+/* 03's card sits on top of the Journey's opening screen: tearing it away reveals the heading, never a blank stage */
+.vx-jcard { z-index: 6; margin-bottom: -100svh; pointer-events: none; }
+.vx-journey .vx-jcard .vx-stage { background: transparent; }
+@media (prefers-reduced-motion: reduce) { .vx-jcard { margin-bottom: 0; } }
+.vox-still .vx-jcard { margin-bottom: 0; }
