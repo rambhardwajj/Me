@@ -12,7 +12,7 @@ export const PROFILE = {
   portrait: 'https://res.cloudinary.com/ewpg7mfj/image/upload/c_fill,g_face,ar_4:5,w_900,z_0.7/f_auto,q_auto/v1792300638/P1182901_nwx7t6.jpg',
   availability: 'Open to Product Manager roles',
   pitch:
-    'I’m Ram, a Product Manager and former software engineer. I’ve scaled an AI SaaS from $0 to $6K MRR, shipped iOS and Android apps used by 100+ drivers, and grown revenue 75% through pricing and GTM.',
+    'I’m Ram, a Product Manager and former software engineer. I’ve scaled an AI SaaS from $0 to $6K MRR, shipped iOS and Android apps used by 100 drivers, and grown revenue 75% through pricing and GTM.',
   location: 'Gurugram, India',
   timezone: 'Asia/Kolkata',
   status: 'Open to product leadership, founder’s office & strategy roles', // TODO: confirm target roles

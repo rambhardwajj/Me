@@ -25,7 +25,9 @@ type Msg = { role: 'user' | 'assistant'; content: string };
 
 const GREETING: Msg = { role: 'assistant', content: `Hi! I’m Mini Ram, Ram’s AI sidekick. Ask me about his experience, products, wins or how to reach him.` };
 
-export default function Mascot() {
+/** `comments` maps section ids to what Mini Ram says there; defaults to the classic site's sections. */
+export default function Mascot({ comments = COMMENTS }: { comments?: Record<string, string> }) {
+  const notes = useRef(comments);
   const [open, setOpen] = useState(false);
   const [bubble, setBubble] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([GREETING]);
@@ -71,6 +73,16 @@ export default function Mascot() {
     };
   }, []);
 
+  // other parts of the page can open the chat: window.dispatchEvent(new Event('mini-ram:open'))
+  useEffect(() => {
+    const onOpen = () => {
+      setBubble(null);
+      setOpen(true);
+    };
+    window.addEventListener('mini-ram:open', onOpen);
+    return () => window.removeEventListener('mini-ram:open', onOpen);
+  }, []);
+
   // pop a comment as each section arrives
   useEffect(() => {
     // one comment per browser session, never over the hero buttons or the footer
@@ -100,7 +112,7 @@ export default function Mascot() {
       if (openRef.current || said.current.has(id) || ids.includes(id) || ids.length >= MAX_BUBBLES || coversCta()) return;
       said.current.add(id);
       remember([...ids, id]);
-      setBubble(COMMENTS[id]);
+      setBubble(notes.current[id]);
       clearTimeout(hideTimer.current);
       hideTimer.current = setTimeout(() => setBubble(null), 5000);
     };
@@ -109,7 +121,7 @@ export default function Mascot() {
       { rootMargin: '-35% 0px -45% 0px' },
     );
     const first = setTimeout(() => {
-      Object.keys(COMMENTS).forEach((id) => {
+      Object.keys(notes.current).forEach((id) => {
         const el = document.getElementById(id);
         if (el) io.observe(el);
       });

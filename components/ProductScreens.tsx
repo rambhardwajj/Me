@@ -45,7 +45,7 @@ function LeetCase() {
   return <img className="sc-shot" src="/images/leetcase.webp" alt="LeetCase problem dashboard" />;
 }
 
-function Upto() {
+export function Upto() {
   const plans = [
     { who: 'Aanya', where: 'Sunset at Hauz Khas', when: 'Fri · 6:00 PM', going: 12, tone: '#f472b6' },
     { who: 'Kabir', where: 'Weekend in Rishikesh', when: 'Sat → Sun', going: 7, tone: '#60a5fa' },
