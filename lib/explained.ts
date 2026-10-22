@@ -110,8 +110,9 @@ export const WORK = PROJECTS.map((p) => ({
   caseStudy: p.id === 'leetcase' || p.id === 'trucost',
 }));
 
-/** Chapter 4: the three personas as index cards. */
+/** The About chapter: the three personas as index cards, under one heading. */
 export const ABOUT = PERSONAS;
+export const ABOUT_HEADING = { before: 'Three different social media, ', mark: 'three different personas', after: '.' };
 
 /** The end card: torn-strip doors, then email and socials. A door with no href is hidden. */
 export const DOORS = [

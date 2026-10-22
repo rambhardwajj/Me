@@ -384,3 +384,10 @@ body:has(.vox) { background: #efe8dc; }
 .vx-journey .tl-mobile-date { display: inline-block; }
 .vx-journey .arc-body h3, .vx-journey .tl-body h3 { align-self: flex-start; width: fit-content; padding: 0 4px; margin-left: -4px;
   background: linear-gradient(100deg, transparent 0.3em, rgba(255, 214, 10, 0.85) 0.45em, rgba(255, 214, 10, 0.85) calc(100% - 0.4em), transparent calc(100% - 0.25em)) 0 82% / 100% 42% no-repeat; }
+
+/* About: one heading over the three index cards */
+.vx-about-h { position: absolute; z-index: 5; top: calc(var(--bar) + clamp(18px, 4vh, 44px)); left: 0; right: 0; padding: 0 16px; text-align: center;
+  font-family: var(--serif); font-weight: 400; font-size: clamp(28px, 4vw, 54px); line-height: 1.05; letter-spacing: -0.01em; color: var(--ink); }
+.vx-about .vx-pan { top: calc(var(--bar) + clamp(90px, 14vh, 150px)); }
+@media (max-width: 640px) { .vx-about-h { font-size: 27px; } .vx-about .vx-pan { top: calc(var(--bar) + 110px); } }
+@media (prefers-reduced-motion: reduce) { .vox .vx-about-h { position: relative; top: auto; padding: 40px 16px 0; } }

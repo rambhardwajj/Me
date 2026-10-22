@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import Journey from '@/components/Journey';
 import { Upto } from '@/components/ProductScreens';
-import { ABOUT, CHAPTERS_V, CONTACT, DOORS, EXPERIENCE_STOPS, TITLE, WORK } from '@/lib/explained';
-import { Chapter, Ring, Tape, win } from './parts';
+import { ABOUT, ABOUT_HEADING, CHAPTERS_V, CONTACT, DOORS, EXPERIENCE_STOPS, TITLE, WORK } from '@/lib/explained';
+import { Chapter, Mark, Ring, Tape, win } from './parts';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const ym = (s?: string) => (s ? `${MONTHS[Number(s.slice(5, 7)) - 1]} ${s.slice(0, 4)}` : 'now');
@@ -203,6 +203,13 @@ export function WorkChapter() {
 export function AboutChapter() {
   return (
     <Chapter id="about" len={3.6} card={CHAPTERS_V.about} className="vx-about">
+      <h3 className="vx-about-h k slap" style={win(0.1, 0.17, { '--r': '-1deg' })}>
+        {ABOUT_HEADING.before}
+        <Mark a={0.16} b={0.26}>
+          {ABOUT_HEADING.mark}
+        </Mark>
+        {ABOUT_HEADING.after}
+      </h3>
       <div className="vx-pan vx-cards3 k" style={win(0.2, 0.9)}>
         {ABOUT.map((p, i) => (
           <article className="vx-index k slap" key={p.id} style={win(0.14 + i * 0.1, 0.22 + i * 0.1, { '--r': `${[-2.5, 1.5, -1][i]}deg` })}>
