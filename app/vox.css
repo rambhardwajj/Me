@@ -371,3 +371,16 @@ body:has(.vox) { background: #efe8dc; }
 .vx-journey .vx-jcard .vx-stage { background: transparent; }
 @media (prefers-reduced-motion: reduce) { .vx-jcard { margin-bottom: 0; } }
 .vox-still .vx-jcard { margin-bottom: 0; }
+
+/* highlighter on the arc: dates swiped in yellow, the featured title underlined with a marker stroke */
+.vx-journey .arc-label,
+.vx-journey .arc-meta > span:not(.arc-kind),
+.vx-journey .tl-mobile-date { isolation: isolate; padding: 1px 6px; color: var(--ink); font-weight: 600; }
+.vx-journey .arc-label::before,
+.vx-journey .arc-meta > span:not(.arc-kind)::before,
+.vx-journey .tl-mobile-date::before { content: ''; position: absolute; inset: -1px -3px; z-index: -1; background: var(--yellow);
+  -webkit-mask: url('/vox/highlighter.webp') 0 50% / 100% 100% no-repeat; mask: url('/vox/highlighter.webp') 0 50% / 100% 100% no-repeat; }
+.vx-journey .arc-meta > span:not(.arc-kind), .vx-journey .tl-mobile-date { position: relative; }
+.vx-journey .tl-mobile-date { display: inline-block; }
+.vx-journey .arc-body h3, .vx-journey .tl-body h3 { align-self: flex-start; width: fit-content; padding: 0 4px; margin-left: -4px;
+  background: linear-gradient(100deg, transparent 0.3em, rgba(255, 214, 10, 0.85) 0.45em, rgba(255, 214, 10, 0.85) calc(100% - 0.4em), transparent calc(100% - 0.25em)) 0 82% / 100% 42% no-repeat; }
