@@ -24,12 +24,12 @@ export function Tape({ n = 1, className = '', style }: { n?: 1 | 2 | 3; classNam
 }
 
 /** A tall chapter: the section's height is how long it plays, the sticky stage is what you watch. */
-export function Chapter({ id, len, className = '', card, children }: { id: string; len: number; className?: string; card?: { n: string; word: string; color: string; ink: string }; children: ReactNode }) {
+export function Chapter({ id, len, className = '', card, cardAt = [0.05, 0.13], children }: { id: string; len: number; className?: string; card?: { n: string; word: string; color: string; ink: string }; cardAt?: [number, number]; children?: ReactNode }) {
   return (
     <section id={id} className={`vx-chap ${className}`} data-chapter style={{ '--len': len } as CSSProperties}>
       <div className="vx-stage">
         {card && (
-          <div className="vx-card k" style={win(0.05, 0.13, { '--c': card.color, '--ci': card.ink })} aria-hidden>
+          <div className="vx-card k" style={win(cardAt[0], cardAt[1], { '--c': card.color, '--ci': card.ink })} aria-hidden>
             <span className="vx-card-n">{card.n}</span>
             <span className="vx-card-w">{card.word}</span>
           </div>

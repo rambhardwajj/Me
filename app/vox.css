@@ -168,6 +168,8 @@ body:has(.vox) { background: #efe8dc; }
 .vx-tear { position: absolute; left: -2%; right: -2%; z-index: 5; height: 96px; background: #09090b; pointer-events: none;
   -webkit-mask: url('/vox/torn.webp') center / 100% 100% no-repeat; mask: url('/vox/torn.webp') center / 100% 100% no-repeat; }
 .vx-tear.top { top: -46px; }
+.vx-jcard .vx-stage { background: #09090b; }
+.vx-card-w { text-align: center; padding: 0 16px; }
 .vx-tear.bottom { bottom: -46px; }
 
 /* ---------------------------------------------------------------- 3 · work: polaroids, panned */
@@ -302,3 +304,64 @@ body:has(.vox) { background: #efe8dc; }
   .vx-hl-load::before { animation: none; }
 }
 .vox-still .vx-chap { height: auto; }
+
+/* ==========================================================================
+   Journey on the paper page: same component, restyled here only (/old keeps its dark look).
+   A warm kraft sheet, pen-ink arc, white-bordered prints, a taped featured sheet.
+   ========================================================================== */
+.vx-journey { --kraft: #e3d5bd; background: var(--kraft) url('/vox/paper.webp') 0 0 / 640px repeat; background-blend-mode: multiply; color: var(--ink);
+  --text: #1b1a17; --text-2: #4a463e; --muted: #7a7468; --line: rgba(27, 26, 23, 0.14); --line-strong: rgba(27, 26, 23, 0.3);
+  --surface: #fbf8f1; --surface-2: #efe8dc; --surface-3: #e2d8c8; --bg: var(--kraft); --hi: rgba(255, 255, 255, 0.6);
+  --accent: #e2362b; --accent-2: #e2362b; --accent-rgb: 226, 54, 43; --warm: #c96a12; --warm-rgb: 201, 106, 18; }
+.vx-tear, .vx-jcard .vx-stage { background-color: var(--kraft); }
+.vx-tear { background-color: #e3d5bd; }
+
+/* header: serif headline, mono eyebrow, like every other chapter */
+.vx-journey .sec { border-top: 0; }
+.vx-journey .sec-head h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(40px, 5.4vw, 76px); line-height: 1; letter-spacing: -0.01em; color: var(--ink); }
+.vx-journey .kicker { font-family: var(--mono); font-size: 13px; letter-spacing: 0.12em; color: var(--red); padding-bottom: 6px; border-bottom: 2px solid var(--red); }
+.vx-journey .kicker::before { display: none; }
+.vx-journey .sec-head p { color: var(--ink-2); font-size: 16px; }
+
+/* the dial: pen-ink arc, white-bordered prints, mono dates */
+.vx-journey .arc-svg { color: var(--ink); }
+.vx-journey .arc-apex span { font-family: var(--mono); color: var(--ink-2); }
+.vx-journey .arc-apex b { padding: 1px 8px; color: var(--ink); background: var(--yellow); }
+.vx-journey .arc-thumb { border: 3px solid #fff; background: #fff; box-shadow: 0 6px 14px -6px rgba(40, 30, 10, 0.5); color: var(--ink-3); }
+.vx-journey .arc-thumb img { filter: saturate(0.85) contrast(1.05); }
+.vx-journey .arc-label { font-family: var(--mono); color: var(--ink-2); }
+
+/* the featured milestone: a taped white sheet */
+.vx-journey .arc-card { position: relative; overflow: visible; border-radius: 2px; background: var(--sheet); border: 0; box-shadow: 0 24px 50px -20px rgba(40, 30, 10, 0.45); rotate: -0.5deg; }
+.vx-journey .arc-card::before { content: ''; position: absolute; z-index: 4; top: -16px; left: 50%; width: 130px; height: 38px; translate: -50% 0; rotate: -3deg; background: url('/vox/tape-2.webp') center / 100% 100% no-repeat; }
+.vx-journey .arc-media { margin: 12px 0 12px 12px; min-height: 230px; background: #fff; box-shadow: inset 0 0 0 1px rgba(27, 26, 23, 0.08); }
+.vx-journey .arc-media .tl-media-bg { filter: blur(18px) brightness(1.05) saturate(0.7); opacity: 0.6; }
+.vx-journey .arc-kind { font-family: var(--mono); color: var(--red); }
+.vx-journey .arc-kind i { background: var(--red); }
+.vx-journey .arc-meta { font-family: var(--mono); color: var(--ink-3); }
+.vx-journey .arc-body h3 { font-family: var(--serif); font-weight: 400; font-size: clamp(26px, 2.4vw, 34px); line-height: 1.05; letter-spacing: 0; color: var(--ink); }
+.vx-journey .arc-org { color: var(--ink-2); }
+.vx-journey .arc-text { color: var(--ink-2); }
+.vx-journey .arc-points li { font-family: var(--mono); font-size: 11px; border-radius: 0; background: rgba(27, 26, 23, 0.05); border-color: rgba(27, 26, 23, 0.2); color: var(--ink-2); }
+.vx-journey .arc-stat { padding: 2px 8px; color: var(--ink); background: var(--yellow); }
+.vx-journey .arc-count, .vx-journey .arc-hint { font-family: var(--mono); color: var(--ink-3); }
+.vx-journey .arc-count b { color: var(--red); }
+.vx-journey .arc-bar { background: rgba(27, 26, 23, 0.2); }
+.vx-journey .arc-bar i { background: var(--red); }
+
+/* phones: the vertical version gets the same paper treatment */
+.vx-journey .tl-track { background: rgba(27, 26, 23, 0.25); }
+.vx-journey .tl-fill { background: var(--red); box-shadow: none; }
+.vx-journey .tl-head { background: var(--red); box-shadow: 0 0 0 4px rgba(226, 54, 43, 0.2); }
+.vx-journey .tl-year-pill { border-radius: 0; background: var(--yellow); border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); }
+.vx-journey .tl-year-pill b { font-family: var(--serif); font-weight: 400; }
+.vx-journey .tl-year-pill span { color: var(--ink-2); }
+.vx-journey .tl-card { border-radius: 2px; background: var(--sheet); border: 0; box-shadow: 0 18px 40px -18px rgba(40, 30, 10, 0.45); }
+.vx-journey .tl-media { margin: 8px 8px 0; background: #fff; }
+.vx-journey .tl-body h3 { font-family: var(--serif); font-weight: 400; font-size: 24px; line-height: 1.05; }
+.vx-journey .tl-mobile-date { font-family: var(--mono); color: var(--red); }
+.vx-journey .tl-org, .vx-journey .tl-text, .vx-journey .tl-points li { color: var(--ink-2); }
+.vx-journey .tl-stat { border-radius: 0; background: var(--yellow); border: 0; color: var(--ink); }
+.vx-journey .tl-row.on .tl-node { background: var(--red); border-color: var(--red); color: #fff; }
+.vx-journey .tl-node { background: var(--sheet); }
+.vx-journey .tl-end span { font-family: var(--mono); background: var(--kraft); }

@@ -134,8 +134,9 @@ export const CONTACT = {
 export const CHAPTERS_V = {
   numbers: { n: '01', word: 'The numbers', color: COLORS.yellow, ink: COLORS.ink },
   experience: { n: '02', word: 'Experience', color: COLORS.blue, ink: '#fff' },
-  work: { n: '03', word: 'Work', color: COLORS.red, ink: '#fff' },
-  about: { n: '04', word: 'About', color: COLORS.cyan, ink: COLORS.ink },
+  journey: { n: '03', word: 'My Journey Timeline', color: COLORS.orange, ink: COLORS.ink },
+  work: { n: '04', word: 'Work', color: COLORS.red, ink: '#fff' },
+  about: { n: '05', word: 'About', color: COLORS.cyan, ink: COLORS.ink },
 };
 
 /** What Mini Ram says as each chapter arrives (only the first one reached shows, once per session). */
