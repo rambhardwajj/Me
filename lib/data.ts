@@ -50,7 +50,7 @@ export const ACHIEVEMENTS: { year: string; title: string; context: string; metri
   { year: '2026', title: 'Locked core member, Netflix Fraternity', context: 'Masters’ Union', metric: '4 of 430', tag: 'Leadership', photo: 'masters-union' },
   { year: '2026', title: 'Built a ₹11.2L dropshipping business', context: 'Real customers, ad spend and P&L at Masters’ Union', metric: '₹11.2L revenue', tag: 'Product', photo: 'masters-union' },
   { year: '2026', title: 'Scaled Synappses from zero', context: 'AI SaaS LMS for coaching centres, leading a 20-member team', metric: '$0 → $6K MRR', tag: 'Product' },
-  { year: '2026', title: 'Shipped TruCost to both app stores', context: 'Ride-hailing with an in-cab tablet, plus a ₹2.5L contract closed', metric: '100 drivers onboarded', tag: 'Product', photo: 'trucost' },
+  { year: '2026', title: 'Shipped TruCost to both app stores', context: 'Ride-hailing with an in-cab tablet, plus a contract closed', metric: '100 drivers onboarded', tag: 'Product', photo: 'trucost' },
   { year: '2026', title: 'Launched LeetCase from PRD to MVP', context: 'Case and guesstimate practice for MBA aspirants', metric: '150+ users', tag: 'Product', photo: 'leetcase' },
   { year: '2026', title: 'Mentored students for Google Summer of Code', context: 'Students Affairs Head, 100xSchool Super 30', metric: '30+ students', tag: 'Leadership' },
   { year: '2025', title: 'Best Employee of the year', context: 'Newral, recognised within my first three months', metric: '#1 in the company', tag: 'Leadership', photo: 'best-employee' },
@@ -142,7 +142,7 @@ export const EXPERIENCE: Job[] = [
     accent: '#a855f7',
     metrics: [
       { value: 100, label: 'drivers onboarded' },
-      { prefix: '₹', value: 2.5, suffix: 'L', label: 'contract closed' },
+      { value: 'Contract', label: 'negotiated & closed' },
       { value: 2, label: 'app stores, live' },
     ],
     company: 'TruCost · Skyex AI Mobility',
@@ -150,7 +150,7 @@ export const EXPERIENCE: Job[] = [
     type: 'Contract',
     location: 'Remote',
     url: 'https://trucostrides.com/',
-    summary: 'Shipped Android and iOS ride-hailing apps with an in-cab tablet, onboarded 100 drivers and closed a ₹2.5L contract.',
+    summary: 'Shipped Android and iOS ride-hailing apps with an in-cab tablet, onboarded 100 drivers and closed a contract.',
     roles: [
       {
         title: 'Product Manager',
@@ -167,7 +167,7 @@ export const EXPERIENCE: Job[] = [
           {
             heading: 'Delivery, client & monetisation',
             points: [
-              'Negotiated and closed a ₹2.5L contract, acting as the single point of contact for scope, priorities and sign-offs',
+              'Negotiated and closed a contract, acting as the single point of contact for scope, priorities and sign-offs',
               'Hired and led the development team, coordinating with the client and running sprints to ship both apps on schedule',
               'Drove monetisation through in-cab tablet advertising and pricing strategy, balancing ad revenue with a good rider experience',
             ],
@@ -561,8 +561,8 @@ export const JOURNEY: Moment[] = [
     title: 'Product Manager, TruCost',
     org: 'Contract · Skyex AI Mobility Technologies Pvt. Ltd.',
     body: 'An Uber-style ride-hailing service with a headrest tablet paired to the driver’s phone, running ads and surveys during the ride.',
-    points: ['Shipped Android and iOS apps, live on both stores, with 100 drivers onboarded', 'Negotiated and closed a ₹2.5L contract', 'Hired and led the development team'],
-    stat: '₹2.5L contract',
+    points: ['Shipped Android and iOS apps, live on both stores, with 100 drivers onboarded', 'Negotiated and closed a contract', 'Hired and led the development team'],
+    stat: 'Contract closed',
     image: 'https://res.cloudinary.com/ewpg7mfj/image/upload/f_auto,q_auto,w_1200/v1792316440/000_mv8c44.png',
     imageHint: 'In-cab tablet / app screens',
   },
@@ -669,7 +669,7 @@ export const PROJECTS: Project[] = [
     did: ['Designed Bluetooth pairing between the driver’s phone and an in-cab headrest tablet', 'Shipped Android and iOS apps, live on both stores', 'Drove monetisation through in-cab ads and pricing; hired and led the dev team'],
     metrics: [
       { value: '100', label: 'drivers onboarded' },
-      { value: '₹2.5L', label: 'contract negotiated & closed' },
+      { value: 'Contract', label: 'negotiated & closed' },
       { value: '2', label: 'app stores, live' },
     ],
     stack: ['Mobile', 'Hardware pairing', 'AdTech', 'Monetisation'],

@@ -57,7 +57,7 @@ export const THE_NUMBERS = {
       cam: [0.62, 5, -16, 1.5, 1],
     },
     {
-      parts: ['For TruCost he shipped Android and iOS apps, onboarded ', { mark: '100 drivers' }, ' and closed a ', { mark: '₹2.5L contract' }, '.'],
+      parts: ['For TruCost he shipped Android and iOS apps, onboarded ', { mark: '100 drivers' }, ' and ', { mark: 'closed a contract' }, '.'],
       stat: { value: '100', label: 'TruCost drivers onboarded' },
       cam: [0.76, -5, -30, 1.5, -1],
     },
