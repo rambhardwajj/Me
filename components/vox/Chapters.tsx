@@ -2,7 +2,12 @@ import Link from 'next/link';
 import Journey from '@/components/Journey';
 import { Upto } from '@/components/ProductScreens';
 import { ABOUT, ABOUT_HEADING, CHAPTERS_V, CONTACT, DOORS, EXPERIENCE_STOPS, TITLE, WORK } from '@/lib/explained';
+import type React from 'react';
 import { Chapter, Mark, Ring, Tape, win } from './parts';
+import WorkJump from './WorkJump';
+import { PROJECTS } from '@/lib/data';
+
+const PROJECTS_ACCENT: Record<string, string> = Object.fromEntries(PROJECTS.map((p) => [p.id, p.accent]));
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const ym = (s?: string) => (s ? `${MONTHS[Number(s.slice(5, 7)) - 1]} ${s.slice(0, 4)}` : 'now');
@@ -156,128 +161,169 @@ export function JourneyChapter() {
   );
 }
 
-/* ------------------------------------------------------------------ 3 · work */
-/** Each product holds while its dossier lands, then the camera pans to the next. */
+/* ------------------------------------------------------------------ 3 · work: one browser, six tabs, a receipt per product */
 const W_START = 0.12;
-const W_STEP = (0.985 - W_START) / WORK.length;
-const W_HOLD = 0.1;
+const W_STEP = (0.995 - W_START) / WORK.length;
 
 export function WorkChapter() {
-  const x = (i: number) => (-i * 100) / WORK.length;
-  const keys: number[][] = [[0.1, 0, 0, 1, 0]];
-  WORK.forEach((_, i) => {
-    const a = W_START + i * W_STEP;
-    keys.push([a, x(i), 0, 1, 0], [a + W_HOLD, x(i), 0, 1, 0]);
-  });
-  keys.push([1, x(WORK.length - 1), 0, 1, 0]);
-
+  const n = WORK.length;
+  const pad = (i: number) => String(i).padStart(2, '0');
   return (
-    <Chapter id="work" len={9} card={CHAPTERS_V.work} className="vx-work">
+    <Chapter id="work" len={10} card={CHAPTERS_V.work} className="vx-work">
       <header className="vx-work-mhead">
         <span>{CHAPTERS_V.work.n}</span> {CHAPTERS_V.work.word}
       </header>
-      <div className="vx-exp-cam vx-work-cam" data-cam={JSON.stringify(keys)} data-cam-pan>
-        {WORK.map((p, i) => {
-          const a = W_START + i * W_STEP;
-          return (
-            <article className={`vx-prod vx-prod-${p.id}`} key={p.id}>
-              <div className="vx-panel-year k slap" style={win(a, a + 0.03, { '--r': '-2deg' })}>
-                {String(i + 1).padStart(2, '0')} / {String(WORK.length).padStart(2, '0')}
-                {p.period ? ` · ${p.period}` : ''}
+      <WorkJump />
+      {WORK.map((p, i) => {
+        const a = W_START + i * W_STEP;
+        // a beat inside this product's slot: f0..f1 are fractions of the slot
+        const at = (f0: number, f1: number, extra?: Record<string, string | number>) => win(a + f0 * W_STEP, a + f1 * W_STEP, extra);
+        const show = {
+          '--ia': i === 0 ? -1 : a - 0.012,
+          '--ib': i === 0 ? 0 : a + 0.004,
+          '--oa': i === n - 1 ? 2 : a + W_STEP - 0.012,
+          '--ob': i === n - 1 ? 3 : a + W_STEP + 0.004,
+        } as React.CSSProperties;
+        const [lead, ...rest] = p.metrics;
+        return (
+          <article className={`vx-wk vx-wk-${p.id}`} key={p.id} style={show} aria-label={p.name}>
+            <div className="vx-wk-left">
+              <div className="vx-wk-head">
+                <p className="vx-wk-kicker k slap" style={at(0, 0.1, { '--r': '-1deg' })}>
+                  Tab {pad(i + 1)} of {pad(n)}
+                  {p.period ? ` · ${p.period}` : ''}
+                </p>
+                <h3 className="vx-wk-name k slap" style={at(0.01, 0.12)}>
+                  {p.name}
+                </h3>
+                <p className="vx-wk-pitch k slap" style={at(0.04, 0.15)}>
+                  <span className="vx-wk-lbl">
+                    <mark className="vx-hl k" style={at(0.1, 0.2)}>
+                      What it is
+                    </mark>
+                  </span>{' '}
+                  {p.pitch}
+                </p>
               </div>
-              <div className="vx-prod-grid">
-                <figure className={`vx-snap vx-prod-shot k slap ${p.shot ? '' : 'coded'}`} style={win(a + 0.005, a + 0.045, { '--r': i % 2 ? '2deg' : '-2.5deg' })}>
-                  <Tape n={((i % 3) + 1) as 1 | 2 | 3} className="vx-snap-tape" />
-                  {p.shot ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={p.shot} alt={`${p.name} screenshot`} loading="lazy" />
-                  ) : (
-                    <div className="vx-prod-coded">
+
+              <div className="vx-wk-browser">
+                <div className="vx-wk-tabs" role="tablist" aria-label="Products">
+                  {WORK.map((q, j) => (
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={j === i}
+                      key={q.id}
+                      className={`vx-wk-tab ${j === i ? 'on' : ''}`}
+                      data-go={j}
+                      data-p={(W_START + j * W_STEP + 0.8 * W_STEP).toFixed(4)}
+                      style={{ '--dot': PROJECTS_ACCENT[q.id] ?? '#999' } as React.CSSProperties}
+                    >
+                      <i aria-hidden />
+                      {q.name}
+                    </button>
+                  ))}
+                </div>
+                <div className="vx-wk-bar">
+                  <span className="vx-wk-lights" aria-hidden>
+                    <i />
+                    <i />
+                    <i />
+                  </span>
+                  <span className="vx-wk-url">
+                    <span className="vx-wk-lock" aria-hidden>
+                      {p.url ? '🔒' : '⌁'}
+                    </span>
+                    <span className="vx-wk-type k" style={at(0.02, 0.17, { '--n': p.domain.length })}>
+                      {p.domain}
+                    </span>
+                    <i className="vx-wk-caret" aria-hidden />
+                  </span>
+                </div>
+                <div className="vx-wk-view">
+                  <span className="vx-wk-load k" style={at(0.12, 0.24)} aria-hidden />
+                  <div className={`vx-wk-page k ${p.shot ? '' : 'coded'}`} style={at(0.2, 0.32)}>
+                    {p.shot ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={p.shot} alt={`${p.name}, ${p.domain}`} loading="lazy" />
+                    ) : (
                       <div className="vx-pol-phone">
                         <Upto />
                       </div>
-                    </div>
-                  )}
-                  <figcaption>{p.domain}</figcaption>
-                  <span className="vx-pin k" style={win(a + 0.04, a + 0.075)} aria-hidden />
-                </figure>
-
-                <div className="vx-prod-copy">
-                  <h3 className="vx-prod-name k slap" style={win(a + 0.01, a + 0.04)}>
-                    {p.name}
-                  </h3>
-                  <p className="vx-prod-role k slap" style={win(a + 0.015, a + 0.045)}>
-                    {p.role}
-                    {p.client ? ` · ${p.client}` : ''}
-                  </p>
-
-                  <div className="vx-prod-what k slap" style={win(a + 0.02, a + 0.05)}>
-                    <span className="vx-prod-lbl">
-                      <mark className="vx-hl vx-hl-static">What it is</mark>
-                    </span>
-                    <p className="vx-prod-pitch">{p.pitch}</p>
-                    <p className="vx-prod-problem">
-                      <b>The problem: </b>
-                      {p.problem}
-                    </p>
+                    )}
                   </div>
-
-                  <div className="vx-prod-did">
-                    <span className="vx-prod-lbl k slap" style={win(a + 0.028, a + 0.05)}>
-                      <mark className="vx-hl vx-hl-static">What I did</mark>
-                    </span>
-                    <ol>
-                      {p.did.map((d, k) => (
-                        <li key={d} className="k slap" style={win(a + 0.032 + k * 0.012, a + 0.06 + k * 0.012)}>
-                          {d}
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-
-                  <div className="vx-cards vx-prod-stats">
-                    {p.metrics.map((m, k) => (
-                      <div className={`vx-card-stat k slap ${k === 0 ? 'lead' : ''}`} key={m.label} style={win(a + 0.06 + k * 0.008, a + 0.085 + k * 0.008, { '--r': `${[-2, 1.5, -1][k % 3]}deg` })}>
-                        <b>
-                          {m.value}
-                          {k === 0 && <Ring a={a + 0.07} b={a + 0.095} />}
-                        </b>
-                        <span>{m.label}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="vx-prod-foot k slap" style={win(a + 0.07, a + 0.095)}>
-                    <div className="vx-pol-links">
-                      {p.url ? (
-                        <a href={p.url} target="_blank" rel="noreferrer">
-                          Visit live ↗
-                        </a>
-                      ) : (
-                        <span className="vx-soon">Case study coming soon</span>
-                      )}
-                      {p.caseStudy && <Link href={`/work/${p.id}`}>Read case study →</Link>}
-                    </div>
-                    <ul className="vx-prod-stack">
-                      {p.stack.map((t) => (
-                        <li key={t}>{t}</li>
-                      ))}
-                    </ul>
-                  </div>
+                  <span className="vx-wk-stamp k" style={at(0.72, 0.8)} aria-hidden>
+                    {p.url ? 'Live' : 'Shipped'}
+                  </span>
                 </div>
               </div>
-            </article>
-          );
-        })}
-        <div className="vx-rail" aria-hidden>
-          {WORK.map((p) => (
-            <span key={p.id}>
-              <i />
-              {p.name}
-            </span>
-          ))}
-        </div>
-      </div>
+            </div>
+
+            <div className="vx-wk-right">
+              <span className="vx-wk-slot" aria-hidden />
+              <div className="vx-wk-receipt k" style={at(0.24, 0.7)}>
+                <div className="vx-wk-rhead">
+                  <b>RAM BHARDWAJ · PRODUCT WORKS</b>
+                  <span>
+                    Receipt #{pad(i + 1)} · {p.name}
+                  </span>
+                  <span>
+                    {p.role}
+                    {p.client ? ` · ${p.client}` : ''}
+                  </span>
+                </div>
+                <div className="vx-wk-rsec">
+                  <span className="vx-wk-rlbl">The problem</span>
+                  <p className="vx-wk-problem">{p.problem}</p>
+                </div>
+                <div className="vx-wk-rsec">
+                  <span className="vx-wk-rlbl">What I did</span>
+                  <ol className="vx-wk-did">
+                    {p.did.map((d, k) => (
+                      <li key={d}>
+                        <span className="vx-wk-tick k" style={at(0.4 + k * 0.07, 0.46 + k * 0.07)} aria-hidden>
+                          ✓
+                        </span>
+                        {d}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+                <dl className="vx-wk-sub">
+                  {rest.map((m) => (
+                    <div key={m.label}>
+                      <dt>{m.label}</dt>
+                      <dd>{m.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <div className="vx-wk-total">
+                  <span>
+                    Total
+                    <small>{lead.label}</small>
+                  </span>
+                  <b>
+                    {lead.value}
+                    <Ring a={a + 0.7 * W_STEP} b={a + 0.82 * W_STEP} />
+                  </b>
+                </div>
+                <p className="vx-wk-tags">{p.stack.join(' · ')}</p>
+                <span className="vx-wk-code" aria-hidden />
+                <div className="vx-wk-links">
+                  {p.url ? (
+                    <a href={p.url} target="_blank" rel="noreferrer">
+                      Visit live ↗
+                    </a>
+                  ) : (
+                    <span className="vx-soon">Not public yet</span>
+                  )}
+                  {p.caseStudy && <Link href={`/work/${p.id}`}>Read case study →</Link>}
+                </div>
+              </div>
+            </div>
+          </article>
+        );
+      })}
     </Chapter>
   );
 }

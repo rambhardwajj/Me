@@ -150,7 +150,7 @@ export const MINI_RAM_NOTES: Record<string, string> = {
   numbers: 'Watch the highlighter. Every number here is real.',
   experience: 'Three stops, one rising line. Keep scrolling sideways.',
   journey: 'This is the long version, from Mathura to product.',
-  work: 'Each product: what it is first, then what Ram did.',
+  work: 'Six tabs, six products. Watch the receipt print what Ram did.',
   about: 'Three Rams, one person. Pick the feed you like.',
   contact: 'Still curious? Click me and ask anything about Ram.',
 };
