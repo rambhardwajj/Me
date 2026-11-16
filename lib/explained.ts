@@ -96,17 +96,21 @@ const SHOTS: Record<string, string | undefined> = {
   unbothered: 'https://res.cloudinary.com/ewpg7mfj/image/upload/w_900/f_auto,q_auto/v1792334117/Screenshot_2026-10-18_at_8.04.50_PM_qodm99.png',
 };
 
-/** Chapter 3: every project as a polaroid. Upto has no screenshot or link yet, so it shows its coded screen. */
+/** Work: one product per panel, what it is up front, then what Ram did. Upto has no screenshot or link yet, so it shows its coded screen. */
 export const WORK = PROJECTS.map((p) => ({
   id: p.id,
   name: p.name,
-  brief: p.pitch,
+  pitch: p.pitch,
+  problem: p.problem,
+  did: p.did,
+  metrics: p.metrics,
+  stack: p.stack,
   url: p.url,
   domain: p.domain,
   shot: SHOTS[p.id],
   period: p.period,
   role: p.role,
-  stat: p.metrics[0],
+  client: p.client,
   caseStudy: p.id === 'leetcase' || p.id === 'trucost',
 }));
 
@@ -146,7 +150,7 @@ export const MINI_RAM_NOTES: Record<string, string> = {
   numbers: 'Watch the highlighter. Every number here is real.',
   experience: 'Three stops, one rising line. Keep scrolling sideways.',
   journey: 'This is the long version, from Mathura to product.',
-  work: 'Each polaroid opens the live product.',
+  work: 'Each product: what it is first, then what Ram did.',
   about: 'Three Rams, one person. Pick the feed you like.',
   contact: 'Still curious? Click me and ask anything about Ram.',
 };

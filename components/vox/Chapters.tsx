@@ -157,43 +157,126 @@ export function JourneyChapter() {
 }
 
 /* ------------------------------------------------------------------ 3 · work */
+/** Each product holds while its dossier lands, then the camera pans to the next. */
+const W_START = 0.12;
+const W_STEP = (0.985 - W_START) / WORK.length;
+const W_HOLD = 0.1;
+
 export function WorkChapter() {
+  const x = (i: number) => (-i * 100) / WORK.length;
+  const keys: number[][] = [[0.1, 0, 0, 1, 0]];
+  WORK.forEach((_, i) => {
+    const a = W_START + i * W_STEP;
+    keys.push([a, x(i), 0, 1, 0], [a + W_HOLD, x(i), 0, 1, 0]);
+  });
+  keys.push([1, x(WORK.length - 1), 0, 1, 0]);
+
   return (
-    <Chapter id="work" len={5} card={CHAPTERS_V.work} className="vx-work">
-      <div className="vx-pan k" style={win(0.14, 0.94)}>
-        {WORK.map((p, i) => (
-          <article className="vx-pol k slap" key={p.id} style={win(0.04 + i * 0.07, 0.1 + i * 0.07, { '--r': `${[-3, 2, -1.5, 3, -2, 1.5][i % 6]}deg` })}>
-            <Tape n={((i % 3) + 1) as 1 | 2 | 3} className="vx-pol-tape" />
-            <div className={`vx-pol-shot ${p.shot ? '' : 'coded'}`}>
-              {p.shot ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={p.shot} alt={`${p.name} screenshot`} loading="lazy" />
-              ) : (
-                <div className="vx-pol-phone">
-                  <Upto />
-                </div>
-              )}
-            </div>
-            <div className="vx-pol-cap">
-              <span className="vx-pol-meta">
-                {String(i + 1).padStart(2, '0')}
+    <Chapter id="work" len={9} card={CHAPTERS_V.work} className="vx-work">
+      <header className="vx-work-mhead">
+        <span>{CHAPTERS_V.work.n}</span> {CHAPTERS_V.work.word}
+      </header>
+      <div className="vx-exp-cam vx-work-cam" data-cam={JSON.stringify(keys)} data-cam-pan>
+        {WORK.map((p, i) => {
+          const a = W_START + i * W_STEP;
+          return (
+            <article className={`vx-prod vx-prod-${p.id}`} key={p.id}>
+              <div className="vx-panel-year k slap" style={win(a, a + 0.03, { '--r': '-2deg' })}>
+                {String(i + 1).padStart(2, '0')} / {String(WORK.length).padStart(2, '0')}
                 {p.period ? ` · ${p.period}` : ''}
-              </span>
-              <h3>{p.name}</h3>
-              <p>{p.brief}</p>
-              <div className="vx-pol-links">
-                {p.url ? (
-                  <a href={p.url} target="_blank" rel="noreferrer">
-                    Visit live ↗
-                  </a>
-                ) : (
-                  <span className="vx-soon">Case study coming soon</span>
-                )}
-                {p.caseStudy && <Link href={`/work/${p.id}`}>Read case study →</Link>}
               </div>
-            </div>
-          </article>
-        ))}
+              <div className="vx-prod-grid">
+                <figure className={`vx-snap vx-prod-shot k slap ${p.shot ? '' : 'coded'}`} style={win(a + 0.005, a + 0.045, { '--r': i % 2 ? '2deg' : '-2.5deg' })}>
+                  <Tape n={((i % 3) + 1) as 1 | 2 | 3} className="vx-snap-tape" />
+                  {p.shot ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={p.shot} alt={`${p.name} screenshot`} loading="lazy" />
+                  ) : (
+                    <div className="vx-prod-coded">
+                      <div className="vx-pol-phone">
+                        <Upto />
+                      </div>
+                    </div>
+                  )}
+                  <figcaption>{p.domain}</figcaption>
+                  <span className="vx-pin k" style={win(a + 0.04, a + 0.075)} aria-hidden />
+                </figure>
+
+                <div className="vx-prod-copy">
+                  <h3 className="vx-prod-name k slap" style={win(a + 0.01, a + 0.04)}>
+                    {p.name}
+                  </h3>
+                  <p className="vx-prod-role k slap" style={win(a + 0.015, a + 0.045)}>
+                    {p.role}
+                    {p.client ? ` · ${p.client}` : ''}
+                  </p>
+
+                  <div className="vx-prod-what k slap" style={win(a + 0.02, a + 0.05)}>
+                    <span className="vx-prod-lbl">
+                      <mark className="vx-hl vx-hl-static">What it is</mark>
+                    </span>
+                    <p className="vx-prod-pitch">{p.pitch}</p>
+                    <p className="vx-prod-problem">
+                      <b>The problem: </b>
+                      {p.problem}
+                    </p>
+                  </div>
+
+                  <div className="vx-prod-did">
+                    <span className="vx-prod-lbl k slap" style={win(a + 0.028, a + 0.05)}>
+                      <mark className="vx-hl vx-hl-static">What I did</mark>
+                    </span>
+                    <ol>
+                      {p.did.map((d, k) => (
+                        <li key={d} className="k slap" style={win(a + 0.032 + k * 0.012, a + 0.06 + k * 0.012)}>
+                          {d}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+
+                  <div className="vx-cards vx-prod-stats">
+                    {p.metrics.map((m, k) => (
+                      <div className={`vx-card-stat k slap ${k === 0 ? 'lead' : ''}`} key={m.label} style={win(a + 0.06 + k * 0.008, a + 0.085 + k * 0.008, { '--r': `${[-2, 1.5, -1][k % 3]}deg` })}>
+                        <b>
+                          {m.value}
+                          {k === 0 && <Ring a={a + 0.07} b={a + 0.095} />}
+                        </b>
+                        <span>{m.label}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="vx-prod-foot k slap" style={win(a + 0.07, a + 0.095)}>
+                    <div className="vx-pol-links">
+                      {p.url ? (
+                        <a href={p.url} target="_blank" rel="noreferrer">
+                          Visit live ↗
+                        </a>
+                      ) : (
+                        <span className="vx-soon">Case study coming soon</span>
+                      )}
+                      {p.caseStudy && <Link href={`/work/${p.id}`}>Read case study →</Link>}
+                    </div>
+                    <ul className="vx-prod-stack">
+                      {p.stack.map((t) => (
+                        <li key={t}>{t}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+        <div className="vx-rail" aria-hidden>
+          {WORK.map((p) => (
+            <span key={p.id}>
+              <i />
+              {p.name}
+            </span>
+          ))}
+        </div>
       </div>
     </Chapter>
   );
