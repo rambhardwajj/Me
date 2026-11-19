@@ -13,7 +13,7 @@ export default function Numbers() {
   const keys = [[0.1, 0, 30, 1.2, -2], ...lines.map((l) => l.cam), [0.9, 0, 0, 1, 0]];
 
   return (
-    <Chapter id="numbers" len={5.4} card={CHAPTERS_V.numbers} className="vx-numbers">
+    <Chapter id="numbers" len={4.2} card={CHAPTERS_V.numbers} className="vx-numbers">
       <div className="vx-doc-frame">
         <div className="vx-cam" data-cam={JSON.stringify(keys)}>
           <article className="vx-doc">
