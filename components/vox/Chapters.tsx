@@ -402,7 +402,7 @@ export function EndCard() {
         </div>
         <footer className="foot vx-foot">
           <span>© {new Date().getFullYear()} Ram Bhardwaj</span>
-          <Link href="/old">Classic site →</Link>
+          <Link href="/uber">Dream company portfolio →</Link>
         </footer>
       </div>
     </section>

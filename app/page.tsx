@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   description: PROFILE.intro,
 };
 
-/** The explainer: a scroll-driven page in the style of a Vox video. The previous site lives at /old. */
+/** The explainer: a scroll-driven page in the style of a Vox video. */
 export default function Home() {
   return (
     <div className="vox" data-theme="light">

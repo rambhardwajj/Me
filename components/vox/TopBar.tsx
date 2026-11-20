@@ -12,7 +12,7 @@ const LINKS = [
   { id: 'contact', label: 'Contact' },
 ];
 
-/** Minimal paper bar: name, chapter jumps, the classic site, and a button that opens Mini Ram. */
+/** Minimal paper bar: name, chapter jumps, the dream company portfolio, and a button that opens Mini Ram. */
 export default function TopBar() {
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -37,8 +37,8 @@ export default function TopBar() {
             {l.label}
           </a>
         ))}
-        <Link href="/old" className="vx-bar-old">
-          Classic site
+        <Link href="/uber" className="vx-bar-old">
+          Dream company portfolio
         </Link>
       </nav>
       <button className="vx-bar-ask" onClick={ask}>
