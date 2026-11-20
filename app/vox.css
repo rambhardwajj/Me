@@ -245,6 +245,13 @@ body:has(.vox) { background: #efe8dc; }
 @media (max-width: 1000px) {
   .vx-stat { display: none; }
 }
+/* the longer "Dream company portfolio" label stays on one line until the bar collapses to the menu */
+.vx-bar-links a, .vx-bar-ask { white-space: nowrap; }
+@media (min-width: 901px) and (max-width: 1100px) {
+  .vx-bar-links { gap: 0; }
+  .vx-bar-links a { padding: 6px 6px; font-size: 10.5px; letter-spacing: 0.02em; }
+  .vx-bar-links .vx-bar-old { margin-left: 4px; }
+}
 @media (max-width: 900px) {
   .vx-bar-links, .vx-bar-ask { display: none; }
   .vx-bar-menu { display: block; margin-left: auto; }
