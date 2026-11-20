@@ -20,12 +20,28 @@ export function useRide() {
   const [mode, setMode] = useState<Mode>('quick');
   const [journey, setJourney] = useState<{ from: StopId; to: StopId }>({ from: 'st-dominics', to: 'you' });
   /** The stop the pointer is on, in the map or in a list, so each can light up the other. */
-  const [hot, setHot] = useState<StopId | null>(null);
+  const [hot, setHotOnly] = useState<StopId | null>(null);
+  /** The last place pointed at. It stays on show beside the map until another one is pointed at. */
+  const [look, setLookState] = useState<{ stop?: StopId; trip: TripId } | null>(null);
+  /** The destination being pointed at in the phone, and where its icon is (in phone pixels), for the thought cloud. */
+  const [peek, setPeek] = useState<{ trip: TripId; x: number; y: number } | null>(null);
   /** Counts moves between screens, so the keyboard can follow each one. */
   const [moves, setMoves] = useState(0);
   const opener = useRef<HTMLElement | null>(null);
 
   const step = useCallback(() => setMoves((n) => n + 1), []);
+  const setHot = useCallback((id: StopId | null) => {
+    setHotOnly(id);
+    if (id && id !== 'you') setLookState({ stop: id, trip: stop(id).trip });
+  }, []);
+  /** Point at a whole trip (from a row in the phone): its end stop lights up on the map. */
+  const setLook = useCallback((id: TripId | null) => {
+    if (!id) return setHotOnly(null);
+    const t = getTrip(id);
+    const end = t.to === 'you' ? t.from : t.to;
+    setHotOnly(id === 'story' || id === 'idle-minutes' ? null : end);
+    setLookState({ trip: id });
+  }, []);
   const screen = stack[stack.length - 1];
 
   const push = (sc: Screen) => {
@@ -58,7 +74,9 @@ export function useRide() {
       step();
       setMode('quick');
       setSheet(null);
-      setHot(null);
+      setHotOnly(null);
+      setPeek(null);
+      setLookState({ trip: id });
       setStack((st) => [...st.filter((sc) => sc.s === 'tab' || sc.s === 'search').slice(0, 2), { s: 'choose', trip: id }]);
     },
     [step],
@@ -81,7 +99,7 @@ export function useRide() {
   const tripMode: Mode = screen.s === 'finding' || screen.s === 'details' ? screen.mode : mode;
 
   return {
-    stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, hot, setHot, moves, step,
+    stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, hot, setHot, look, setLook, peek, setPeek, moves, step,
     push, back, goTab, openSheet, closeSheet, ride,
     where, onTrip, onJourney, journeyTrip, route, tripMode,
   };

@@ -149,6 +149,17 @@ type Props = {
   /** The stop the pointer is on. With `onHot`, stops show a photo card when pointed at. */
   hot?: StopId | null;
   onHot?: (id: StopId | null) => void;
+  /** 'all' keeps the whole road in view whatever the route; 'route' zooms to the route. */
+  fit?: 'route' | 'all';
+  /** Hide the minutes badge (when the map is only being browsed). */
+  noBadge?: boolean;
+  /**
+   * Start a drive: a car runs the route from its first stop to its last, and each stop's photo pops up as it passes.
+   * Change the string to drive again; null for no drive.
+   */
+  drive?: string | null;
+  onPass?: (id: StopId) => void;
+  onDone?: () => void;
   /** Pulse the destination, while a ride is being found. */
   searching?: boolean;
   reducedMotion?: boolean;
@@ -157,7 +168,7 @@ type Props = {
 /**
  * The life map. It flies to the route between two stops, draws the route, and can be zoomed and dragged.
  */
-export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, hot, onHot, searching, reducedMotion }: Props) {
+export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, hot, onHot, fit = 'route', noBadge, drive = null, onPass, onDone, searching, reducedMotion }: Props) {
   const box = useRef<HTMLDivElement>(null);
   // `n` counts measurements: until the box has been measured once, the camera does not animate
   const [size, setSize] = useState({ w: 390, h: 440, n: 0 });
@@ -176,12 +187,13 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
   const B = stop(to);
 
   // the view that fits the route into the free part of the box
-  const pt = (pad.top ?? 0) + (detail ? 70 : 46);
-  const pr = (pad.right ?? 0) + (detail ? 90 : 44);
+  const pt = (pad.top ?? 0) + (detail ? 60 : 46);
+  const pr = (pad.right ?? 0) + (detail ? 56 : 44);
   const pb = (pad.bottom ?? 0) + (detail ? 70 : 40);
-  const pl = (pad.left ?? 0) + (detail ? 90 : 44);
-  const xs = points.map((p) => p.x);
-  const ys = points.map((p) => p.y);
+  const pl = (pad.left ?? 0) + (detail ? 76 : 44);
+  const fitPts = fit === 'all' ? ROAD : points;
+  const xs = fitPts.map((p) => p.x);
+  const ys = fitPts.map((p) => p.y);
   const bx = Math.min(...xs);
   const by = Math.min(...ys);
   const bw = Math.max(Math.max(...xs) - bx, 1);
@@ -201,7 +213,79 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
     cy: clampPan(by + bh / 2 + mine.dy, 0, 1200),
     k: fitK * mine.z,
   };
-  const view = useFlight(target, reducedMotion || dragging || size.n < 2 ? 0 : mine.z !== 1 || mine.dx || mine.dy ? 320 : 900);
+
+  /* the drive: a car runs the route, and each stop's photo pops up as it passes */
+  const aFrom = along(A.at);
+  const aTo = along(B.at);
+  const span = Math.abs(aTo - aFrom) || 1;
+  const order = [A, ...between, B];
+  const fracOf = (p: Pt) => Math.abs(along(p) - aFrom) / span;
+  const [run, setRun] = useState({ key: '', p: 1 });
+  const p = drive ? (run.key === drive ? run.p : 0) : 1;
+  const driving = !!drive && p < 1;
+  const calls = useRef({ onPass, onDone });
+  useEffect(() => {
+    calls.current = { onPass, onDone };
+  });
+  useEffect(() => {
+    if (!drive) return;
+    const r = routeBetween(from, to);
+    const a0 = along(stop(from).at);
+    const len = Math.abs(along(stop(to).at) - a0) || 1;
+    const stops = [stop(from), ...r.between, stop(to)];
+    const fr = stops.map((s) => Math.abs(along(s.at) - a0) / len);
+    const ms = reducedMotion ? 0 : Math.max(5000, Math.min(16000, stops.length * 1100));
+    let last = -1;
+    const mark = (at: number) => {
+      let i = -1;
+      fr.forEach((f, j) => {
+        if (f <= at + 0.001) i = j;
+      });
+      if (i !== last) {
+        last = i;
+        if (i >= 0) calls.current.onPass?.(stops[i].id);
+      }
+    };
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      setRun({ key: drive, p: 1 });
+      mark(1);
+      calls.current.onDone?.();
+    };
+    if (!ms) {
+      const id = window.setTimeout(finish, 0);
+      return () => window.clearTimeout(id);
+    }
+    const t0 = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const at = Math.min(1, (now - t0) / ms);
+      if (at >= 1) return finish();
+      setRun({ key: drive, p: at });
+      mark(at);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    // the drive always arrives, even if animation frames stop coming
+    const safety = window.setTimeout(() => {
+      cancelAnimationFrame(raf);
+      finish();
+    }, ms + 500);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(safety);
+    };
+  }, [drive, from, to, reducedMotion]);
+  const car = pointAt(aFrom + (aTo - aFrom) * p);
+
+  const flown = useFlight(target, reducedMotion || dragging || size.n < 2 ? 0 : mine.z !== 1 || mine.dx || mine.dy ? 320 : 900);
+  // while driving, the camera eases in on the car, follows it, and eases back out at the end
+  const soft = (t: number) => t * t * (3 - 2 * t);
+  const near = driving ? soft(Math.min(p / 0.07, 1)) * (1 - soft(Math.max(0, (p - 0.93) / 0.07))) : 0;
+  const followK = Math.max(target.k, detail ? 0.82 : 0.7);
+  const view: View = driving ? { cx: target.cx + (car.x - target.cx) * near, cy: target.cy + (car.y - target.cy) * near, k: target.k * Math.pow(followK / target.k, near) } : flown;
   const k = view.k;
   const vx = view.cx - (pl + freeW / 2) / k;
   const vy = view.cy - (pt + freeH / 2) / k;
@@ -210,7 +294,7 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
   const inv = 1 / k;
 
   const zoom = (f: number) => setOwn({ ...mine, z: Math.max(0.5, Math.min(5, mine.z * f)) });
-  const fit = () => setOwn({ key: routeKey, z: 1, dx: 0, dy: 0 });
+  const refit = () => setOwn({ key: routeKey, z: 1, dx: 0, dy: 0 });
   const grab = useRef<{ x: number; y: number; dx: number; dy: number } | null>(null);
   const onDown = (e: React.PointerEvent) => {
     if (!controls || !detail || (e.target as HTMLElement).closest('button')) return;
@@ -251,8 +335,8 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
 
   // name tags: on the small map only the two ends, above their pin; on the big map every place, at its own anchor
   const tags = (detail ? places : [A, B].filter((s, i, all) => s.type === 'place' && all.findIndex((o) => o.id === s.id) === i)).map((s) => {
-    const w = s.name.length * 8.3 + 24 + (detail ? 58 : 0);
-    if (detail && s.tag) return { s, w, left: sx(s.tag) - w / 2, top: sy(s.tag) - 16 };
+    const w = detail ? s.name.length * 7.3 + 20 : s.name.length * 8.3 + 24;
+    if (detail && s.tag) return { s, w, left: sx(s.tag) - w / 2, top: sy(s.tag) - 13 };
     const left = Math.max(8, Math.min(size.w - w - 8, sx(s.at) - w / 2));
     const above = sy(s.at) - 50 > (pad.top ?? 0) + 4;
     return { s, w, left, top: above ? sy(s.at) - 50 : sy(s.at) + 18 };
@@ -294,14 +378,14 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
         <path className="lm-casing" d={ROAD_D} />
         <path className="lm-road" d={ROAD_D} />
         {detail &&
-          k > 0.36 &&
+          k > 0.6 &&
           ROAD_NAMES.map((r) => (
             <text key={r.name} className="lm-roadname" textAnchor="middle" transform={`translate(${r.x} ${r.y}) rotate(${r.turn ?? 0}) scale(${inv})`}>
               {r.name}
             </text>
           ))}
         {detail &&
-          k > 0.36 &&
+          k > 0.6 &&
           AREA_NAMES.map((a) => (
             <text key={a.name} className="lm-area" transform={`translate(${a.x} ${a.y}) scale(${inv})`}>
               {a.name}
@@ -316,7 +400,8 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
         {detail && places.map((s) => s.tag && <path key={s.id} className="lm-leader" d={`M${s.at.x} ${s.at.y}L${s.tag.x} ${s.tag.y}`} strokeWidth={2.5 * inv} />)}
         {/* the route draws itself each time it changes */}
         <path key={routeKey} className="lm-route" d={d(points)} pathLength={1} strokeWidth={(detail ? 6 : 5) * inv} />
-        {k > 0.3 &&
+        {drive && <path className="lm-driven" d={d(points)} pathLength={1} strokeDasharray={`${p} 1`} strokeWidth={(detail ? 6 : 5) * inv} />}
+        {k > (detail ? 0.5 : 0.3) &&
           YEARS.map((s) => (
             <g key={s.y} transform={`translate(${s.at.x} ${s.at.y}) scale(${inv})`}>
               <rect className="lm-shield" x={-17} y={-9} width={34} height={18} rx={5} />
@@ -344,7 +429,16 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
           <circle className="lm-you-halo" r={17} />
           <circle className="lm-you" r={8} />
         </g>
-        {minutes > 0 && (
+        {driving && (
+          <g transform={`translate(${car.x} ${car.y}) scale(${inv})`}>
+            <circle className="lm-car-glow" r={22} />
+            <rect className="lm-car" x={-15} y={-15} width={30} height={30} rx={9} />
+            <path className="lm-car-ico" d="M-8.500 1.500h17v4a1.200 1.200 0 0 1-1.200 1.200h-14.600a1.200 1.200 0 0 1-1.200-1.200zM-6 -4h11l2.500 5.500h-15.500z" />
+            <circle className="lm-car-wheel" cx={-5} cy={6.500} r={2.200} />
+            <circle className="lm-car-wheel" cx={5} cy={6.500} r={2.200} />
+          </g>
+        )}
+        {minutes > 0 && !noBadge && !driving && (
           <g transform={`translate(${badge.x} ${badge.y}) scale(${inv})`}>
             <rect className="lm-badge" x={-35} y={-17} width={70} height={34} rx={8} />
             <text className="lm-badge-t" y={5.5} textAnchor="middle">
@@ -357,7 +451,6 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
       {tags.map(({ s, left, top }) => (
         <span key={s.id} className={`lm-tag ${onRoute.has(s.id) ? '' : 'off'} ${hot === s.id ? 'hot' : ''}`} style={{ left, top }} aria-hidden="true">
           {s.name}
-          {detail && <small>{minLabel(minutesAway(s.when))}</small>}
         </span>
       ))}
       {detail && inBox(you.at, 0) && (
@@ -365,6 +458,20 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
           You are here
         </span>
       )}
+
+      {/* photos of the stops the car has passed; once it has arrived, only the places keep theirs */}
+      {drive &&
+        order
+          .filter((s) => s.type !== 'you' && fracOf(s.at) <= p + 0.001 && (driving || s.type === 'place' || s.id === from || s.id === to) && inBox(s.at, 0))
+          .map((s) => {
+            const photo = stopPhoto(s.id);
+            return (
+              photo && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img key={s.id} className={`lm-thumb ${photo.contain ? 'contain' : ''}`} style={{ left: sx(s.at), top: sy(s.at) }} src={photo.src} alt="" onError={(e) => (e.currentTarget.style.display = 'none')} />
+              )
+            );
+          })}
 
       {/* pointing at a stop shows its photo; these are for the pointer only, the lists reach every stop by keyboard */}
       {onHot &&
@@ -407,7 +514,7 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
           <button type="button" onClick={() => zoom(1 / 1.5)} aria-label="Zoom out">
             <Icon name="minus" size={18} w={2.4} />
           </button>
-          <button type="button" onClick={fit} aria-label="Fit the route" disabled={mine.z === 1 && !mine.dx && !mine.dy}>
+          <button type="button" onClick={refit} aria-label="Fit the route" disabled={mine.z === 1 && !mine.dx && !mine.dy}>
             <Icon name="fit" size={18} w={2.2} />
           </button>
         </div>

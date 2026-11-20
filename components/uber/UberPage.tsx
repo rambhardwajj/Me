@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type Re
 import { BILLBOARD, PERSONAS, THEME_KEY, TRIBUTE_LONG, type PersonaId } from '@/lib/uber';
 import PhoneApp, { type PhoneHandle } from './PhoneApp';
 import StagePanel from './StagePanel';
+import ThoughtCloud from './ThoughtCloud';
 import { Icon } from './icons';
 import { useRide } from './useRide';
 
@@ -201,6 +202,8 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
             <div className="ub-arrived" inert={desk && !arrived ? true : undefined}>
               {desk && <StagePanel app={ride} persona={persona} onPersona={setPersona} reducedMotion={reduced} />}
             </div>
+
+            {desk && arrived && ride.peek && !ride.sheet && <ThoughtCloud trip={ride.peek.trip} x={ride.peek.x} y={ride.peek.y} />}
 
             <div className="ub-phone" ref={app}>
               <div className="ub-frame">

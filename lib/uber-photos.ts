@@ -4,7 +4,7 @@
  * A photo is attached to a stop only where the journey ties it to that stop.
  */
 import { JOURNEY } from './data';
-import type { StopId, TripId } from './uber';
+import { stop, type StopId, type TripId } from './uber';
 
 export type Photo = {
   src: string;
@@ -82,3 +82,25 @@ export function tripPhotos(id: TripId): Photo[] {
 
 /** Ram's portrait, the cut-out the main site uses. */
 export const PORTRAIT: Photo = { src: '/images/ram-cutout.webp', alt: 'Ram Bhardwaj', caption: 'Ram Bhardwaj' };
+
+/* ------------------------------------------------------------------ what happened at each stop */
+
+export type StopStory = { title: string; org: string; body: string; points: string[]; stat?: string };
+
+/**
+ * Where the site's journey text disagrees with the briefs on a number, the briefs win.
+ * These lines replace the journey's own for that stop.
+ */
+const BODY_OVERRIDE: Partial<Record<StopId, string>> = {
+  'masters-union': 'Learning business by running one: unBothrrd, a D2C venture with ₹7.2L in revenue, and a locked seat in the Netflix Fraternity.',
+};
+/** Journey points that carry a number the briefs do not use on this page. */
+const SKIP_POINT = /75%/;
+
+/** The longer description of a stop, in the journey's own words. Stops the journey does not cover get their map label only. */
+export function stopStory(id: StopId): StopStory {
+  const s = stop(id);
+  const m = JOURNEY.find((x) => x.id === STOP_JOURNEY[id]);
+  if (!m) return { title: s.name, org: s.note ?? '', body: '', points: [] };
+  return { title: m.title, org: m.org, body: BODY_OVERRIDE[id] ?? m.body, points: (m.points ?? []).filter((x) => !SKIP_POINT.test(x)), stat: m.stat };
+}

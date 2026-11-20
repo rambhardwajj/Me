@@ -10,14 +10,12 @@ import {
   HERO_FACTS,
   INBOX,
   PERSONAS,
-  REROUTES,
   RESERVE,
   RIDE,
   SERVICES,
   SHIPPED,
   STAGE,
   TEARDOWN,
-  TRIPS,
   minLabel,
   minutesAway,
   monthLabel,
@@ -25,11 +23,13 @@ import {
   trip as getTrip,
   tripMinutes,
   type PersonaId,
+  STOPS,
   type Stop,
+  type StopId,
   type Trip,
   type TripId,
 } from '@/lib/uber';
-import { PORTRAIT, stopPhoto, tripPhotos, type Photo } from '@/lib/uber-photos';
+import { PORTRAIT, stopPhoto, stopStory, tripPhotos, type Photo } from '@/lib/uber-photos';
 import LifeMap, { routeBetween } from './LifeMap';
 import { Icon, Pict } from './icons';
 import type { Ride } from './useRide';
@@ -58,6 +58,83 @@ function TripCard({ t, onOpen, i }: { t: Trip; onOpen: (id: TripId) => void; i: 
   );
 }
 
+/** One stop beside the map: its photo, when it was, and what happened there in the journey's own words. */
+function SideStop({ s, small }: { s: Stop; small?: boolean }) {
+  const photo = stopPhoto(s.id);
+  const story = stopStory(s.id);
+  return (
+    <div className={`ub-sstop ${small ? 'small' : ''}`} style={{ ['--acc' as string]: ACCENT[s.trip] }}>
+      {photo && (
+        <span className="ub-sstop-art">
+          <Shot photo={photo} />
+        </span>
+      )}
+      <small>
+        {when(s)}
+        {s.type !== 'you' && <> · {minLabel(minutesAway(s.when))} away</>}
+      </small>
+      <b>{story.title}</b>
+      {story.org && <span className="org">{story.org}</span>}
+      {story.body && <p>{story.body}</p>}
+      {story.points.length > 0 && (
+        <ul>
+          {story.points.map((x) => (
+            <li key={x}>{x}</li>
+          ))}
+        </ul>
+      )}
+      {story.stat && <span className="ub-sstop-stat">{story.stat}</span>}
+    </div>
+  );
+}
+
+/** One trip beside the map: photo, what it was, what Ram did, and the receipt. `bare` leaves out the photo and text. */
+function SideTrip({ t, bare }: { t: Trip; bare?: boolean }) {
+  const photo = tripPhotos(t.id)[0];
+  const min = tripMinutes(t);
+  const receipt = [...(t.receipt ?? []), ...(min !== null && t.id !== 'idle-minutes' ? [{ label: 'Distance from today', value: minLabel(min) }] : [])];
+  return (
+    <div className="ub-strip" style={{ ['--acc' as string]: ACCENT[t.id] }}>
+      {!bare && photo && (
+        <span className="ub-sstop-art big">
+          <Shot photo={photo} />
+        </span>
+      )}
+      {!bare && <h3 className="ub-side-h">{t.name}</h3>}
+      {!bare && <p className="ub-side-p">{t.blurb}</p>}
+      {t.result && (
+        <p className="ub-bigstat">
+          <b>{t.result.value}</b>
+          <span>{t.result.sub}</span>
+        </p>
+      )}
+      {!bare && t.did && (
+        <ul className="ub-ticks">
+          {t.did.map((x) => (
+            <li key={x}>
+              <i aria-hidden="true">
+                <Icon name="check" size={12} w={3.2} />
+              </i>
+              <span>{x}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {receipt.length > 0 && (
+        <dl className="ub-receipt">
+          {receipt.map((r) => (
+            <div key={r.label}>
+              <dt>{r.label}</dt>
+              <i aria-hidden="true" />
+              <dd>{r.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+    </div>
+  );
+}
+
 type Props = {
   app: Ride;
   persona: PersonaId;
@@ -70,122 +147,180 @@ type Props = {
  * what the screen stands for, the map flying to the chosen route, the photos and the receipt.
  */
 export default function StagePanel({ app, persona, onPersona, reducedMotion }: Props) {
-  const { where, onTrip, route, screen, hot, setHot, ride, openSheet, journeyTrip } = app;
-  const [pick, setPick] = useState<{ trip: string; i: number }>({ trip: '', i: 0 });
+  const { where, onTrip, route, screen, hot, setHot, look, ride, openSheet, journeyTrip, tripMode, setStack } = app;
+  /** The car's drive on the Quick ride: how many times it has been replayed, the stop it is passing, and whether it has arrived. */
+  const [replay, setReplay] = useState(0);
+  const [pass, setPass] = useState<{ key: string; stop: StopId }>({ key: '', stop: 'you' });
+  const [done, setDone] = useState('');
   const [copied, setCopied] = useState(false);
   const ex = EXPLAIN[where];
   const t = onTrip ?? (route ? getTrip(journeyTrip) : null);
-  const accent = t ? ACCENT[t.id] : ACCENT[PERSONAS.find((p) => p.id === persona)!.lead];
+  const accent = t ? ACCENT[t.id] : look && where === 'search' ? ACCENT[look.trip] : ACCENT[PERSONAS.find((p) => p.id === persona)!.lead];
   const reserve = () => openSheet('reserve');
 
   /* ---------------------------------------------------------------- a route is on the map */
   let body;
-  if (route) {
-    const { between, minutes } = routeBetween(route.from, route.to);
-    const timeline = !onTrip || onTrip.id === 'story';
-    const stops = [stop(route.from), ...between, stop(route.to)];
-    const forward = minutesAway(stop(route.from).when) >= minutesAway(stop(route.to).when);
-    const photos = onTrip ? tripPhotos(onTrip.id) : [];
-    const shown = photos[pick.trip === onTrip?.id ? Math.min(pick.i, photos.length - 1) : 0];
-    const min = onTrip ? tripMinutes(onTrip) : null;
-    const receipt = onTrip ? [...(onTrip.receipt ?? []), ...(min !== null && onTrip.id !== 'idle-minutes' ? [{ label: 'Distance from today', value: minLabel(min) }] : [])] : [];
+  const browsing = where === 'search';
+  const onMap = route ?? (browsing ? { from: 'st-dominics' as StopId, to: 'you' as StopId } : null);
+  if (onMap) {
+    const { between, minutes } = routeBetween(onMap.from, onMap.to);
+    const stops = [stop(onMap.from), ...between, stop(onMap.to)];
+    const inDetails = screen.s === 'details' && !!onTrip;
+    const quick = inDetails && tripMode === 'quick' && onTrip!.id !== 'idle-minutes';
+    const full = inDetails && tripMode === 'full';
+    const driveKey = quick ? `${onTrip!.id}:${replay}` : null;
+    const arrived = !!driveKey && done === driveKey;
+    const passing = quick && pass.key === driveKey ? stop(pass.stop) : null;
+    const setMode = (m: 'quick' | 'full') => onTrip && setStack((st) => [...st.slice(0, -1), { s: 'details', trip: onTrip.id, mode: m }]);
+
+    /* the column beside the map */
+    let side;
+    if (quick) {
+      // Quick ride: the map does the talking; this column names the stop the car is passing
+      const at = passing ?? stops[0];
+      const n = stops.findIndex((x) => x.id === at.id) + 1;
+      side = arrived ? (
+        <div className="ub-side-in" key="arrived">
+          <p className="ub-side-k">Arrived</p>
+          <SideTrip t={onTrip!} />
+          <div className="ub-side-btns">
+            <button type="button" className="ub-btn solid" onClick={() => setMode('full')}>
+              Read the full story
+            </button>
+            <button type="button" className="ub-btn line" onClick={() => setReplay((x) => x + 1)}>
+              Replay the ride
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="ub-side-in">
+          <p className="ub-side-k">
+            Now passing · stop {n} of {stops.length}
+          </p>
+          <SideStop s={at} key={at.id} />
+          <p className="ub-side-hint">The car is driving the whole route. Each stop shows its photo as it passes.</p>
+        </div>
+      );
+    } else if (full) {
+      // Full story: every event on the route, described
+      side = (
+        <div className="ub-side-in scroll" tabIndex={0} role="group" aria-label={`Every event on the way to ${onTrip!.name}`}>
+          <p className="ub-side-k">The full story</p>
+          <h3 className="ub-side-h">{onTrip!.name}</h3>
+          <p className="ub-side-p">{onTrip!.blurb}</p>
+          {onTrip!.problem && (
+            <>
+              <p className="ub-side-k sub">The problem</p>
+              <p className="ub-side-p">{onTrip!.problem}</p>
+            </>
+          )}
+          {onTrip!.id === 'idle-minutes' &&
+            TEARDOWN.parts.map((x) => (
+              <div key={x.heading}>
+                <p className="ub-side-k sub">{x.heading}</p>
+                <p className="ub-side-p">{x.text}</p>
+              </div>
+            ))}
+          {[
+            { title: `What happened at ${onTrip!.name}`, list: stops.filter((x) => x.type !== 'you' && x.trip === onTrip!.id).sort((a, b) => minutesAway(b.when) - minutesAway(a.when)) },
+            { title: onTrip!.id === 'story' ? 'Stop by stop' : 'Also on the way there', list: stops.filter((x) => x.type !== 'you' && x.trip !== onTrip!.id) },
+          ].map(
+            (g) =>
+              g.list.length > 0 && (
+                <div key={g.title} className="ub-events-group">
+                  <p className="ub-side-k sub">{g.title}</p>
+                  <ol className="ub-events">
+                    {g.list.map((x) => (
+                      <li key={x.id} className={hot === x.id ? 'hot' : ''} onMouseEnter={() => setHot(x.id)} onMouseLeave={() => setHot(null)}>
+                        <SideStop s={x} small />
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              ),
+          )}
+          {onTrip!.result && <SideTrip t={onTrip!} bare />}
+        </div>
+      );
+    } else if (look) {
+      // browsing: everything about the place last pointed at
+      const lt = getTrip(look.trip);
+      const ls = look.stop ? stop(look.stop) : null;
+      side = (
+        <div className="ub-side-in scroll" key={`${look.stop ?? ''}${look.trip}`} tabIndex={0} role="group" aria-label={`About ${ls?.name ?? lt.name}`}>
+          <p className="ub-side-k">{browsing || !onTrip ? 'You are pointing at' : 'Your destination'}</p>
+          {ls && ls.name !== lt.name && <SideStop s={ls} />}
+          <SideTrip t={lt} />
+          {(browsing || app.onJourney) && (
+            <div className="ub-side-btns">
+              <button type="button" className="ub-btn solid" onClick={() => ride(lt.id)}>
+                Ride to {lt.name}
+              </button>
+            </div>
+          )}
+        </div>
+      );
+    } else {
+      side = (
+        <div className="ub-side-in">
+          <p className="ub-side-k">The whole map</p>
+          <h3 className="ub-side-h">Point at any place.</h3>
+          <p className="ub-side-p">Everything about it shows up here: what it was, the photos, and what came out of it. Click a place to ride there.</p>
+          <ul className="ub-legend">
+            <li>
+              <i className="sq" />
+              Square pins are places Ram belonged to
+            </li>
+            <li>
+              <i className="dot" />
+              Dots are what he did there
+            </li>
+            <li>
+              <i className="you" />
+              The blue dot is today
+            </li>
+          </ul>
+        </div>
+      );
+    }
+
     body = (
-      <>
-        <div className={`ub-mapbox ${timeline ? 'tall' : ''}`}>
-          <LifeMap from={route.from} to={route.to} detail controls hot={hot} onHot={setHot} onPick={(id) => ride(stop(id).trip)} searching={screen.s === 'finding'} reducedMotion={reducedMotion} />
+      <div className="ub-three">
+        <div className="ub-mapbox">
+          <LifeMap
+            from={onMap.from}
+            to={onMap.to}
+            detail
+            controls
+            fit="all"
+            noBadge={browsing}
+            hot={hot}
+            onHot={setHot}
+            onPick={(id) => ride(stop(id).trip)}
+            drive={driveKey}
+            onPass={(id) => driveKey && setPass({ key: driveKey, stop: id })}
+            onDone={() => driveKey && setDone(driveKey)}
+            searching={screen.s === 'finding'}
+            reducedMotion={reducedMotion}
+          />
           <p className="ub-mapbox-sum">
-            <b>{minLabel(minutes)}</b>
-            {between.length} {between.length === 1 ? 'stop' : 'stops'} on the way · 1 min is 1 month of Ram’s life
+            {browsing ? (
+              <>
+                <b>{STOPS.filter((x) => x.type === 'place').length} places</b>
+                {STOPS.filter((x) => x.type === 'dot').length} stops between them · 1 min is 1 month of Ram’s life
+              </>
+            ) : (
+              <>
+                <b>{minLabel(minutes)}</b>
+                {between.length} {between.length === 1 ? 'stop' : 'stops'} on the way · 1 min is 1 month
+              </>
+            )}
           </p>
         </div>
-        {timeline ? (
-          <div className="ub-line" tabIndex={0} role="group" aria-label="The stops on this route, in order. Scroll sideways to see them all.">
-            {stops.map((s, i) => {
-              const photo = stopPhoto(s.id);
-              const turn = forward ? REROUTES.find((r) => r.before === s.id) : undefined;
-              return (
-                <div key={s.id} className="ub-line-item" style={{ ['--i' as string]: Math.min(i, 12) }}>
-                  {turn && <span className="ub-turn">{turn.text}</span>}
-                  <div className={`ub-stopcard ${s.type} ${hot === s.id ? 'hot' : ''}`} style={{ ['--acc' as string]: ACCENT[s.trip] }} onMouseEnter={() => setHot(s.id)} onMouseLeave={() => setHot(null)} onClick={() => s.type !== 'you' && ride(s.trip)}>
-                    <span className="ub-stopcard-art">
-                      {s.type === 'you' ? <i className="ub-youdot" /> : <Pict name={getTrip(s.trip).icon} size={44} />}
-                      {photo && <Shot photo={photo} />}
-                    </span>
-                    <small>
-                      {when(s)}
-                      {s.type !== 'you' && <> · {minLabel(minutesAway(s.when))}</>}
-                    </small>
-                    <b>{s.name}</b>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          onTrip && (
-            <div className="ub-trip" key={onTrip.id}>
-              <div className="ub-trip-copy">
-                <div className="ub-trip-head">
-                  <h3 className={onTrip.name.length > 14 ? 'long' : ''}>{onTrip.name}</h3>
-                  {onTrip.result && (
-                    <p className="ub-bigstat">
-                      <b>{onTrip.result.value}</b>
-                      <span>{onTrip.result.sub}</span>
-                    </p>
-                  )}
-                </div>
-                <p>{onTrip.blurb}</p>
-                {onTrip.id === 'idle-minutes' ? (
-                  <p className="ub-trip-idea">{TEARDOWN.parts.find((p) => p.heading === 'The idea')?.text}</p>
-                ) : (
-                  onTrip.did && (
-                    <ul className="ub-ticks">
-                      {onTrip.did.map((x) => (
-                        <li key={x}>
-                          <i aria-hidden="true">
-                            <Icon name="check" size={12} w={3.2} />
-                          </i>
-                          <span>{x}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )
-                )}
-              </div>
-              <div className="ub-trip-side">
-                {shown && (
-                  <figure className="ub-gallery">
-                    <span className="ub-gallery-main" key={shown.src}>
-                      <Shot photo={shown} />
-                    </span>
-                    <figcaption>{shown.caption}</figcaption>
-                    {photos.length > 1 && (
-                      <span className="ub-thumbs">
-                        {photos.map((p, i) => (
-                          <button key={p.src} type="button" className={p === shown ? 'on' : ''} onClick={() => setPick({ trip: onTrip.id, i })} aria-label={`Show photo: ${p.caption}`} aria-pressed={p === shown}>
-                            <Shot photo={{ ...p, alt: '' }} />
-                          </button>
-                        ))}
-                      </span>
-                    )}
-                  </figure>
-                )}
-                {receipt.length > 0 && (
-                  <dl className="ub-receipt">
-                    {receipt.map((r) => (
-                      <div key={r.label}>
-                        <dt>{r.label}</dt>
-                        <i aria-hidden="true" />
-                        <dd>{r.value}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                )}
-              </div>
-            </div>
-          )
-        )}
-      </>
+        <aside className="ub-side" style={{ ['--acc' as string]: accent }}>
+          {side}
+        </aside>
+      </div>
     );
   } else if (where === 'home') {
     /* ---------------------------------------------------------------- nothing tapped yet */
@@ -282,7 +417,6 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
     /* ---------------------------------------------------------------- a wall of trips for this screen */
     const lists: Partial<Record<typeof where, TripId[]>> = {
       shipped: SHIPPED,
-      search: TRIPS.map((x) => x.id),
       services: [...new Set([...SERVICES.main, ...SERVICES.more].map((x) => x.trip))],
       activity: [ACTIVITY.upcomingTrip, ...ACTIVITY.pastTrips],
       account: ['dance', 'masters-union', 'story'],
@@ -337,7 +471,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           </p>
         </div>
       </header>
-      <div className={`ub-panel-body w-${where}`} key={route ? 'map' : where}>
+      <div className={`ub-panel-body w-${where}`} key={route || where === 'search' ? 'map' : where}>
         {body}
       </div>
     </section>

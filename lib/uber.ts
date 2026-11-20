@@ -534,7 +534,7 @@ export const TILES: { trip: TripId; badge?: string }[] = [
 export const HOME = {
   where: 'Where to?',
   reserve: 'Reserve',
-  forYou: 'For you',
+  forYou: 'Projects and experience',
   elevate: 'Elevate your team',
   cards: ['idle-minutes', 'story'] as TripId[],
   availability: 'Open to PM roles',

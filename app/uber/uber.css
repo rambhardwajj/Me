@@ -123,10 +123,10 @@ body:has(.ub) { background: transparent; transition: none; }
 }
 .ub-canvas { position: absolute; left: 50%; top: 50%; width: 1440px; height: 900px; transform: translate(-50%, -50%) scale(var(--cs)); }
 
-.ub-head { position: absolute; z-index: 4; left: calc(72px + 448px * var(--p)); top: calc(40px - 16px * var(--p)); display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; max-width: 700px; }
+.ub-head { position: absolute; z-index: 4; left: calc(72px + 422px * var(--p)); top: calc(40px - 16px * var(--p)); display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; max-width: 700px; }
 .ub-mark { font-family: var(--u-display); font-size: 30px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
 .ub-tribute { font-size: 13px; color: var(--u-text-2); white-space: nowrap; }
-.ub-head-links { position: absolute; left: calc(1010px - 448px * var(--p)); top: 4px; width: 286px; display: flex; justify-content: flex-end; gap: 6px; }
+.ub-head-links { position: absolute; left: calc(1010px - 422px * var(--p)); top: 4px; width: 286px; display: flex; justify-content: flex-end; gap: 6px; }
 .ub-head-links > * { height: 36px; display: flex; align-items: center; padding: 0 12px; border-radius: 18px; font-size: 13.5px; font-weight: 500; color: var(--u-text-2); white-space: nowrap; }
 .ub-head-links > *:hover { background: var(--u-surface); color: var(--u-text); }
 
@@ -588,6 +588,7 @@ body:has(.ub) { background: transparent; transition: none; }
 .lm-area { font-size: 10.5px; font-weight: 700; letter-spacing: 2px; fill: var(--u-map-label); paint-order: stroke; stroke: var(--u-map-land); stroke-width: 4px; }
 .lm-leader { fill: none; stroke: var(--u-text); }
 .lm-tag { transition: background-color 0.15s, transform 0.15s; }
+.lm.detail .lm-tag { height: 26px; line-height: 26px; padding: 0 10px; font-size: 12.5px; }
 .lm-tag small { margin-left: 8px; padding: 2px 6px; border-radius: 5px; background: #fff; color: #000; font-size: 12px; font-weight: 700; }
 .lm-tag.off { background: #5d6472; }
 .lm-tag.hot { background: var(--u-accent); transform: scale(1.06); }
@@ -615,14 +616,14 @@ body:has(.ub) { background: transparent; transition: none; }
    The panel beside the phone (after the scroll). It shows the phone's current
    moment at full size. --acc is the colour of the trip on show.
    ========================================================================== */
-.ub-panel { position: absolute; left: 520px; top: 72px; width: 848px; height: 812px; display: flex; flex-direction: column; gap: 14px; --acc: var(--u-accent); }
+.ub-panel { position: absolute; left: 494px; top: 72px; width: 890px; height: 812px; display: flex; flex-direction: column; gap: 14px; --acc: var(--u-accent); }
 .ub-cap { flex: none; }
 .ub-cap-top { display: flex; align-items: center; justify-content: space-between; height: 36px; }
 .ub-now-k i { background: var(--acc); transition: background-color 0.3s; }
 .ub-cap-reserve { height: 36px; padding: 0 16px; border-radius: 18px; background: var(--u-primary); color: var(--u-on-primary); font-size: 14px; font-weight: 600; transition: transform 0.15s; }
 .ub-cap-reserve:hover { transform: scale(1.04); }
 .ub-cap-row { animation: ub-rise 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
-.ub-cap-row h2 { font-family: var(--u-display); font-size: 44px; line-height: 1; font-weight: 900; letter-spacing: -0.04em; font-stretch: 75%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ub-cap-row h2 { font-family: var(--u-display); font-size: 38px; line-height: 1; font-weight: 900; letter-spacing: -0.04em; font-stretch: 75%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ub-cap-row h2 span { color: var(--u-status); }
 .ub-cap-row p { margin-top: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 14.5px; line-height: 22px; color: var(--u-body); }
 .ub-cap-row p .ui { color: var(--u-status); }
@@ -633,46 +634,14 @@ body:has(.ub) { background: transparent; transition: none; }
 .ub-shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .ub-shot.contain { object-fit: contain; padding: 8px; }
 
-.ub-mapbox { flex: none; position: relative; height: 380px; border-radius: 20px; overflow: hidden; border: 1px solid var(--u-line); transition: height 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
-.ub-mapbox.tall { height: 420px; }
+.ub-mapbox { flex: 1; min-width: 0; position: relative; height: auto; border-radius: 20px; overflow: hidden; border: 1px solid var(--u-line); transition: height 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
 .ub-mapbox-sum { position: absolute; z-index: 3; left: 12px; bottom: 12px; height: 36px; display: flex; align-items: center; gap: 10px; padding: 0 14px 0 5px; border-radius: 18px; background: var(--u-bg); box-shadow: var(--u-map-btn); font-size: 13.5px; color: var(--u-body); pointer-events: none; }
 .ub-mapbox-sum b { height: 26px; line-height: 26px; padding: 0 10px; border-radius: 13px; background: var(--u-primary); color: var(--u-on-primary); font-weight: 700; }
 
-/* one trip: its name and work on the left, its photos and receipt on the right */
-.ub-trip { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 28px; }
-.ub-trip-copy { display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow: hidden; }
-.ub-trip-copy h3 { font-family: var(--u-display); font-size: 60px; line-height: 0.92; font-weight: 900; letter-spacing: -0.04em; font-stretch: 75%; box-shadow: inset 0 -0.26em 0 color-mix(in srgb, var(--acc) 55%, transparent); align-self: flex-start; }
-.ub-trip-copy h3.long { font-size: 44px; }
-.ub-trip-copy p { font-size: 16px; line-height: 24px; color: var(--u-body); }
-.ub-trip-copy .ub-ticks { font-size: 15px; line-height: 22px; gap: 8px; }
-.ub-trip-idea { padding: 12px 14px; border-radius: 12px; background: color-mix(in srgb, var(--acc) 20%, var(--u-bg)); color: var(--u-text) !important; }
-.ub-trip-side { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
-.ub-gallery { display: grid; grid-template-columns: 1fr auto; gap: 6px 8px; align-items: start; }
-.ub-gallery-main { position: relative; grid-column: 1; height: 148px; border-radius: 14px; overflow: hidden; background: color-mix(in srgb, var(--acc) 26%, var(--u-surface)); animation: ub-pop 0.3s ease-out; }
-.ub-gallery figcaption { grid-column: 1; grid-row: 2; font-size: 12.5px; color: var(--u-text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ub-thumbs { grid-column: 2; grid-row: 1 / span 2; display: flex; flex-direction: column; gap: 6px; }
-.ub-thumbs button { position: relative; width: 44px; height: 44px; border-radius: 9px; overflow: hidden; background: var(--u-surface); opacity: 0.6; transition: opacity 0.15s, transform 0.15s; }
-.ub-thumbs button:hover, .ub-thumbs button.on { opacity: 1; }
-.ub-thumbs button.on { box-shadow: 0 0 0 2px var(--u-text); }
-.ub-trip-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
 .ub-bigstat { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
 .ub-bigstat b { font-family: var(--u-display); font-size: 40px; font-weight: 900; letter-spacing: -0.03em; font-stretch: 75%; line-height: 1; }
 .ub-bigstat span { font-size: 13px; line-height: 16px; color: var(--u-body); max-width: 150px; }
-.ub-trip-side .ub-receipt { padding-top: 12px; gap: 8px; font-size: 14.5px; }
 
-/* the full ride: every stop as a card, in order */
-.ub-line { flex: 1; min-height: 0; display: flex; align-items: flex-start; gap: 12px; padding: 30px 4px 10px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; border-radius: 8px; }
-.ub-line-item { position: relative; flex: none; animation: ub-pop 0.4s calc(var(--i) * 45ms) cubic-bezier(0.22, 1, 0.36, 1) both; }
-.ub-turn { position: absolute; left: 0; top: -26px; height: 20px; line-height: 20px; padding: 0 8px; border-radius: 5px; background: var(--u-tint); color: var(--u-tint-ink); font-size: 11.5px; font-weight: 600; white-space: nowrap; }
-.ub-stopcard { width: 152px; display: flex; flex-direction: column; cursor: pointer; transition: transform 0.18s; }
-.ub-stopcard.you { cursor: default; }
-.ub-stopcard-art { position: relative; height: 100px; border-radius: 12px; overflow: hidden; background: color-mix(in srgb, var(--acc) 26%, var(--u-surface)); display: flex; align-items: center; justify-content: center; transition: box-shadow 0.18s; }
-.ub-stopcard.dot .ub-stopcard-art { height: 84px; margin-top: 16px; }
-.ub-stopcard small { margin-top: 8px; font-size: 12px; color: var(--u-text-2); }
-.ub-stopcard b { margin-top: 1px; font-size: 14.5px; font-weight: 600; letter-spacing: -0.01em; line-height: 18px; }
-.ub-stopcard.hot { transform: translateY(-4px); }
-.ub-stopcard.hot .ub-stopcard-art { box-shadow: 0 0 0 3px var(--u-accent); }
-.ub-youdot { width: 22px; height: 22px; border-radius: 50%; background: var(--u-accent); border: 4px solid #fff; box-shadow: 0 0 0 8px rgba(39, 110, 241, 0.2); }
 
 /* before anything is tapped */
 .ub-hero { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 300px; grid-template-rows: minmax(0, 1fr) auto; gap: 20px 32px; padding-top: 14px; }
@@ -731,14 +700,87 @@ body:has(.ub) { background: transparent; transition: none; }
 .rp-photo { display: block; width: 168px; height: 108px; border-radius: 12px; object-fit: cover; background: var(--u-surface); }
 .rp-photo.contain { object-fit: contain; }
 .rp-photos figcaption { margin-top: 6px; font-size: 12.5px; line-height: 16px; color: var(--u-text-2); }
-.rp-peek { position: absolute; z-index: 5; left: 50%; width: 236px; margin-left: -118px; padding: 8px 8px 10px; border-radius: 16px; background: var(--u-bg); box-shadow: var(--u-float); border: 1px solid var(--u-line); pointer-events: none; transform: translateY(10px); animation: ub-pop 0.18s ease-out; }
-.rp-peek.above { transform: translateY(calc(-100% - 10px)); }
-.rp-peek-img { display: block; width: 100%; height: 132px; margin-bottom: 8px; border-radius: 10px; object-fit: cover; background: var(--u-surface); }
-.rp-peek-img.contain { object-fit: contain; }
-.rp-peek b { display: block; font-size: 15px; }
-.rp-peek small { display: block; margin-top: 1px; font-size: 12.5px; color: var(--u-text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rp-tile-art { transition: transform 0.18s; }
 .rp-tile:hover .rp-tile-art { transform: translateY(-3px) scale(1.04); }
 .rp-services button, .rp-acard, .rp-upcoming, .rp-recent { transition: transform 0.18s; }
 .rp-services button:hover, .rp-acard:hover, .rp-upcoming:hover, .rp-recent:hover { transform: translateY(-2px); }
-@media (hover: none) { .rp-peek { display: none; } }
+
+/* ---- three parts after the scroll: the phone, the map, and a column that explains what the map is showing ---- */
+.ub-three { flex: 1; min-height: 0; display: flex; gap: 14px; }
+.ub-side { flex: none; width: 272px; min-height: 0; display: flex; flex-direction: column; border-radius: 20px; background: var(--u-surface); overflow: hidden; }
+.ub-side-in { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; padding: 16px; animation: ub-rise 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+.ub-side-in.scroll { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.ub-side-in.scroll:focus-visible { outline-offset: -3px; }
+.ub-side-k { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--u-text-2); }
+.ub-side-k::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--acc); }
+.ub-side-k.sub { margin-top: 8px; }
+.ub-side-k.sub::before { display: none; }
+.ub-side-h { font-family: var(--u-display); font-size: 34px; line-height: 0.96; font-weight: 900; letter-spacing: -0.035em; font-stretch: 75%; }
+.ub-side-p { font-size: 14.5px; line-height: 21px; color: var(--u-body); }
+.ub-side-hint { margin-top: auto; font-size: 13px; line-height: 19px; color: var(--u-text-2); }
+.ub-side-btns { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+.ub-side-btns .ub-btn { padding: 13px 16px; font-size: 15px; font-family: var(--u-ui); font-weight: 600; }
+.ub-side .ub-ticks { font-size: 14px; line-height: 20px; gap: 7px; }
+.ub-side .ub-receipt { padding-top: 12px; gap: 8px; font-size: 14px; }
+.ub-side .ub-bigstat { flex-direction: row; align-items: baseline; text-align: left; gap: 10px; padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--acc) 28%, var(--u-bg)); }
+.ub-side .ub-bigstat span { max-width: none; }
+.ub-strip { display: flex; flex-direction: column; gap: 10px; }
+.ub-sstop { display: flex; flex-direction: column; gap: 3px; animation: ub-pop 0.3s ease-out; }
+.ub-sstop-art { position: relative; flex: none; height: 150px; margin-bottom: 6px; border-radius: 14px; overflow: hidden; background: color-mix(in srgb, var(--acc) 28%, var(--u-bg)); }
+.ub-sstop-art.big { height: 156px; margin-bottom: 2px; }
+.ub-sstop.small .ub-sstop-art { height: 116px; }
+.ub-sstop small { font-size: 12.5px; color: var(--u-text-2); }
+.ub-sstop b { font-size: 17px; font-weight: 700; letter-spacing: -0.015em; line-height: 21px; }
+.ub-sstop.small b { font-size: 15.5px; line-height: 20px; }
+.ub-sstop .org { font-size: 13px; color: var(--u-text-2); }
+.ub-sstop p { margin-top: 4px; font-size: 14px; line-height: 20px; color: var(--u-body); }
+.ub-sstop ul { margin: 4px 0 0 16px; font-size: 13.5px; line-height: 19px; color: var(--u-body); }
+.ub-sstop-stat { align-self: flex-start; margin-top: 6px; line-height: 17px; padding: 4px 9px; border-radius: 6px; background: var(--u-primary); color: var(--u-on-primary); font-size: 12.5px; font-weight: 600; }
+.ub-events-group { display: flex; flex-direction: column; gap: 8px; }
+.ub-events { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.ub-events li { padding: 10px; border-radius: 16px; background: var(--u-bg); transition: box-shadow 0.15s, transform 0.15s; }
+.ub-events li.hot { box-shadow: 0 0 0 2px var(--u-accent); transform: translateX(-2px); }
+.ub-legend { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 8px; font-size: 14px; color: var(--u-body); }
+.ub-legend li { display: flex; align-items: center; gap: 10px; }
+.ub-legend i { flex: none; width: 14px; height: 14px; }
+.ub-legend .sq { border-radius: 4px; background: var(--u-ink); }
+.ub-legend .dot { border-radius: 50%; border: 2.5px solid var(--u-text-2); }
+.ub-legend .you { border-radius: 50%; background: var(--u-accent); border: 3px solid #fff; box-shadow: 0 0 0 2px rgba(39, 110, 241, 0.3); }
+
+/* ---- the car's drive ---- */
+.lm-driven { fill: none; stroke: var(--u-accent); stroke-linejoin: round; stroke-linecap: round; }
+.lm-car { fill: var(--u-text); }
+.lm-car-glow { fill: var(--u-accent); fill-opacity: 0.22; }
+.lm-car-ico { fill: var(--u-bg); }
+.lm-car-wheel { fill: var(--u-bg); stroke: var(--u-text); stroke-width: 1.5; }
+.lm-thumb { position: absolute; z-index: 2; width: 52px; height: 52px; margin: -70px 0 0 -26px; border-radius: 50%; border: 3px solid #fff; object-fit: cover; background: var(--u-surface); box-shadow: var(--u-map-btn); pointer-events: none; animation: lm-thumb 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.lm-thumb.contain { object-fit: cover; }
+@keyframes lm-thumb { from { transform: translateY(14px) scale(0.3); opacity: 0; } }
+
+/* ---- the thought cloud beside the phone ---- */
+.ub-cloud { position: absolute; z-index: 6; inset: 0; pointer-events: none; --ol: var(--u-text);
+  /* an ink outline round the whole cloud and its trail, like a cartoon thought bubble */
+  filter: drop-shadow(2px 0 0 var(--ol)) drop-shadow(-2px 0 0 var(--ol)) drop-shadow(0 2px 0 var(--ol)) drop-shadow(0 -2px 0 var(--ol)) drop-shadow(0 12px 22px rgba(0, 0, 0, 0.22)); }
+.ub-cloud-dot { position: absolute; border-radius: 50%; background: var(--u-bg); animation: ub-cloud-dot 0.25s calc(var(--i) * 60ms) ease-out both; }
+.ub-cloud-body { position: absolute; animation: ub-cloud 0.3s 0.12s ease-out both; transform-origin: 10% 80%; }
+.ub-cloud-body .puff { position: absolute; border-radius: 50%; background: var(--u-bg); }
+.ub-cloud-body .puff.a { left: 0; top: 34%; width: 44%; height: 62%; }
+.ub-cloud-body .puff.b { left: 20%; top: 2%; width: 42%; height: 62%; }
+.ub-cloud-body .puff.c { left: 50%; top: 10%; width: 42%; height: 60%; }
+.ub-cloud-body .puff.d { left: 58%; top: 38%; width: 42%; height: 60%; }
+.ub-cloud-body .puff.e { left: 22%; top: 44%; width: 56%; height: 56%; }
+.ub-cloud-in { position: absolute; inset: 16% 13% 13% 13%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-align: center; color: var(--u-text); }
+.ub-cloud-photos { position: relative; display: flex; justify-content: center; align-items: center; gap: 6px; margin-bottom: 8px; }
+.ub-cloud-photos img { width: 150px; height: 104px; border-radius: 12px; object-fit: cover; background: color-mix(in srgb, var(--acc) 30%, var(--u-surface)); border: 3px solid var(--u-bg); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16); }
+.ub-cloud-photos img.contain { object-fit: contain; }
+.ub-cloud-photos.n2 img { width: 132px; height: 96px; }
+.ub-cloud-photos.n2 img:first-child { transform: rotate(-4deg); }
+.ub-cloud-photos.n2 img:last-child { transform: rotate(3deg); margin-left: -18px; }
+.ub-cloud-photos.n3 img { width: 104px; height: 84px; }
+.ub-cloud-photos.n3 img:nth-child(1) { transform: rotate(-6deg); }
+.ub-cloud-photos.n3 img:nth-child(2) { transform: translateY(-8px) scale(1.12); z-index: 1; margin: 0 -16px; }
+.ub-cloud-photos.n3 img:nth-child(3) { transform: rotate(5deg); }
+.ub-cloud-in b { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+.ub-cloud-in small { font-size: 13px; color: var(--u-text-2); max-width: 260px; }
+@keyframes ub-cloud { from { opacity: 0; transform: scale(0.9); } }
+@keyframes ub-cloud-dot { from { opacity: 0; transform: scale(0.4); } }

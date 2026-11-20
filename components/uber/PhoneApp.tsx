@@ -104,20 +104,6 @@ function Photos({ photos }: { photos: Photo[] }) {
   );
 }
 
-/** The photo that pops up over a destination when it is pointed at or focused. */
-function PeekCard({ id, top, bottom }: { id: TripId; top: number; bottom: number }) {
-  const photo = tripPhotos(id)[0];
-  const t = getTrip(id);
-  const above = top > 210;
-  return (
-    <div className={`rp-peek ${above ? 'above' : ''}`} style={above ? { top } : { top: bottom }} aria-hidden="true">
-      <Thumb photo={{ ...photo, alt: '' }} className="rp-peek-img" />
-      <b>{t.name}</b>
-      <small>{photo.caption}</small>
-    </div>
-  );
-}
-
 /** The two ends of a trip as a route box: a dot, a line and a square. */
 function Ends({ a, b }: { a: ReactNode; b: ReactNode }) {
   return (
@@ -183,7 +169,6 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
   const [strip, setStrip] = useState(true);
   const [toast, setToast] = useState('');
   const [copied, setCopied] = useState(false);
-  const [peek, setPeek] = useState<{ id: TripId; top: number; bottom: number } | null>(null);
   /** True once "Finding your experience" has played in full; later rides find faster. */
   const [found, setFound] = useState(false);
 
@@ -261,17 +246,23 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
     }
   };
 
-  // pointing at (or tabbing to) a destination shows its photo; the same photos are in every Trip details sheet
+  // pointing at (or tabbing to) a destination tells the page: a thought cloud of its photos opens beside the phone,
+  // and the place lights up on the map. The same photos are in every Trip details sheet.
   const peeks = (id: TripId) => {
     const show = (e: React.SyntheticEvent<HTMLElement>) => {
       const box = root.current;
-      if (!box || !tripPhotos(id).length) return;
-      const r = e.currentTarget.getBoundingClientRect();
+      if (!box) return;
+      const icon = e.currentTarget.querySelector('.rp-tile-art, .rp-recent-ico, .rp-prod-art, .rp-place-when') ?? e.currentTarget;
+      const r = icon.getBoundingClientRect();
       const b = box.getBoundingClientRect();
       const scale = b.width / box.offsetWidth || 1;
-      setPeek({ id, top: (r.top - b.top) / scale, bottom: (r.bottom - b.top) / scale });
+      app.setLook(id);
+      if (tripPhotos(id).length) app.setPeek({ trip: id, x: (r.left + r.width / 2 - b.left) / scale, y: (r.top + r.height / 2 - b.top) / scale });
     };
-    const hide = () => setPeek(null);
+    const hide = () => {
+      app.setPeek(null);
+      app.setLook(null);
+    };
     return { onMouseEnter: show, onMouseLeave: hide, onFocus: show, onBlur: hide };
   };
 
@@ -1166,9 +1157,6 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
             <Tribute className="rp-tribute in" onReserve={sheet === 'reserve' ? undefined : reserveHere} />
           </section>
         </>
-      )}
-      {peek && !sheet && (
-        <PeekCard id={peek.id} top={peek.top} bottom={peek.bottom} />
       )}
       <p className="rp-toast" role="status">
         {toast}
