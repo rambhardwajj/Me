@@ -23,7 +23,7 @@ export const TITLE = {
   role: 'Product Manager · ex-Software Engineer',
   headline: { before: 'I take products from ', mark: 'zero to revenue', after: '.' },
   sub: `Now a PGP candidate at Masters’ Union, building LeetCase. ${PROFILE.availability}.`,
-  portrait: '/vox/me.webp',
+  portrait: '/vox/me-suit.webp',
   name: PROFILE.name,
 };
 
