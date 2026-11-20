@@ -3,13 +3,16 @@
 import { useState } from 'react';
 import { PROFILE } from '@/lib/data';
 import {
+  ABOUT,
   ACCENT,
+  EXPERIENCE,
   ACTIVITY,
   BILLBOARD,
   EXPLAIN,
   HERO_FACTS,
   INBOX,
   PERSONAS,
+  REROUTES,
   RESERVE,
   RIDE,
   SERVICES,
@@ -30,6 +33,9 @@ import {
   type TripId,
 } from '@/lib/uber';
 import { PORTRAIT, stopPhoto, stopStory, tripPhotos, type Photo } from '@/lib/uber-photos';
+
+/** The reroute note shown above the first stop after a turn in the road. */
+const REROUTE: Partial<Record<StopId, string>> = Object.fromEntries(REROUTES.map((r) => [r.before, r.text]));
 import LifeMap, { routeBetween } from './LifeMap';
 import { Icon, Pict } from './icons';
 import type { Ride } from './useRide';
@@ -43,19 +49,34 @@ export function Shot({ photo, className = '', eager }: { photo: Photo; className
 const when = (s: Stop) => (s.type === 'you' ? 'Now' : s.monthAssumed ? s.when.slice(0, 4) : monthLabel(s.when, true));
 
 /** One trip as a card: its photo (or its pictogram on its colour), name, one line and the result. */
-function TripCard({ t, onOpen, i }: { t: Trip; onOpen: (id: TripId) => void; i: number }) {
+function TripCard({ t, onOpen, onInfo, i }: { t: Trip; onOpen: (id: TripId) => void; onInfo?: (id: TripId) => void; i: number }) {
   const photo = tripPhotos(t.id)[0];
   return (
-    <button type="button" className="ub-tcard" style={{ ['--acc' as string]: ACCENT[t.id], ['--i' as string]: i }} onClick={() => onOpen(t.id)}>
-      <span className="ub-tcard-art">
-        <Pict name={t.icon} size={54} />
-        {photo && <Shot photo={photo} />}
-        {t.result && <span className="ub-tcard-val">{t.result.value}</span>}
-      </span>
-      <b>{t.name}</b>
-      <small>{t.sub}</small>
-    </button>
+    <div className="ub-tcard-wrap" style={{ ['--acc' as string]: ACCENT[t.id], ['--i' as string]: i }}>
+      <button type="button" className="ub-tcard" onClick={() => onOpen(t.id)}>
+        <span className="ub-tcard-art">
+          <Pict name={t.icon} size={54} />
+          {photo && <Shot photo={photo} />}
+          {t.result && <span className="ub-tcard-val">{t.result.value}</span>}
+        </span>
+        <b>{t.name}</b>
+        <small>{t.sub}</small>
+      </button>
+      {onInfo && (
+        <button type="button" className="ub-tcard-info" onClick={() => onInfo(t.id)}>
+          Details
+        </button>
+      )}
+    </div>
   );
+}
+
+/** The steps of a full story: what the trip is, each of its own stops in the order they happened, then what came of it. */
+type Step = { kind: 'intro' } | { kind: 'stop'; s: Stop } | { kind: 'part'; heading: string; text: string; label?: string } | { kind: 'result' };
+function storySteps(t: Trip): { steps: Step[]; own: Stop[] } {
+  if (t.id === 'idle-minutes') return { steps: [{ kind: 'intro' }, ...TEARDOWN.parts.map((x) => ({ kind: 'part' as const, ...x }))], own: [] };
+  const own = STOPS.filter((x) => x.type !== 'you' && (t.id === 'story' || x.trip === t.id));
+  return { steps: [{ kind: 'intro' }, ...own.map((x) => ({ kind: 'stop' as const, s: x })), ...(t.result || t.receipt ? [{ kind: 'result' as const }] : [])], own };
 }
 
 /** One stop beside the map: its photo, when it was, and what happened there in the journey's own words. */
@@ -147,7 +168,7 @@ type Props = {
  * what the screen stands for, the map flying to the chosen route, the photos and the receipt.
  */
 export default function StagePanel({ app, persona, onPersona, reducedMotion }: Props) {
-  const { where, onTrip, route, screen, hot, setHot, look, ride, openSheet, journeyTrip, tripMode, setStack } = app;
+  const { where, onTrip, route, screen, hot, setHot, look, ride, openSheet, journeyTrip, tripMode, setStack, facet, setFacet, setProject } = app;
   /** The car's drive on the Quick ride: how many times it has been replayed, the stop it is passing, and whether it has arrived. */
   const [replay, setReplay] = useState(0);
   const [pass, setPass] = useState<{ key: string; stop: StopId }>({ key: '', stop: 'you' });
@@ -155,6 +176,8 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
   /** The drive that is paused, by its key, so a new ride never starts paused. */
   const [pausedKey, setPausedKey] = useState('');
   const [skip, setSkip] = useState('');
+  /** Where the reader is in a full story, by trip. */
+  const [story, setStory] = useState<{ trip: string; i: number }>({ trip: '', i: 0 });
   const [copied, setCopied] = useState(false);
   const ex = EXPLAIN[where];
   const t = onTrip ?? (route ? getTrip(journeyTrip) : null);
@@ -173,6 +196,15 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
     const quick = inDetails && tripMode === 'quick' && onTrip!.id !== 'idle-minutes';
     const full = inDetails && tripMode === 'full';
     const driveKey = quick ? `${onTrip!.id}:${replay}` : null;
+    // in the full story the map shows the trip's own stretch of road, with the car parked at the stop being read
+    const tale = full ? storySteps(onTrip!) : null;
+    const taleAt = tale ? tale.steps[story.trip === onTrip!.id ? Math.min(story.i, tale.steps.length - 1) : 0] : null;
+    const endStop = onTrip ? (onTrip.to === 'you' ? onTrip.from : onTrip.to) : onMap.to;
+    const taleFrom = tale?.own[0]?.id ?? endStop;
+    const taleTo = tale?.own[tale.own.length - 1]?.id ?? endStop;
+    const carAt = !tale || onTrip!.id === 'idle-minutes' ? null : taleAt?.kind === 'stop' ? taleAt.s.id : taleAt?.kind === 'result' ? taleTo : taleFrom;
+    const mapFrom = tale && onTrip!.id !== 'idle-minutes' ? taleFrom : onMap.from;
+    const mapTo = tale && onTrip!.id !== 'idle-minutes' ? taleTo : onMap.to;
     const arrived = !!driveKey && done === driveKey;
     const paused = !!driveKey && pausedKey === driveKey;
     const passing = quick && pass.key === driveKey ? stop(pass.stop) : null;
@@ -235,44 +267,88 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
         </div>
       );
     } else if (full) {
-      // Full story: every event on the route, described
+      // Full story: one stop at a time. The car parks at each stop and this column tells what happened there.
+      const { steps } = storySteps(onTrip!);
+      const i = story.trip === onTrip!.id ? Math.min(story.i, steps.length - 1) : 0;
+      const st = steps[i];
+      const go = (n: number) => setStory({ trip: onTrip!.id, i: Math.max(0, Math.min(steps.length - 1, n)) });
+      const last = i === steps.length - 1;
       side = (
-        <div className="ub-side-in scroll" tabIndex={0} role="group" aria-label={`Every event on the way to ${onTrip!.name}`}>
-          <p className="ub-side-k">The full story</p>
-          <h3 className="ub-side-h">{onTrip!.name}</h3>
-          <p className="ub-side-p">{onTrip!.blurb}</p>
-          {onTrip!.problem && (
-            <>
-              <p className="ub-side-k sub">The problem</p>
-              <p className="ub-side-p">{onTrip!.problem}</p>
-            </>
-          )}
-          {onTrip!.id === 'idle-minutes' &&
-            TEARDOWN.parts.map((x) => (
-              <div key={x.heading}>
-                <p className="ub-side-k sub">{x.heading}</p>
-                <p className="ub-side-p">{x.text}</p>
-              </div>
+        <div className="ub-side-in">
+          <p className="ub-side-k">
+            The full story · {i + 1} of {steps.length}
+          </p>
+          <div className="ub-steps" aria-hidden="true">
+            {steps.map((_, n) => (
+              <i key={n} className={n < i ? 'done' : n === i ? 'now' : ''} />
             ))}
-          {[
-            { title: `What happened at ${onTrip!.name}`, list: stops.filter((x) => x.type !== 'you' && x.trip === onTrip!.id).sort((a, b) => minutesAway(b.when) - minutesAway(a.when)) },
-            { title: onTrip!.id === 'story' ? 'Stop by stop' : 'Also on the way there', list: stops.filter((x) => x.type !== 'you' && x.trip !== onTrip!.id) },
-          ].map(
-            (g) =>
-              g.list.length > 0 && (
-                <div key={g.title} className="ub-events-group">
-                  <p className="ub-side-k sub">{g.title}</p>
-                  <ol className="ub-events">
-                    {g.list.map((x) => (
-                      <li key={x.id} className={hot === x.id ? 'hot' : ''} onMouseEnter={() => setHot(x.id)} onMouseLeave={() => setHot(null)}>
-                        <SideStop s={x} small />
+          </div>
+          <div className="ub-step scroll" key={i} tabIndex={0} role="group" aria-label={`Step ${i + 1} of ${steps.length}`}>
+            {st.kind === 'intro' && (
+              <>
+                {tripPhotos(onTrip!.id)[0] && (
+                  <span className="ub-sstop-art big">
+                    <Shot photo={tripPhotos(onTrip!.id)[0]} eager />
+                  </span>
+                )}
+                <h3 className="ub-side-h">{onTrip!.id === 'idle-minutes' ? TEARDOWN.title : onTrip!.name}</h3>
+                <p className="ub-side-p">{onTrip!.blurb}</p>
+                {onTrip!.problem && (
+                  <>
+                    <p className="ub-side-k sub">The problem</p>
+                    <p className="ub-side-p">{onTrip!.problem}</p>
+                  </>
+                )}
+                <p className="ub-side-hint">Press Next. The car drives to each stop and waits while you read.</p>
+              </>
+            )}
+            {st.kind === 'stop' && (
+              <>
+                {REROUTE[st.s.id] && <span className="ub-reroute">{REROUTE[st.s.id]}</span>}
+                <SideStop s={st.s} />
+              </>
+            )}
+            {st.kind === 'part' && (
+              <>
+                <h3 className="ub-side-h small">{st.heading}</h3>
+                {st.label && <span className="ub-sstop-stat">{st.label}</span>}
+                <p className="ub-side-p big">{st.text}</p>
+              </>
+            )}
+            {st.kind === 'result' && (
+              <>
+                <h3 className="ub-side-h">What came of it</h3>
+                {onTrip!.did && (
+                  <ul className="ub-ticks">
+                    {onTrip!.did.map((x) => (
+                      <li key={x}>
+                        <i aria-hidden="true">
+                          <Icon name="check" size={12} w={3.2} />
+                        </i>
+                        <span>{x}</span>
                       </li>
                     ))}
-                  </ol>
-                </div>
-              ),
-          )}
-          {onTrip!.result && <SideTrip t={onTrip!} bare />}
+                  </ul>
+                )}
+                <SideTrip t={onTrip!} bare />
+              </>
+            )}
+          </div>
+          <div className="ub-step-ctl">
+            <button type="button" className="ub-btn line" onClick={() => go(i - 1)} disabled={i === 0}>
+              Back
+            </button>
+            {last ? (
+              <button type="button" className="ub-btn solid" onClick={reserve}>
+                Reserve Ram
+              </button>
+            ) : (
+              <button type="button" className="ub-btn solid" onClick={() => go(i + 1)}>
+                Next stop
+                <Icon name="arrow" size={16} />
+              </button>
+            )}
+          </div>
         </div>
       );
     } else if (look) {
@@ -321,8 +397,9 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
       <div className="ub-three">
         <div className="ub-mapbox">
           <LifeMap
-            from={onMap.from}
-            to={onMap.to}
+            from={mapFrom}
+            to={mapTo}
+            carAt={carAt}
             detail
             controls
             fit="all"
@@ -346,8 +423,8 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
               </>
             ) : (
               <>
-                <b>{minLabel(minutes)}</b>
-                {between.length} {between.length === 1 ? 'stop' : 'stops'} on the way · 1 min is 1 month
+                <b>{tale ? onTrip!.name : minLabel(minutes)}</b>
+                {tale ? 'The car waits at each stop while you read' : `${between.length} ${between.length === 1 ? 'stop' : 'stops'} on the way · 1 min is 1 month`}
               </>
             )}
           </p>
@@ -428,6 +505,46 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
         </div>
       </div>
     );
+  } else if (where === 'account') {
+    /* ---------------------------------------------------------------- About Ram */
+    const f = ABOUT.facets.find((x) => x.id === facet) ?? ABOUT.facets[0];
+    const fp = stopPhoto(f.photo);
+    body = (
+      <div className="ub-about">
+        <div className="ub-about-top">
+          <div className="ub-hero-photo small">
+            <Shot photo={PORTRAIT} eager />
+          </div>
+          <div>
+            <h3>{ABOUT.lede}</h3>
+            <p className="ub-about-values">{ABOUT.values}</p>
+          </div>
+        </div>
+        <div className="ub-facets" role="tablist" aria-label="The sides of Ram">
+          {ABOUT.facets.map((x, i) => (
+            <button key={x.id} type="button" role="tab" aria-selected={x.id === f.id} className={x.id === f.id ? 'on' : ''} style={{ ['--acc' as string]: ACCENT[x.trip], ['--i' as string]: i }} onClick={() => setFacet(x.id)}>
+              <small>0{i + 1}</small>
+              {x.label}
+            </button>
+          ))}
+        </div>
+        <div className="ub-facet" key={f.id} role="tabpanel" style={{ ['--acc' as string]: ACCENT[f.trip] }}>
+          {fp && (
+            <span className="ub-facet-art">
+              <Shot photo={fp} eager />
+            </span>
+          )}
+          <div>
+            <h4>{f.title}</h4>
+            <p>{f.text}</p>
+            <button type="button" className="ub-btn line" onClick={() => ride(f.trip)}>
+              Ride to {getTrip(f.trip).name}
+              <Icon name="arrow" size={16} />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   } else if (where === 'switch') {
     body = (
       <div className="ub-wall cols-2" role="radiogroup" aria-label="Riding with">
@@ -453,8 +570,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
     const lists: Partial<Record<typeof where, TripId[]>> = {
       shipped: SHIPPED,
       services: [...new Set([...SERVICES.main, ...SERVICES.more].map((x) => x.trip))],
-      activity: [ACTIVITY.upcomingTrip, ...ACTIVITY.pastTrips],
-      account: ['dance', 'masters-union', 'story'],
+      activity: [...EXPERIENCE.flatMap((j) => (j.trip ? [j.trip] : [])), ACTIVITY.upcomingTrip],
       inbox: ['newral', 'trucost', 'ciena'],
       lost: [],
     };
@@ -473,7 +589,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
         {where === 'lost' && <p className="ub-wall-note">This chapter is still being written by Ram.</p>}
         <div className={`ub-wall ${ids.length > 6 ? 'dense' : ''}`}>
           {ids.map((id, i) => (
-            <TripCard key={id} t={getTrip(id)} onOpen={ride} i={i} />
+            <TripCard key={id} t={getTrip(id)} onOpen={ride} onInfo={where === 'shipped' ? setProject : undefined} i={i} />
           ))}
         </div>
       </>
@@ -488,9 +604,24 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
             <i aria-hidden="true" />
             {STAGE.nowShowing}
           </p>
-          <button type="button" className="ub-cap-reserve" onClick={reserve}>
-            {RIDE.reserve}
-          </button>
+          <span className="ub-cap-btns">
+            {(where !== 'home' || app.sheet) && (
+              <button
+                type="button"
+                className="ub-cap-home"
+                onClick={() => {
+                  app.closeSheet();
+                  app.goTab('home', 'ram');
+                }}
+              >
+                <Icon name="back" size={16} w={2.2} />
+                Home
+              </button>
+            )}
+            <button type="button" className="ub-cap-reserve" onClick={reserve}>
+              {RIDE.reserve}
+            </button>
+          </span>
         </div>
         <div className="ub-cap-row" key={where}>
           <h2 aria-live="polite">

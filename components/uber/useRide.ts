@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
-import { stop, trip as getTrip, type ScreenKey, type StopId, type TripId } from '@/lib/uber';
+import { stop, trip as getTrip, type FacetId, type ScreenKey, type StopId, type TripId } from '@/lib/uber';
 
 export type Tab = 'home' | 'services' | 'activity' | 'account';
 export type HomeTab = 'ram' | 'shipped' | 'journey';
@@ -25,6 +25,10 @@ export function useRide() {
   const [look, setLookState] = useState<{ stop?: StopId; trip: TripId } | null>(null);
   /** The destination being pointed at in the phone, and where its icon is (in phone pixels), for the thought cloud. */
   const [peek, setPeek] = useState<{ trip: TripId; x: number; y: number } | null>(null);
+  /** The project whose details are open in the modal. */
+  const [project, setProject] = useState<TripId | null>(null);
+  /** The side of Ram on show in About. */
+  const [facet, setFacet] = useState<FacetId>('roots');
   /** Counts moves between screens, so the keyboard can follow each one. */
   const [moves, setMoves] = useState(0);
   const opener = useRef<HTMLElement | null>(null);
@@ -74,6 +78,7 @@ export function useRide() {
       step();
       setMode('quick');
       setSheet(null);
+      setProject(null);
       setHotOnly(null);
       setPeek(null);
       setLookState({ trip: id });
@@ -99,7 +104,7 @@ export function useRide() {
   const tripMode: Mode = screen.s === 'finding' || screen.s === 'details' ? screen.mode : mode;
 
   return {
-    stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, hot, setHot, look, setLook, peek, setPeek, moves, step,
+    stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, hot, setHot, look, setLook, peek, setPeek, project, setProject, facet, setFacet, moves, step,
     push, back, goTab, openSheet, closeSheet, ride,
     where, onTrip, onJourney, journeyTrip, route, tripMode,
   };

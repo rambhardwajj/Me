@@ -49,6 +49,15 @@ export function routeBetween(from: StopId, to: StopId) {
   return { points, between, minutes };
 }
 
+/** Which way the road points at a distance along it, in degrees, for a car travelling forward (1) or back (-1). */
+function headingAt(dist: number, dir: number): number {
+  let i = Math.max(0, STARTS.findLastIndex((s) => s <= dist));
+  // exactly on a corner, a car going back is still on the stretch before it
+  if (dir < 0 && i > 0 && Math.abs(dist - STARTS[i]) < 0.5) i -= 1;
+  const s = SEGS[Math.min(i, SEGS.length - 1)];
+  return (Math.atan2(s.b.y - s.a.y, s.b.x - s.a.x) * 180) / Math.PI + (dir < 0 ? 180 : 0);
+}
+
 const d = (pts: Pt[]) => pts.map((p, i) => `${i ? 'L' : 'M'}${Math.round(p.x)} ${Math.round(p.y)}`).join(' ');
 const ROAD_D = d(ROAD);
 
@@ -133,6 +142,52 @@ function useFlight(target: View, ms: number): View {
   return view;
 }
 
+/**
+ * Glides a car along the road to a new distance, for the stop-by-stop story.
+ * Like the camera, it lands on a timer if animation frames stop coming.
+ */
+function useGlide(target: number | null, ms: number): { d: number; dir: number } | null {
+  const [car, setCar] = useState<{ d: number; dir: number } | null>(target === null ? null : { d: target, dir: 1 });
+  const at = useRef(car);
+  useEffect(() => {
+    if (target === null) {
+      const id = window.setTimeout(() => {
+        at.current = null;
+        setCar(null);
+      }, 0);
+      return () => window.clearTimeout(id);
+    }
+    const start = at.current;
+    const dir = start && target !== start.d ? Math.sign(target - start.d) : (start?.dir ?? 1);
+    const land = () => {
+      at.current = { d: target, dir };
+      setCar(at.current);
+    };
+    if (!start || ms <= 0 || start.d === target) {
+      const id = window.setTimeout(land, 0);
+      return () => window.clearTimeout(id);
+    }
+    const t0 = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - t0) / ms);
+      at.current = { d: start.d + (target - start.d) * ease(t), dir };
+      setCar(at.current);
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    const safety = window.setTimeout(() => {
+      cancelAnimationFrame(raf);
+      land();
+    }, ms + 300);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(safety);
+    };
+  }, [target, ms]);
+  return car;
+}
+
 type Pad = { top?: number; right?: number; bottom?: number; left?: number };
 
 type Props = {
@@ -160,6 +215,8 @@ type Props = {
   drive?: string | null;
   onPass?: (id: StopId) => void;
   onDone?: () => void;
+  /** The stop-by-stop story: park the car at this stop. It glides there along the road and the camera follows. */
+  carAt?: StopId | null;
   /** Hold the car where it is. */
   paused?: boolean;
   /** Set to the drive's own string to send the car straight to the end. */
@@ -172,7 +229,7 @@ type Props = {
 /**
  * The life map. It flies to the route between two stops, draws the route, and can be zoomed and dragged.
  */
-export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, hot, onHot, fit = 'route', noBadge, drive = null, onPass, onDone, paused, skip, searching, reducedMotion }: Props) {
+export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, hot, onHot, fit = 'route', noBadge, drive = null, onPass, onDone, paused, skip, carAt = null, searching, reducedMotion }: Props) {
   const box = useRef<HTMLDivElement>(null);
   // `n` counts measurements: until the box has been measured once, the camera does not animate
   const [size, setSize] = useState({ w: 390, h: 440, n: 0 });
@@ -212,11 +269,14 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
   const [dragging, setDragging] = useState(false);
   const mine = own.key === routeKey ? own : { key: routeKey, z: 1, dx: 0, dy: 0 };
   const clampPan = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
-  const target: View = {
-    cx: clampPan(bx + bw / 2 + mine.dx, 0, 1920),
-    cy: clampPan(by + bh / 2 + mine.dy, 0, 1200),
-    k: fitK * mine.z,
-  };
+  const parked = carAt ? stop(carAt).at : null;
+  const target: View = parked
+    ? { cx: clampPan(parked.x + mine.dx, 0, 1920), cy: clampPan(parked.y + mine.dy, 0, 1200), k: Math.max(fitK, detail ? 0.82 : 0.7) * mine.z }
+    : {
+        cx: clampPan(bx + bw / 2 + mine.dx, 0, 1920),
+        cy: clampPan(by + bh / 2 + mine.dy, 0, 1200),
+        k: fitK * mine.z,
+      };
 
   /* the drive: a car runs the route, and each stop's photo pops up as it passes */
   const aFrom = along(A.at);
@@ -297,7 +357,11 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
   useEffect(() => {
     if (skip && skip === drive) end.current?.();
   }, [skip, drive]);
-  const car = pointAt(aFrom + (aTo - aFrom) * p);
+  const glide = useGlide(carAt ? along(stop(carAt).at) : null, reducedMotion ? 0 : 1100);
+  const carD = glide && !drive ? glide.d : aFrom + (aTo - aFrom) * p;
+  const car = pointAt(carD);
+  const carTurn = headingAt(carD, glide && !drive ? glide.dir : Math.sign(aTo - aFrom) || 1);
+  const showCar = driving || (!!glide && !drive);
 
   const flown = useFlight(target, reducedMotion || dragging || size.n < 2 ? 0 : mine.z !== 1 || mine.dx || mine.dy ? 320 : 900);
   // while driving, the camera eases in on the car, follows it, and eases back out at the end
@@ -468,16 +532,26 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
           <circle className="lm-you-halo" r={17} />
           <circle className="lm-you" r={8} />
         </g>
-        {driving && (
-          <g transform={`translate(${car.x} ${car.y}) scale(${inv})`}>
-            <circle className="lm-car-glow" r={22} />
-            <rect className="lm-car" x={-15} y={-15} width={30} height={30} rx={9} />
-            <path className="lm-car-ico" d="M-8.500 1.500h17v4a1.200 1.200 0 0 1-1.200 1.200h-14.600a1.200 1.200 0 0 1-1.200-1.200zM-6 -4h11l2.500 5.500h-15.500z" />
-            <circle className="lm-car-wheel" cx={-5} cy={6.500} r={2.200} />
-            <circle className="lm-car-wheel" cx={5} cy={6.500} r={2.200} />
+        {showCar && (
+          // a small car seen from above, nose first along the road
+          <g className="lm-carbox" transform={`translate(${car.x} ${car.y}) scale(${inv})`}>
+            <circle className="lm-car-glow" r={26} />
+            <g transform={`rotate(${carTurn})`}>
+              <rect className="lm-car-shadow" x={-19} y={-9} width={40} height={22} rx={9} />
+              <rect className="lm-car-mirror" x={5} y={-13.500} width={4} height={4} rx={1.500} />
+              <rect className="lm-car-mirror" x={5} y={9.500} width={4} height={4} rx={1.500} />
+              <rect className="lm-car" x={-20} y={-11} width={40} height={22} rx={9} />
+              <path className="lm-car-glass" d="M6 -8h3.500c3.500 0 5 2 5 4.500v7c0 2.500-1.500 4.500-5 4.500H6z" />
+              <rect className="lm-car-glass" x={-14.500} y={-7.500} width={5.500} height={15} rx={2.500} />
+              <rect className="lm-car-roof" x={-7.500} y={-8.500} width={12} height={17} rx={3.500} />
+              <rect className="lm-car-lamp" x={17.500} y={-8.500} width={2.500} height={4.500} rx={1.200} />
+              <rect className="lm-car-lamp" x={17.500} y={4} width={2.500} height={4.500} rx={1.200} />
+              <rect className="lm-car-tail" x={-20} y={-8} width={2} height={4} rx={1} />
+              <rect className="lm-car-tail" x={-20} y={4} width={2} height={4} rx={1} />
+            </g>
           </g>
         )}
-        {minutes > 0 && !noBadge && !driving && (
+        {minutes > 0 && !noBadge && !showCar && (
           <g transform={`translate(${badge.x} ${badge.y}) scale(${inv})`}>
             <rect className="lm-badge" x={-35} y={-17} width={70} height={34} rx={8} />
             <text className="lm-badge-t" y={5.5} textAnchor="middle">

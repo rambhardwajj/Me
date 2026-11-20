@@ -4,7 +4,9 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type Reac
 import Link from 'next/link';
 import { PROFILE } from '@/lib/data';
 import {
+  ABOUT,
   ACCOUNT,
+  EXPERIENCE,
   ACTIVITY,
   CHAPTERS,
   HOME,
@@ -25,7 +27,6 @@ import {
   TRIPS,
   minLabel,
   minutesAway,
-  monthLabel,
   stop,
   trip as getTrip,
   tripMinutes,
@@ -38,7 +39,7 @@ import {
 import LifeMap, { routeBetween } from './LifeMap';
 import { Icon, Pict, Solid } from './icons';
 import type { HomeTab, Mode, Ride, Sheet, Tab } from './useRide';
-import { stopPhoto, tripPhotos, type Photo } from '@/lib/uber-photos';
+import { PORTRAIT, stopPhoto, tripPhotos, type Photo } from '@/lib/uber-photos';
 
 
 export type PhoneHandle = {
@@ -59,7 +60,7 @@ type Props = {
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'home', label: 'Home', icon: 'home' },
   { id: 'services', label: 'Services', icon: 'grid' },
-  { id: 'activity', label: 'Activity', icon: 'receipt' },
+  { id: 'activity', label: 'Experience', icon: 'receipt' },
   { id: 'account', label: 'Account', icon: 'user' },
 ];
 
@@ -163,7 +164,6 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
   const { stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, moves, step, push, back, goTab, closeSheet, ride } = app;
   const [query, setQuery] = useState('');
   const [shortcut, setShortcut] = useState<null | 'experience' | 'wins'>(null);
-  const [filters, setFilters] = useState({ category: 'All', role: 'All' });
   const [seen, setSeen] = useState<TripId[]>([]);
   const [inboxRead, setInboxRead] = useState(false);
   const [strip, setStrip] = useState(true);
@@ -381,21 +381,26 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
   const homeShipped = (
     <>
       <h2 className="rp-h2 first">Shipped</h2>
-      <p className="rp-lede">Products Ram built or co-founded, newest first.</p>
+      <p className="rp-lede">Products Ram built or co-founded, newest first. Tap one to ride there, or open its details.</p>
       <div className="rp-rows">
         {SHIPPED.map((id) => {
           const t = getTrip(id);
           return (
-            <button key={id} type="button" className="rp-prod" onClick={() => ride(id)} {...peeks(id)}>
-              <span className="rp-prod-art">
-                <Pict name={t.icon} size={40} />
-              </span>
-              <span className="rp-prod-text">
-                <b>{t.name}</b>
-                <small>{t.sub}</small>
-              </span>
-              {t.result && <span className="rp-pill">{t.result.value}</span>}
-            </button>
+            <div key={id} className="rp-prodrow">
+              <button type="button" className="rp-prod" onClick={() => ride(id)} {...peeks(id)}>
+                <span className="rp-prod-art">
+                  <Pict name={t.icon} size={40} />
+                </span>
+                <span className="rp-prod-text">
+                  <b>{t.name}</b>
+                  <small>{t.sub}</small>
+                </span>
+                {t.result && <span className="rp-pill">{t.result.value}</span>}
+              </button>
+              <button type="button" className="rp-prod-info" onClick={() => app.setProject(id)} aria-label={`Everything about ${t.name}`}>
+                Details
+              </button>
+            </div>
           );
         })}
       </div>
@@ -855,10 +860,6 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
     </>
   );
 
-  const past = ACTIVITY.pastTrips.filter((id) => {
-    const tags = ACTIVITY.tags[id] ?? [];
-    return (filters.category === 'All' || tags.includes(filters.category)) && (filters.role === 'All' || tags.includes(filters.role));
-  });
   const up = getTrip(ACTIVITY.upcomingTrip);
 
   const activity = (
@@ -867,21 +868,6 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
       <h1 className="rp-title" tabIndex={-1} data-first>
         {ACTIVITY.title}
       </h1>
-      <div className="rp-chips under-title">
-        {(['category', 'role'] as const).map((f) => (
-          <label key={f} className={`rp-chip select ${filters[f] !== 'All' ? 'on' : ''}`}>
-            <span className="sr">{ACTIVITY.filters[f].label}</span>
-            <select value={filters[f]} onChange={(e) => setFilters((v) => ({ ...v, [f]: e.target.value }))}>
-              {ACTIVITY.filters[f].options.map((o) => (
-                <option key={o} value={o}>
-                  {o === 'All' ? ACTIVITY.filters[f].label : o}
-                </option>
-              ))}
-            </select>
-            <Icon name="chevDown" size={14} w={2.2} />
-          </label>
-        ))}
-      </div>
       <div className="rp-scroll activity">
         <h2 className="rp-h2 sm first">{ACTIVITY.upcoming}</h2>
         <button type="button" className="rp-upcoming" onClick={() => ride(up.id)}>
@@ -893,36 +879,42 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
             <small>{up.sub}</small>
           </span>
         </button>
-        <h2 className="rp-h2 sm">{ACTIVITY.past}</h2>
-        {past.length === 0 && <p className="rp-empty">{ACTIVITY.none}</p>}
-        {past.map((id) => {
-          const t = getTrip(id);
-          const [mon, year] = monthLabel(t.activity!.when, true).split(' ');
-          return (
-            <div key={id} className="rp-past">
-              <span className="rp-date">
-                <span>{mon}</span>
-                <span>{year}</span>
+        <h2 className="rp-h2 sm">Where I have worked</h2>
+        <ol className="rp-jobs">
+          {EXPERIENCE.map((j) => (
+            <li key={j.company} className="rp-job">
+              <span className="rp-job-rail" aria-hidden="true">
+                <i />
               </span>
-              <div className="rp-past-card">
+              <div className="rp-job-card">
                 <div className="rp-past-top">
                   <span className="art">
-                    <Pict name={t.icon} />
+                    <Pict name={j.icon} />
                   </span>
                   <span>
-                    <small>{t.activity!.role}</small>
-                    <b>{t.name}</b>
-                    <small>{t.activity!.line}</small>
+                    <b>{j.company}</b>
+                    <small>{j.what}</small>
                   </span>
                 </div>
-                <button type="button" className="rp-again" onClick={() => ride(id)} aria-label={`${ACTIVITY.again}: ${t.name}`}>
-                  <Icon name="again" size={16} />
-                  {ACTIVITY.again}
-                </button>
+                <ul className="rp-roles">
+                  {j.roles.map((r) => (
+                    <li key={r.title}>
+                      <span>{r.title}</span>
+                      <small>{r.when}</small>
+                    </li>
+                  ))}
+                </ul>
+                {j.result && <span className="rp-tag green">{j.result}</span>}
+                {j.trip && (
+                  <button type="button" className="rp-again" onClick={() => ride(j.trip!)} aria-label={`Ride to ${j.company}`} {...peeks(j.trip)}>
+                    <Icon name="again" size={16} />
+                    Ride there
+                  </button>
+                )}
               </div>
-            </div>
-          );
-        })}
+            </li>
+          ))}
+        </ol>
       </div>
       {tabBar('activity')}
     </>
@@ -989,10 +981,32 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
               {ACCOUNT.status}
             </span>
           </span>
-          <span className="rp-me-photo" aria-hidden="true">
-            <Solid name="user" size={30} />
+          <span className="rp-me-photo">
+            <Thumb photo={PORTRAIT} className="rp-me-img" />
           </span>
         </div>
+        <p className="rp-about-lede">{ABOUT.lede}</p>
+        <div className="rp-facets" role="tablist" aria-label="The sides of Ram">
+          {ABOUT.facets.map((x) => (
+            <button key={x.id} type="button" role="tab" aria-selected={x.id === app.facet} className={x.id === app.facet ? 'on' : ''} onClick={() => app.setFacet(x.id)}>
+              {x.label}
+            </button>
+          ))}
+        </div>
+        {(() => {
+          const f = ABOUT.facets.find((x) => x.id === app.facet) ?? ABOUT.facets[0];
+          return (
+            <div className="rp-facet" role="tabpanel" key={f.id}>
+              <b>{f.title}</b>
+              <p>{f.text}</p>
+              <button type="button" className="rp-again" onClick={() => ride(f.trip)}>
+                <Icon name="again" size={16} />
+                Ride to {getTrip(f.trip).name}
+              </button>
+            </div>
+          );
+        })()}
+        <p className="rp-about-values">{ABOUT.values}</p>
         <div className="rp-links">
           <a href={`mailto:${PROFILE.email}?subject=${encodeURIComponent(RESERVE.subject)}`}>
             <Icon name="mail" size={22} w={1.8} />

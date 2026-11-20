@@ -599,7 +599,7 @@ export const SERVICES = {
 /* ------------------------------------------------------------------ Activity */
 
 export const ACTIVITY = {
-  title: 'Activity',
+  title: 'Experience',
   upcoming: 'Upcoming',
   past: 'Past',
   again: 'Ride again',
@@ -714,8 +714,8 @@ export const EXPLAIN: Record<ScreenKey, { title: string; uber: string; here: str
   finding: { title: 'Ride requested', uber: 'Finding your ride', here: 'Finding your experience. Ram is already on the way.' },
   details: { title: 'Trip details', uber: 'Fare breakdown and receipt', here: 'What the work was, and what it returned.' },
   services: { title: 'Services', uber: 'The services grid', here: 'What Ram can be booked for: 0 to 1 launches, go to market, pricing and growth.' },
-  activity: { title: 'Activity', uber: 'Past and upcoming trips', here: 'Past trips are shipped work. The upcoming trip is what he would build at Uber.' },
-  account: { title: 'Account', uber: 'Your profile', here: 'The person: how to reach him, the dance side, and what did not work.' },
+  activity: { title: 'Experience', uber: 'Activity: past and upcoming trips', here: 'Every place Ram has worked, newest first, with the dates. The upcoming trip is what he would build at Uber.' },
+  account: { title: 'About Ram', uber: 'Account: your profile', here: 'The person behind the app: where he comes from, and the four things he is made of.' },
   inbox: { title: 'Inbox', uber: 'Ratings and compliments', here: 'Real quotes only. No invented rating.' },
   switch: { title: 'Riding with', uber: 'Switching the rider profile', here: 'Same person, a different vehicle. Each one comes with its own proof.' },
   reserve: { title: 'Reserve Ram', uber: 'Reserve a ride for later', here: 'The one action that counts: send Ram a message.' },
@@ -728,3 +728,109 @@ export const HERO_FACTS: { trip: TripId; value: string; label: string }[] = [
   { trip: 'newral', value: '$6K', label: 'Newral, monthly revenue from zero' },
   { trip: 'ciena', value: '4 of 14,000', label: 'Ciena, annual award' },
 ];
+
+/* ------------------------------------------------------------------ Experience (the third tab) */
+
+export type Job = {
+  company: string;
+  /** One line on what the place is. */
+  what: string;
+  icon: Pictogram;
+  /** The trip this job opens, if it has one on the map. */
+  trip?: TripId;
+  /** Roles held there, newest first, with their dates as shown. */
+  roles: { title: string; when: string }[];
+  /** The headline result, where there is a sourced one. */
+  result?: string;
+};
+
+/**
+ * Every place Ram has worked, newest first. Titles and dates are from the resume data in lib/data.ts;
+ * Synappses is from the briefs (Co-Founder, Apr 2026 to Jun 2026).
+ */
+export const EXPERIENCE: Job[] = [
+  { company: 'TruCost', what: 'Ride-hailing app with an in-cab tablet', icon: 'car', trip: 'trucost', roles: [{ title: 'Product Manager, on contract', when: 'Jun 2026 to Oct 2026' }], result: '100 drivers onboarded, sold for ₹2.5L' },
+  { company: 'Synappses', what: 'AI-native LMS for coaching centres', icon: 'cap', trip: 'synappses', roles: [{ title: 'Co-Founder', when: 'Apr 2026 to Jun 2026' }] },
+  {
+    company: 'Newral',
+    what: 'Early-stage AI startup, Noida',
+    icon: 'chart',
+    trip: 'newral',
+    roles: [
+      { title: 'Product Manager', when: 'May 2026' },
+      { title: 'Product Tech Lead', when: 'Dec 2025 to Apr 2026' },
+      { title: 'Software Engineer', when: 'Oct 2025 to Nov 2025' },
+    ],
+    result: '$0 to $6K monthly revenue',
+  },
+  { company: '100xSchool, Super 30', what: 'Hacker House funded by YC', icon: 'code', trip: 'super-30', roles: [{ title: 'Students Affairs Head', when: '2026' }, { title: 'Hacker House builder', when: '2025' }], result: '1 of 30 builders nationwide' },
+  {
+    company: 'Ciena',
+    what: 'NYSE-listed networking company, Gurugram',
+    icon: 'building',
+    trip: 'ciena',
+    roles: [
+      { title: 'IT Applications Solutions Engineer', when: 'Jul 2024 to Oct 2025' },
+      { title: 'IT/Ops Intern', when: 'Jan 2024 to Jun 2024' },
+    ],
+    result: '4 of 14,000 won the annual award',
+  },
+  { company: 'Ingenious Research Solutions', what: 'Research internship, Noida', icon: 'doc', roles: [{ title: 'Research Intern, on an ISRO blockchain project', when: 'Jun 2023 to Jul 2023' }] },
+];
+
+/* ------------------------------------------------------------------ About Ram (the Account tab) */
+
+export type FacetId = 'roots' | 'physics' | 'dance' | 'tech' | 'management';
+
+/**
+ * Who Ram is, in his voice. Every fact is from the journey; the framing was drafted on 21 Nov 2026
+ * from what Ram said he wanted here (roots in Mathura, a convent school, dance, tech, management, a love of physics).
+ * DRAFT: Ram to read and correct, especially `values`, which he has not worded himself yet.
+ */
+export const ABOUT = {
+  title: 'About Ram',
+  lede: 'I’m from Mathura. I was raised in a convent school, studied physics, danced for India, wrote code for a living, and now I build products.',
+  values: 'Different stages, the same habit: show up, learn fast, keep moving forward.',
+  facets: [
+    {
+      id: 'roots',
+      label: 'Roots',
+      title: 'Mathura, and a convent school',
+      text: 'I grew up in Mathura and went to St. Dominic’s, a convent school. I was House Captain there, won a gold in badminton and finished Class 12 with 91%. It is where the road on this map begins.',
+      trip: 'st-dominics',
+      photo: 'st-dominics',
+    },
+    {
+      id: 'physics',
+      label: 'Physics',
+      title: 'Why this page is a map',
+      text: 'I studied Physical Sciences at Ramjas College, and I still think in physics. That is why my life is drawn as a road here: distance is time, and one minute on the map is one month.',
+      trip: 'ramjas',
+      photo: 'ramjas',
+    },
+    {
+      id: 'dance',
+      label: 'Dance',
+      title: 'The stage was my second classroom',
+      text: 'At Ramjas I won 10+ inter-college titles, led the dance society as Choreography Head, and represented India at a world final in Chicago.',
+      trip: 'dance',
+      photo: 'world-battle',
+    },
+    {
+      id: 'tech',
+      label: 'Tech',
+      title: 'Then I switched lanes to software',
+      text: 'Rank 1 coder of my MCA batch, a Day-0 placement at Ciena, and its annual award as a new grad: one of 4 among 14,000.',
+      trip: 'ciena',
+      photo: 'edst',
+    },
+    {
+      id: 'management',
+      label: 'Management',
+      title: 'From engineer to product',
+      text: 'At Newral I went from engineer to product in seven months. I built and sold TruCost, and I’m now at Masters’ Union, learning the business side by running one.',
+      trip: 'newral',
+      photo: 'product-manager',
+    },
+  ] as { id: FacetId; label: string; title: string; text: string; trip: TripId; /** The stop whose photo goes with it. */ photo: StopId }[],
+};

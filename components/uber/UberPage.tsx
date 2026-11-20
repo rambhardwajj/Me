@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { BILLBOARD, PERSONAS, THEME_KEY, TRIBUTE_LONG, type PersonaId } from '@/lib/uber';
 import PhoneApp, { type PhoneHandle } from './PhoneApp';
+import ProjectDialog from './ProjectDialog';
 import StagePanel from './StagePanel';
 import ThoughtCloud from './ThoughtCloud';
 import { Icon } from './icons';
@@ -150,7 +151,17 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
         <div className="ub-stage" ref={stage}>
           <div className="ub-canvas">
             <header className="ub-head">
-              <span className="ub-mark">{BILLBOARD.wordmark}</span>
+              <a
+                className="ub-mark"
+                href="#top"
+                aria-label="Ram: back to the first screen"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: reduced ? 'instant' : 'smooth' });
+                }}
+              >
+                {BILLBOARD.wordmark}
+              </a>
               <span className="ub-tribute">{TRIBUTE_LONG}</span>
               <nav className="ub-head-links" aria-label="Elsewhere">
                 <button type="button" onClick={askMiniRam}>
@@ -221,6 +232,18 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
           </div>
         </div>
       </div>
+      <ProjectDialog
+        id={ride.project}
+        onClose={() => ride.setProject(null)}
+        onRide={(id) => {
+          ride.setProject(null);
+          toPhone(() => ride.ride(id));
+        }}
+        onReserve={() => {
+          ride.setProject(null);
+          toPhone(() => ride.openSheet('reserve'));
+        }}
+      />
       {children}
     </div>
   );
