@@ -1,7 +1,9 @@
 'use client';
 
-import { useLayoutEffect, useRef, useState } from 'react';
-import { ROAD, STOPS, minLabel, minutesAway, stop, type Pt, type StopId } from '@/lib/uber';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { AREA_NAMES, ROAD, ROAD_NAMES, STOPS, minLabel, minutesAway, monthLabel, stop, type Pt, type StopId } from '@/lib/uber';
+import { stopPhoto } from '@/lib/uber-photos';
+import { Icon } from './icons';
 
 /* ---------------------------------------------------------------- geometry: every stop sits on one road */
 
@@ -76,20 +78,93 @@ const YEARS = [
   { y: '2026', at: { x: 1411, y: 960 } },
 ];
 
-type Pad = { top?: number; right?: number; bottom?: number; left?: number };
+/* ---------------------------------------------------------------- the camera */
+
+/** Where the map is looking: the map point at the middle of the free area, and pixels per map unit. */
+type View = { cx: number; cy: number; k: number };
+
+const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 /**
- * The life map, zoomed to the route between two stops.
- * `pad` is the part of the box covered by other things (a sheet, floating buttons), in pixels.
- * With `onPick`, every square pin is a button.
+ * Flies the camera to a new view: it pulls back a little in the middle of the move, like a map app.
+ * The end state never depends on animation frames arriving: a timer lands the view if they stop.
  */
-export default function LifeMap({ from, to, pad = {}, onPick, label }: { from: StopId; to: StopId; pad?: Pad; onPick?: (id: StopId) => void; label?: string }) {
+function useFlight(target: View, ms: number): View {
+  const [view, setView] = useState(target);
+  const at = useRef(target);
+  const { cx, cy, k } = target;
+  useEffect(() => {
+    const end = { cx, cy, k };
+    const start = at.current;
+    const land = () => {
+      at.current = end;
+      setView(end);
+    };
+    if (ms <= 0 || (start.cx === cx && start.cy === cy && start.k === k)) {
+      const id = window.setTimeout(land, 0);
+      return () => window.clearTimeout(id);
+    }
+    // the farther the move, the more the camera pulls back
+    const far = Math.min(1, Math.hypot(cx - start.cx, cy - start.cy) / 900 + Math.abs(Math.log(k / start.k)));
+    const t0 = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - t0) / ms);
+      const e = ease(t);
+      const next = {
+        cx: start.cx + (cx - start.cx) * e,
+        cy: start.cy + (cy - start.cy) * e,
+        k: Math.exp(Math.log(start.k) + (Math.log(k) - Math.log(start.k)) * e) * (1 - 0.22 * far * Math.sin(Math.PI * t)),
+      };
+      at.current = next;
+      setView(next);
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    const safety = window.setTimeout(() => {
+      cancelAnimationFrame(raf);
+      land();
+    }, ms + 300);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(safety);
+    };
+  }, [cx, cy, k, ms]);
+  return view;
+}
+
+type Pad = { top?: number; right?: number; bottom?: number; left?: number };
+
+type Props = {
+  from: StopId;
+  to: StopId;
+  /** The part of the box covered by other things (a sheet, floating buttons), in pixels. */
+  pad?: Pad;
+  /** With this, every square pin in view is a button. */
+  onPick?: (id: StopId) => void;
+  /** The big map beside the phone: every place is named, with its minutes, plus road and area names. */
+  detail?: boolean;
+  /** Zoom in, zoom out and fit buttons, and dragging to move the map. */
+  controls?: boolean;
+  /** The stop the pointer is on. With `onHot`, stops show a photo card when pointed at. */
+  hot?: StopId | null;
+  onHot?: (id: StopId | null) => void;
+  /** Pulse the destination, while a ride is being found. */
+  searching?: boolean;
+  reducedMotion?: boolean;
+};
+
+/**
+ * The life map. It flies to the route between two stops, draws the route, and can be zoomed and dragged.
+ */
+export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, hot, onHot, searching, reducedMotion }: Props) {
   const box = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ w: 390, h: 440 });
+  // `n` counts measurements: until the box has been measured once, the camera does not animate
+  const [size, setSize] = useState({ w: 390, h: 440, n: 0 });
   useLayoutEffect(() => {
     const el = box.current;
     if (!el) return;
-    const read = () => setSize((s) => (s.w === el.clientWidth && s.h === el.clientHeight ? s : { w: el.clientWidth || 390, h: el.clientHeight || 440 }));
+    const read = () => setSize((s) => (s.n && s.w === el.clientWidth && s.h === el.clientHeight ? s : { w: el.clientWidth || 390, h: el.clientHeight || 440, n: s.n + 1 }));
     read();
     const ro = new ResizeObserver(read);
     ro.observe(el);
@@ -100,11 +175,11 @@ export default function LifeMap({ from, to, pad = {}, onPick, label }: { from: S
   const A = stop(from);
   const B = stop(to);
 
-  // zoom so the route fills the free part of the box
-  const pt = (pad.top ?? 0) + 46;
-  const pr = (pad.right ?? 0) + 44;
-  const pb = (pad.bottom ?? 0) + 40;
-  const pl = (pad.left ?? 0) + 44;
+  // the view that fits the route into the free part of the box
+  const pt = (pad.top ?? 0) + (detail ? 70 : 46);
+  const pr = (pad.right ?? 0) + (detail ? 90 : 44);
+  const pb = (pad.bottom ?? 0) + (detail ? 70 : 40);
+  const pl = (pad.left ?? 0) + (detail ? 90 : 44);
   const xs = points.map((p) => p.x);
   const ys = points.map((p) => p.y);
   const bx = Math.min(...xs);
@@ -113,11 +188,47 @@ export default function LifeMap({ from, to, pad = {}, onPick, label }: { from: S
   const bh = Math.max(Math.max(...ys) - by, 1);
   const freeW = Math.max(size.w - pl - pr, 80);
   const freeH = Math.max(size.h - pt - pb, 60);
-  const k = Math.min(freeW / bw, freeH / bh, 0.85);
-  const vx = bx + bw / 2 - (pl + freeW / 2) / k;
-  const vy = by + bh / 2 - (pt + freeH / 2) / k;
+  const fitK = Math.min(freeW / bw, freeH / bh, detail ? 1.1 : 0.85);
+
+  // the visitor's own zoom and drag, forgotten when the route changes
+  const routeKey = `${from}>${to}`;
+  const [own, setOwn] = useState({ key: routeKey, z: 1, dx: 0, dy: 0 });
+  const [dragging, setDragging] = useState(false);
+  const mine = own.key === routeKey ? own : { key: routeKey, z: 1, dx: 0, dy: 0 };
+  const clampPan = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+  const target: View = {
+    cx: clampPan(bx + bw / 2 + mine.dx, 0, 1920),
+    cy: clampPan(by + bh / 2 + mine.dy, 0, 1200),
+    k: fitK * mine.z,
+  };
+  const view = useFlight(target, reducedMotion || dragging || size.n < 2 ? 0 : mine.z !== 1 || mine.dx || mine.dy ? 320 : 900);
+  const k = view.k;
+  const vx = view.cx - (pl + freeW / 2) / k;
+  const vy = view.cy - (pt + freeH / 2) / k;
   const sx = (p: Pt) => (p.x - vx) * k;
   const sy = (p: Pt) => (p.y - vy) * k;
+  const inv = 1 / k;
+
+  const zoom = (f: number) => setOwn({ ...mine, z: Math.max(0.5, Math.min(5, mine.z * f)) });
+  const fit = () => setOwn({ key: routeKey, z: 1, dx: 0, dy: 0 });
+  const grab = useRef<{ x: number; y: number; dx: number; dy: number } | null>(null);
+  const onDown = (e: React.PointerEvent) => {
+    if (!controls || !detail || (e.target as HTMLElement).closest('button')) return;
+    grab.current = { x: e.clientX, y: e.clientY, dx: mine.dx, dy: mine.dy };
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDragging(true);
+  };
+  const onMove = (e: React.PointerEvent) => {
+    const g = grab.current;
+    if (!g) return;
+    // the box may itself be scaled (the page scales its canvas), so measure the real pixel size
+    const scale = (box.current?.getBoundingClientRect().width ?? size.w) / size.w || 1;
+    setOwn({ ...mine, dx: g.dx - (e.clientX - g.x) / scale / k, dy: g.dy - (e.clientY - g.y) / scale / k });
+  };
+  const onUp = () => {
+    grab.current = null;
+    setDragging(false);
+  };
 
   // the minutes badge sits on the middle of the route
   const lens = points.slice(1).map((p, i) => Math.hypot(p.x - points[i].x, p.y - points[i].y));
@@ -136,33 +247,38 @@ export default function LifeMap({ from, to, pad = {}, onPick, label }: { from: S
   const places = STOPS.filter((s) => s.type === 'place');
   const dots = STOPS.filter((s) => s.type === 'dot');
   const you = stop('you');
-  const inv = 1 / k;
-  // name tags sit above their pin (below when there is no room), kept inside the box.
-  // "You are here" needs no tag: the blue dot says it.
-  const tags = [A, B]
-    .filter((s, i, all) => s.type !== 'you' && all.findIndex((o) => o.id === s.id) === i)
-    .map((s) => {
-      const w = s.name.length * 8.3 + 24;
-      const left = Math.max(8, Math.min(size.w - w - 8, sx(s.at) - w / 2));
-      const above = sy(s.at) - 50 > (pad.top ?? 0) + 4;
-      return { id: s.id, text: s.name, left, top: above ? sy(s.at) - 50 : sy(s.at) + 18, w };
-    });
+  const inBox = (p: Pt, m = 20) => sx(p) > m && sx(p) < size.w - m && sy(p) > m && sy(p) < size.h - m;
 
-  // the minutes badge sits on the middle of the route, nudged aside if a name tag is already there
+  // name tags: on the small map only the two ends, above their pin; on the big map every place, at its own anchor
+  const tags = (detail ? places : [A, B].filter((s, i, all) => s.type === 'place' && all.findIndex((o) => o.id === s.id) === i)).map((s) => {
+    const w = s.name.length * 8.3 + 24 + (detail ? 58 : 0);
+    if (detail && s.tag) return { s, w, left: sx(s.tag) - w / 2, top: sy(s.tag) - 16 };
+    const left = Math.max(8, Math.min(size.w - w - 8, sx(s.at) - w / 2));
+    const above = sy(s.at) - 50 > (pad.top ?? 0) + 4;
+    return { s, w, left, top: above ? sy(s.at) - 50 : sy(s.at) + 18 };
+  });
+
+  // the minutes badge is nudged aside if a name tag is already there
   const badge = (() => {
     const hits = (x: number, y: number) => tags.some((t) => x + 35 > t.left - 4 && x - 35 < t.left + t.w + 4 && y + 17 > t.top - 4 && y - 17 < t.top + 36);
     const mx = sx(mid);
     const my = sy(mid);
     const tries = [[0, 0], [0, 40], [0, -40], [-84, 0], [84, 0], [-84, 40], [84, 40], [0, 80]];
-    const [dx, dy] = tries.find(([x, y]) => !hits(mx + x, my + y) && mx + x > 40 && mx + x < size.w - 40) ?? [0, 0];
-    return { x: mid.x + dx / k, y: mid.y + dy / k };
+    const [ox, oy] = tries.find(([x, y]) => !hits(mx + x, my + y) && mx + x > 40 && mx + x < size.w - 40) ?? [0, 0];
+    return { x: mid.x + ox / k, y: mid.y + oy / k };
   })();
 
+  // the photo card for the stop the pointer is on
+  const hotStop = hot && onHot ? STOPS.find((s) => s.id === hot) : undefined;
+  const card = hotStop && inBox(hotStop.at, 0) ? { s: hotStop, photo: stopPhoto(hotStop.id), x: sx(hotStop.at), y: sy(hotStop.at) } : null;
+  const cardLeft = card ? Math.max(8, Math.min(size.w - 228, card.x - 110)) : 0;
+  const cardBelow = card ? card.y < 250 : false;
+
   return (
-    <div className="lm" ref={box}>
+    <div className={`lm ${detail ? 'detail' : ''} ${controls && detail ? 'movable' : ''} ${dragging ? 'dragging' : ''}`} ref={box} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}>
       <svg
         role="img"
-        aria-label={label ?? `Map of Ram's life. The route runs from ${A.name} to ${B.name}: ${minutes} minutes, one minute for each month, with ${between.length} ${between.length === 1 ? 'stop' : 'stops'} on the way.`}
+        aria-label={`Map of Ram's life. The route runs from ${A.name} to ${B.name}: ${minutes} minutes, one minute for each month, with ${between.length} ${between.length === 1 ? 'stop' : 'stops'} on the way.`}
         width={size.w}
         height={size.h}
         viewBox={`${vx} ${vy} ${size.w / k} ${size.h / k}`}
@@ -177,13 +293,29 @@ export default function LifeMap({ from, to, pad = {}, onPick, label }: { from: S
         <path className="lm-street" d="M-20 1120L760 760M1180 -20L1940 520M420 1220L1040 1000M1460 1220L1940 880" strokeWidth={12} />
         <path className="lm-casing" d={ROAD_D} />
         <path className="lm-road" d={ROAD_D} />
+        {detail &&
+          k > 0.36 &&
+          ROAD_NAMES.map((r) => (
+            <text key={r.name} className="lm-roadname" textAnchor="middle" transform={`translate(${r.x} ${r.y}) rotate(${r.turn ?? 0}) scale(${inv})`}>
+              {r.name}
+            </text>
+          ))}
+        {detail &&
+          k > 0.36 &&
+          AREA_NAMES.map((a) => (
+            <text key={a.name} className="lm-area" transform={`translate(${a.x} ${a.y}) scale(${inv})`}>
+              {a.name}
+            </text>
+          ))}
         {k > 0.17 &&
           CITIES.map((c) => (
-          <text key={c.name} className="lm-city" transform={`translate(${c.x} ${c.y}) scale(${inv})`}>
-            {c.name}
-          </text>
-        ))}
-        <path className="lm-route" d={d(points)} vectorEffect="non-scaling-stroke" />
+            <text key={c.name} className="lm-city" transform={`translate(${c.x} ${c.y}) scale(${inv})`}>
+              {c.name}
+            </text>
+          ))}
+        {detail && places.map((s) => s.tag && <path key={s.id} className="lm-leader" d={`M${s.at.x} ${s.at.y}L${s.tag.x} ${s.tag.y}`} strokeWidth={2.5 * inv} />)}
+        {/* the route draws itself each time it changes */}
+        <path key={routeKey} className="lm-route" d={d(points)} pathLength={1} strokeWidth={(detail ? 6 : 5) * inv} />
         {k > 0.3 &&
           YEARS.map((s) => (
             <g key={s.y} transform={`translate(${s.at.x} ${s.at.y}) scale(${inv})`}>
@@ -194,14 +326,20 @@ export default function LifeMap({ from, to, pad = {}, onPick, label }: { from: S
             </g>
           ))}
         {dots.map((s) => (
-          <circle key={s.id} className={`lm-dot ${onRoute.has(s.id) ? 'on' : ''}`} cx={s.at.x} cy={s.at.y} r={(s.id === from || s.id === to ? 6.5 : 4) * inv} vectorEffect="non-scaling-stroke" />
+          <circle key={s.id} className={`lm-dot ${onRoute.has(s.id) ? 'on' : ''} ${hot === s.id ? 'hot' : ''}`} cx={s.at.x} cy={s.at.y} r={(hot === s.id ? 8 : s.id === from || s.id === to ? 6.5 : detail ? 5 : 4) * inv} strokeWidth={(onRoute.has(s.id) ? 2.5 : 2) * inv} />
         ))}
         {places.map((s) => (
-          <g key={s.id} className={`lm-pin ${onRoute.has(s.id) ? 'on' : ''}`} transform={`translate(${s.at.x} ${s.at.y}) scale(${inv})`}>
+          <g key={s.id} className={`lm-pin ${onRoute.has(s.id) ? 'on' : ''} ${hot === s.id ? 'hot' : ''}`} transform={`translate(${s.at.x} ${s.at.y}) scale(${inv * (hot === s.id ? 1.25 : 1)})`}>
             <rect x={-10} y={-10} width={20} height={20} rx={4} />
             <rect className="lm-pin-eye" x={-3} y={-3} width={6} height={6} />
           </g>
         ))}
+        {searching && B.type !== 'you' && (
+          <g transform={`translate(${B.at.x} ${B.at.y}) scale(${inv})`}>
+            <circle className="lm-ping" r={14} />
+            <circle className="lm-ping late" r={14} />
+          </g>
+        )}
         <g transform={`translate(${you.at.x} ${you.at.y}) scale(${inv})`}>
           <circle className="lm-you-halo" r={17} />
           <circle className="lm-you" r={8} />
@@ -216,19 +354,64 @@ export default function LifeMap({ from, to, pad = {}, onPick, label }: { from: S
         )}
       </svg>
 
-      {tags.map((t) => (
-        <span key={t.id} className="lm-tag" style={{ left: t.left, top: t.top }} aria-hidden="true">
-          {t.text}
+      {tags.map(({ s, left, top }) => (
+        <span key={s.id} className={`lm-tag ${onRoute.has(s.id) ? '' : 'off'} ${hot === s.id ? 'hot' : ''}`} style={{ left, top }} aria-hidden="true">
+          {s.name}
+          {detail && <small>{minLabel(minutesAway(s.when))}</small>}
         </span>
       ))}
+      {detail && inBox(you.at, 0) && (
+        <span className="lm-here" style={{ left: sx(you.at), top: sy(you.at) }} aria-hidden="true">
+          You are here
+        </span>
+      )}
+
+      {/* pointing at a stop shows its photo; these are for the pointer only, the lists reach every stop by keyboard */}
+      {onHot &&
+        STOPS.filter((s) => s.type !== 'you' && inBox(s.at, 6)).map((s) => (
+          <span key={s.id} className={`lm-spot ${onPick ? 'pick' : ''}`} style={{ left: sx(s.at), top: sy(s.at) }} onMouseEnter={() => onHot(s.id)} onMouseLeave={() => onHot(null)} onClick={() => onPick?.(s.id)} aria-hidden="true" />
+        ))}
+      {onHot &&
+        detail &&
+        tags.map(({ s, left, top, w }) => (
+          <span key={s.id} className={`lm-spot tag ${onPick ? 'pick' : ''}`} style={{ left, top, width: w }} onMouseEnter={() => onHot(s.id)} onMouseLeave={() => onHot(null)} onClick={() => onPick?.(s.id)} aria-hidden="true" />
+        ))}
 
       {/* pins outside the box are not buttons: the From and To lists reach every place */}
       {onPick &&
+        !onHot &&
         places
-          .filter((s) => sx(s.at) > 20 && sx(s.at) < size.w - 20 && sy(s.at) > 20 && sy(s.at) < size.h - 20)
+          .filter((s) => inBox(s.at))
           .map((s) => (
-          <button key={s.id} type="button" className="lm-hit" style={{ left: sx(s.at), top: sy(s.at) }} onClick={() => onPick(s.id)} aria-label={`${s.name}, ${minLabel(minutesAway(s.when))} away. Set as the destination`} aria-pressed={s.id === to} />
-        ))}
+            <button key={s.id} type="button" className="lm-hit" style={{ left: sx(s.at), top: sy(s.at) }} onClick={() => onPick(s.id)} aria-label={`${s.name}, ${minLabel(minutesAway(s.when))} away. Set as the destination`} aria-pressed={s.id === to} />
+          ))}
+
+      {card && (
+        <div className={`lm-card ${cardBelow ? 'below' : ''}`} style={{ left: cardLeft, top: card.y }} aria-hidden="true">
+          {card.photo && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className={card.photo.contain ? 'contain' : ''} src={card.photo.src} alt="" loading="lazy" onError={(e) => (e.currentTarget.style.display = 'none')} />
+          )}
+          <b>{card.s.name}</b>
+          <small>
+            {card.s.monthAssumed ? card.s.when.slice(0, 4) : monthLabel(card.s.when)} · {minLabel(minutesAway(card.s.when))} away
+          </small>
+        </div>
+      )}
+
+      {controls && (
+        <div className="lm-ctl">
+          <button type="button" onClick={() => zoom(1.5)} aria-label="Zoom in">
+            <Icon name="plus" size={18} w={2.4} />
+          </button>
+          <button type="button" onClick={() => zoom(1 / 1.5)} aria-label="Zoom out">
+            <Icon name="minus" size={18} w={2.4} />
+          </button>
+          <button type="button" onClick={fit} aria-label="Fit the route" disabled={mine.z === 1 && !mine.dx && !mine.dy}>
+            <Icon name="fit" size={18} w={2.2} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

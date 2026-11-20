@@ -104,13 +104,13 @@ export const STOPS: Stop[] = [
   { id: 'edst', type: 'dot', name: 'EDST award, 4 of 14,000', when: '2024-10', monthAssumed: true, at: { x: 1447, y: 620 }, trip: 'ciena', win: true },
   { id: 'cienagpt', type: 'dot', name: 'Top 10, CienaGPT AI hackathon', when: '2024-12', monthAssumed: true, at: { x: 1543, y: 620 }, trip: 'ciena', win: true },
   { id: 'super-30', type: 'dot', name: 'Super 30 Hacker House', when: '2025-09', monthAssumed: true, at: { x: 1604, y: 960 }, trip: 'super-30', win: true },
-  { id: 'newral', type: 'place', name: 'Newral', note: 'Noida. Engineer, then product', when: '2025-10', at: { x: 1556, y: 960 }, tag: { x: 1624, y: 1040 }, trip: 'newral' },
+  { id: 'newral', type: 'place', name: 'Newral', note: 'Noida. Engineer, then product', when: '2025-10', at: { x: 1556, y: 960 }, tag: { x: 1658, y: 1040 }, trip: 'newral' },
   { id: 'tech-lead', type: 'dot', name: 'Tech Lead and Best Employee', when: '2025-12', at: { x: 1459, y: 960 }, trip: 'newral', win: true },
   { id: 'wingathon', type: 'dot', name: 'YC VibeCon Wingathon winner', when: '2026-04', at: { x: 1267, y: 960 }, trip: 'newral', win: true },
   { id: 'synappses', type: 'dot', name: 'Synappses, Co-Founder', when: '2026-04', at: { x: 1243, y: 960 }, trip: 'synappses' },
   { id: 'product-manager', type: 'dot', name: 'Product Manager', when: '2026-05', at: { x: 1219, y: 960 }, trip: 'newral' },
-  { id: 'trucost', type: 'place', name: 'TruCost', note: 'Ride-hailing app, built and sold', when: '2026-06', at: { x: 1171, y: 960 }, tag: { x: 1250, y: 1066 }, trip: 'trucost' },
-  { id: 'masters-union', type: 'place', name: 'Masters’ Union', note: 'Gurugram. PGP, now', when: '2026-07', at: { x: 1123, y: 960 }, tag: { x: 990, y: 1040 }, trip: 'masters-union' },
+  { id: 'trucost', type: 'place', name: 'TruCost', note: 'Ride-hailing app, built and sold', when: '2026-06', at: { x: 1171, y: 960 }, tag: { x: 1312, y: 1076 }, trip: 'trucost' },
+  { id: 'masters-union', type: 'place', name: 'Masters’ Union', note: 'Gurugram. PGP, now', when: '2026-07', at: { x: 1123, y: 960 }, tag: { x: 880, y: 1060 }, trip: 'masters-union' },
   { id: 'leetcase', type: 'dot', name: 'LeetCase launched', when: '2026-09', at: { x: 1100, y: 886 }, trip: 'leetcase' },
   { id: 'you', type: 'you', name: 'You are here', note: `Ram, ${NOW_LABEL}`, when: NOW, at: { x: 1100, y: 790 }, trip: 'story' },
 ];
@@ -661,3 +661,70 @@ export const RESERVE = {
   copied: 'Copied',
   subject: 'Reserve Ram: Product Manager at Uber',
 };
+
+/* ------------------------------------------------------------------ the panel beside the phone */
+
+/** One colour per trip, taken from the pictogram colours on the artboards. Used beside the phone, never inside it. */
+export const ACCENT: Record<TripId, string> = {
+  trucost: '#FFC043',
+  newral: '#276EF1',
+  ciena: '#7DE2A0',
+  leetcase: '#0E8345',
+  unbothrrd: '#FF7A45',
+  synappses: '#276EF1',
+  'super-30': '#7DE2A0',
+  dance: '#B46BFF',
+  'st-dominics': '#FFC043',
+  ramjas: '#B46BFF',
+  amity: '#7DE2A0',
+  'masters-union': '#FF7A45',
+  'idle-minutes': '#FFC043',
+  story: '#276EF1',
+};
+
+/** Road and area names on the big map (from the approved map artboard). */
+export const ROAD_NAMES: { name: string; x: number; y: number; turn?: number }[] = [
+  { name: 'Intercity Highway', x: 470, y: 196 },
+  { name: 'Footwork Street', x: 304, y: 600, turn: -90 },
+  { name: 'Pivot Flyover', x: 560, y: 676 },
+  { name: 'Day-0 Road', x: 1080, y: 306 },
+  { name: 'Award Row', x: 1520, y: 596 },
+  { name: 'Switch Lane', x: 1646, y: 760, turn: 90 },
+  { name: 'Zero-to-One Expressway', x: 1440, y: 1000 },
+];
+export const AREA_NAMES: { name: string; x: number; y: number }[] = [
+  { name: 'OLD TOWN', x: 150, y: 330 },
+  { name: 'STAGE LANE', x: 400, y: 612 },
+  { name: 'CODE QUARTER', x: 600, y: 1100 },
+  { name: 'ENTERPRISE ROW', x: 960, y: 470 },
+  { name: 'PRODUCT DISTRICT', x: 1350, y: 1150 },
+];
+
+/**
+ * What each phone screen stands for, shown beside the phone: the Uber feature, and what it means here.
+ * Wording follows the mapping bank in ux-brief.md.
+ */
+export type ScreenKey = 'home' | 'shipped' | 'journey' | 'search' | 'choose' | 'finding' | 'details' | 'services' | 'activity' | 'account' | 'inbox' | 'switch' | 'reserve' | 'lost';
+export const EXPLAIN: Record<ScreenKey, { title: string; uber: string; here: string }> = {
+  home: { title: 'Home', uber: '“Where to?” and your recent places', here: 'Where do you want to take Ram? The tiles are the places he has already been.' },
+  shipped: { title: 'Shipped', uber: 'The second tab of the home screen', here: 'Products Ram built or co-founded. Tap one to ride there.' },
+  journey: { title: 'Journey', uber: 'The map, with pickup and drop-off', here: 'One road from Mathura to today. Pick two places and the stops between them appear.' },
+  search: { title: 'Plan your ride', uber: 'Search, with saved and recent places', here: 'Every place on Ram’s map, nearest first. One minute away is one month ago.' },
+  choose: { title: 'Choose a trip', uber: 'Choose a ride', here: 'Same destination, two ways to get there: the headline numbers, or the full story.' },
+  finding: { title: 'Ride requested', uber: 'Finding your ride', here: 'Finding your experience. Ram is already on the way.' },
+  details: { title: 'Trip details', uber: 'Fare breakdown and receipt', here: 'What the work was, and what it returned.' },
+  services: { title: 'Services', uber: 'The services grid', here: 'What Ram can be booked for: 0 to 1 launches, go to market, pricing and growth.' },
+  activity: { title: 'Activity', uber: 'Past and upcoming trips', here: 'Past trips are shipped work. The upcoming trip is what he would build at Uber.' },
+  account: { title: 'Account', uber: 'Your profile', here: 'The person: how to reach him, the dance side, and what did not work.' },
+  inbox: { title: 'Inbox', uber: 'Ratings and compliments', here: 'Real quotes only. No invented rating.' },
+  switch: { title: 'Riding with', uber: 'Switching the rider profile', here: 'Same person, a different vehicle. Each one comes with its own proof.' },
+  reserve: { title: 'Reserve Ram', uber: 'Reserve a ride for later', here: 'The one action that counts: send Ram a message.' },
+  lost: { title: 'Lost and found', uber: 'Lost and found', here: 'What did not work, and what he learned.' },
+};
+
+/** Three proofs on the panel before anything is tapped. Each opens its trip. */
+export const HERO_FACTS: { trip: TripId; value: string; label: string }[] = [
+  { trip: 'trucost', value: '₹2.5L', label: 'TruCost, built and sold' },
+  { trip: 'newral', value: '$6K', label: 'Newral, monthly revenue from zero' },
+  { trip: 'ciena', value: '4 of 14,000', label: 'Ciena, annual award' },
+];

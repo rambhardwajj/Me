@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState, type ReactNode } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { PROFILE } from '@/lib/data';
 import {
@@ -37,18 +37,11 @@ import {
 } from '@/lib/uber';
 import LifeMap, { routeBetween } from './LifeMap';
 import { Icon, Pict, Solid } from './icons';
+import type { HomeTab, Mode, Ride, Sheet, Tab } from './useRide';
+import { stopPhoto, tripPhotos, type Photo } from '@/lib/uber-photos';
 
-type Tab = 'home' | 'services' | 'activity' | 'account';
-type HomeTab = 'ram' | 'shipped' | 'journey';
-type Mode = 'quick' | 'full';
-type Screen = { s: 'tab'; tab: Tab } | { s: 'search' } | { s: 'inbox' } | { s: 'choose'; trip: TripId } | { s: 'finding'; trip: TripId; mode: Mode } | { s: 'details'; trip: TripId; mode: Mode };
-type Sheet = null | 'switch' | 'reserve' | 'lost';
 
 export type PhoneHandle = {
-  /** Open the Reserve Ram sheet. */
-  reserve: () => void;
-  /** Start the ride flow for a trip, at "Choose a trip". */
-  ride: (id: TripId) => void;
   /** Move keyboard focus into the app. */
   focus: () => void;
 };
@@ -58,8 +51,8 @@ type Props = {
   onPersona: (p: PersonaId) => void;
   dark: boolean;
   onDark: (dark: boolean) => void;
-  /** Tells the page which trip the phone is showing, for the "Now showing" panel. */
-  onShow: (id: TripId) => void;
+  /** Where the visitor is in the app. The page owns it, so the panel beside the phone shows the same moment. */
+  app: Ride;
   reducedMotion: boolean;
 };
 
@@ -90,6 +83,41 @@ function Tribute({ className = 'rp-tribute', onReserve }: { className?: string; 
   );
 }
 
+/** A photo that steps aside if it cannot load. */
+function Thumb({ photo, className = 'rp-thumb' }: { photo: Photo; className?: string }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img className={`${className} ${photo.contain ? 'contain' : ''}`} src={photo.src} alt={photo.alt} loading="lazy" onError={(e) => (e.currentTarget.style.display = 'none')} />;
+}
+
+/** The photos of a trip, as a strip to swipe through. */
+function Photos({ photos }: { photos: Photo[] }) {
+  if (!photos.length) return null;
+  return (
+    <div className="rp-photos" tabIndex={photos.length > 2 ? 0 : undefined} role="group" aria-label="Photos from this trip">
+      {photos.map((p) => (
+        <figure key={p.src}>
+          <Thumb photo={p} className="rp-photo" />
+          <figcaption>{p.caption}</figcaption>
+        </figure>
+      ))}
+    </div>
+  );
+}
+
+/** The photo that pops up over a destination when it is pointed at or focused. */
+function PeekCard({ id, top, bottom }: { id: TripId; top: number; bottom: number }) {
+  const photo = tripPhotos(id)[0];
+  const t = getTrip(id);
+  const above = top > 210;
+  return (
+    <div className={`rp-peek ${above ? 'above' : ''}`} style={above ? { top } : { top: bottom }} aria-hidden="true">
+      <Thumb photo={{ ...photo, alt: '' }} className="rp-peek-img" />
+      <b>{t.name}</b>
+      <small>{photo.caption}</small>
+    </div>
+  );
+}
+
 /** The two ends of a trip as a route box: a dot, a line and a square. */
 function Ends({ a, b }: { a: ReactNode; b: ReactNode }) {
   return (
@@ -108,7 +136,7 @@ function Ends({ a, b }: { a: ReactNode; b: ReactNode }) {
 }
 
 /** Every stop on the road between two places, in travel order. `full` adds the achievements between the places. */
-function StopList({ from, to, full, onOpen }: { from: StopId; to: StopId; full: boolean; onOpen?: (id: TripId) => void }) {
+function StopList({ from, to, full, onOpen, onHot }: { from: StopId; to: StopId; full: boolean; onOpen?: (id: TripId) => void; onHot?: (id: StopId | null) => void }) {
   const { between } = routeBetween(from, to);
   const all = [stop(from), ...between, stop(to)].filter((s) => full || s.type !== 'dot');
   const forward = minutesAway(stop(from).when) >= minutesAway(stop(to).when);
@@ -116,6 +144,7 @@ function StopList({ from, to, full, onOpen }: { from: StopId; to: StopId; full: 
     <ol className="rp-stops">
       {all.map((s) => {
         const turn = forward ? REROUTES.find((r) => r.before === s.id) : undefined;
+        const photo = stopPhoto(s.id);
         const body = (
           <>
             <span className={`rp-stop-mark ${s.type}`} aria-hidden="true" />
@@ -124,10 +153,11 @@ function StopList({ from, to, full, onOpen }: { from: StopId; to: StopId; full: 
               {s.note && <small>{s.note}</small>}
             </span>
             <span className="rp-stop-min">{s.type === 'you' ? 'Now' : minLabel(minutesAway(s.when))}</span>
+            {photo && <Thumb photo={photo} />}
           </>
         );
         return (
-          <li key={s.id}>
+          <li key={s.id} onMouseEnter={() => onHot?.(s.id)} onMouseLeave={() => onHot?.(null)}>
             {turn && <span className="rp-reroute">{turn.text}</span>}
             {onOpen && s.type !== 'you' ? (
               <button type="button" className="rp-stop" onClick={() => onOpen(s.trip)}>
@@ -143,90 +173,40 @@ function StopList({ from, to, full, onOpen }: { from: StopId; to: StopId; full: 
   );
 }
 
-const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onPersona, dark, onDark, onShow, reducedMotion }, ref) {
-  const [stack, setStack] = useState<Screen[]>([{ s: 'tab', tab: 'home' }]);
-  const [homeTab, setHomeTab] = useState<HomeTab>('ram');
-  const [sheet, setSheet] = useState<Sheet>(null);
-  const [mode, setMode] = useState<Mode>('quick');
+const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onPersona, dark, onDark, app, reducedMotion }, ref) {
+  const { stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, moves, step, push, back, goTab, closeSheet, ride } = app;
   const [query, setQuery] = useState('');
   const [shortcut, setShortcut] = useState<null | 'experience' | 'wins'>(null);
-  const [journey, setJourney] = useState<{ from: StopId; to: StopId }>({ from: 'st-dominics', to: 'you' });
   const [filters, setFilters] = useState({ category: 'All', role: 'All' });
   const [seen, setSeen] = useState<TripId[]>([]);
   const [inboxRead, setInboxRead] = useState(false);
   const [strip, setStrip] = useState(true);
   const [toast, setToast] = useState('');
   const [copied, setCopied] = useState(false);
+  const [peek, setPeek] = useState<{ id: TripId; top: number; bottom: number } | null>(null);
   /** True once "Finding your experience" has played in full; later rides find faster. */
   const [found, setFound] = useState(false);
-  /** Counts moves between screens, so the keyboard can follow each one. */
-  const [moves, setMoves] = useState(0);
-  const step = () => setMoves((n) => n + 1);
 
   const root = useRef<HTMLDivElement>(null);
-  const opener = useRef<HTMLElement | null>(null);
 
-  const screen = stack[stack.length - 1];
   const who = PERSONAS.find((p) => p.id === persona)!;
 
-  const push = (sc: Screen) => {
-    step();
-    setStack((st) => [...st, sc]);
-  };
-  const back = () => {
-    step();
-    setStack((st) => (st.length > 1 ? st.slice(0, -1) : st));
-  };
   const openInbox = () => {
     setInboxRead(true);
     push({ s: 'inbox' });
   };
-  const goTab = (tab: Tab, home?: HomeTab) => {
-    step();
-    if (home) setHomeTab(home);
-    setStack([{ s: 'tab', tab }]);
-  };
-
-  const openSheet = (s: Exclude<Sheet, null>) => {
-    opener.current = document.activeElement as HTMLElement | null;
+  const openSheet = (sh: Exclude<Sheet, null>) => {
     setCopied(false);
-    setSheet(s);
+    app.openSheet(sh);
   };
   const reserveHere = () => openSheet('reserve');
-  const closeSheet = useCallback(() => {
-    setSheet(null);
-    const el = opener.current;
-    // wait for the screen under the sheet to lose `inert`
-    requestAnimationFrame(() => el?.isConnected && el.focus());
-  }, []);
-
-  /** Any place or tile: Choose a trip → Finding your experience → Trip details. */
-  const ride = useCallback(
-    (id: TripId) => {
-      step();
-      onShow(id);
-      setMode('quick');
-      setSheet(null);
-      setStack((st) => [...st.filter((sc) => sc.s === 'tab' || sc.s === 'search').slice(0, 2), { s: 'choose', trip: id }]);
-    },
-    [onShow],
-  );
-
   const confirm = (id: TripId) => {
     step();
     setSeen((v) => (v.includes(id) ? v : [...v, id]));
     setStack((st) => [...st.slice(0, -1), reducedMotion ? { s: 'details', trip: id, mode } : { s: 'finding', trip: id, mode }]);
   };
 
-  useImperativeHandle(
-    ref,
-    () => ({
-      reserve: () => openSheet('reserve'),
-      ride,
-      focus: () => root.current?.querySelector<HTMLElement>('[data-first]')?.focus({ preventScroll: true }),
-    }),
-    [ride],
-  );
+  useImperativeHandle(ref, () => ({ focus: () => root.current?.querySelector<HTMLElement>('[data-first]')?.focus({ preventScroll: true }) }), []);
 
   // "Finding your experience…": about a second the first time, shorter after that
   useEffect(() => {
@@ -281,6 +261,20 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
     }
   };
 
+  // pointing at (or tabbing to) a destination shows its photo; the same photos are in every Trip details sheet
+  const peeks = (id: TripId) => {
+    const show = (e: React.SyntheticEvent<HTMLElement>) => {
+      const box = root.current;
+      if (!box || !tripPhotos(id).length) return;
+      const r = e.currentTarget.getBoundingClientRect();
+      const b = box.getBoundingClientRect();
+      const scale = b.width / box.offsetWidth || 1;
+      setPeek({ id, top: (r.top - b.top) / scale, bottom: (r.bottom - b.top) / scale });
+    };
+    const hide = () => setPeek(null);
+    return { onMouseEnter: show, onMouseLeave: hide, onFocus: show, onBlur: hide };
+  };
+
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key !== 'Escape') return;
     if (sheet) closeSheet();
@@ -327,7 +321,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
         </button>
       </div>
 
-      <button type="button" className="rp-recent" onClick={() => ride(lead.id)}>
+      <button type="button" className="rp-recent" onClick={() => ride(lead.id)} {...peeks(lead.id)}>
         <span className="rp-recent-ico">
           <Icon name="clock" />
         </span>
@@ -345,7 +339,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
         {tiles.map(({ trip: id, badge }) => {
           const t = getTrip(id);
           return (
-            <button key={id} type="button" className="rp-tile" onClick={() => ride(id)}>
+            <button key={id} type="button" className="rp-tile" onClick={() => ride(id)} {...peeks(id)}>
               <span className="rp-tile-art">
                 {badge && <span className="rp-badge">{badge}</span>}
                 <Pict name={t.icon} />
@@ -401,7 +395,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
         {SHIPPED.map((id) => {
           const t = getTrip(id);
           return (
-            <button key={id} type="button" className="rp-prod" onClick={() => ride(id)}>
+            <button key={id} type="button" className="rp-prod" onClick={() => ride(id)} {...peeks(id)}>
               <span className="rp-prod-art">
                 <Pict name={t.icon} size={40} />
               </span>
@@ -418,18 +412,12 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
   );
 
   const jr = routeBetween(journey.from, journey.to);
-  const jTrip = stop(journey.to).type === 'you' ? (journey.from === 'st-dominics' ? 'story' : stop(journey.from).trip) : stop(journey.to).trip;
-  const setEnd = (end: 'from' | 'to', id: StopId) =>
-    setJourney((j) => {
-      const other = end === 'from' ? 'to' : 'from';
-      // picking the place already at the other end swaps the two
-      return j[other] === id ? { from: j.to, to: j.from } : { ...j, [end]: id };
-    });
+  const jTrip = app.journeyTrip;
 
   const homeJourney = (
     <>
       <div className="rp-jmap">
-        <LifeMap from={journey.from} to={journey.to} onPick={(id) => setEnd('to', id)} />
+        <LifeMap from={journey.from} to={journey.to} onPick={(id) => setEnd('to', id)} controls hot={app.hot} reducedMotion={reducedMotion} />
       </div>
       <div className="rp-jcard">
         <p className="rp-kicker">Trip selected</p>
@@ -466,7 +454,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
           Open {getTrip(jTrip).name}
         </button>
         <h3 className="rp-h3">On the way</h3>
-        <StopList from={journey.from} to={journey.to} full onOpen={ride} />
+        <StopList from={journey.from} to={journey.to} full onOpen={ride} onHot={app.setHot} />
         <p className="rp-legend">Square pins are places Ram belonged to. Dots are what he did there. Tap a pin to set the destination.</p>
       </div>
     </>
@@ -524,7 +512,8 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
     .sort((a, b) => a.m - b.m);
   const tripRow = (t: Trip): Row => ({ key: t.id, name: t.name, sub: t.sub, min: minutesOf(t), trip: t.id });
   const stopRow = (s: Stop): Row => ({ key: s.id, name: s.name, sub: `On the way to ${getTrip(s.trip).name}`, min: minLabel(minutesAway(s.when)), trip: s.trip });
-  let rows: Row[] = placeRows;
+  // with nothing typed, every destination is listed, nearest first
+  let rows: Row[] = [...placeRows, ...TRIPS.filter((t) => !placeRows.some((r) => r.trip === t.id)).map(tripRow)];
   if (q) {
     const hit = (s: string) => s.toLowerCase().includes(q);
     rows = [...TRIPS.filter((t) => hit(t.name) || hit(t.sub)).map(tripRow), ...STOPS.filter((s) => s.type === 'dot' && hit(s.name) && !TRIPS.some((t) => t.to === s.id && hit(t.name))).map(stopRow)];
@@ -580,7 +569,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
       <div className="rp-scroll list">
         {rows.length === 0 && <p className="rp-empty">{SEARCH.empty}</p>}
         {rows.map((r) => (
-          <button key={r.key} type="button" className="rp-place" onClick={() => ride(r.trip)}>
+          <button key={r.key} type="button" className="rp-place" onClick={() => ride(r.trip)} {...peeks(r.trip)}>
             <span className="rp-place-when">
               <Icon name="clock" w={1.8} />
               {r.min && <small>{r.min}</small>}
@@ -599,7 +588,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
 
   const rideMap = (t: Trip, covered: number, top = 76) => (
     <div className="rp-map">
-      <LifeMap from={t.from} to={t.to} pad={{ top, bottom: covered }} />
+      <LifeMap from={t.from} to={t.to} pad={{ top, bottom: covered }} hot={app.hot} searching={screen.s === 'finding'} reducedMotion={reducedMotion} />
     </div>
   );
 
@@ -720,7 +709,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
             ) : t.id === 'story' ? (
               <div className="rp-story">
                 <p className="rp-about">{t.blurb}</p>
-                <StopList from={t.from} to={t.to} full={full} onOpen={ride} />
+                <StopList from={t.from} to={t.to} full={full} onOpen={ride} onHot={app.setHot} />
               </div>
             ) : (
               <>
@@ -812,6 +801,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
                 )}
               </>
             )}
+            <Photos photos={tripPhotos(t.id)} />
             <div className="rp-sharerow">
               <Icon name="pin" size={24} w={1.8} />
               <span>{RIDE.share}</span>
@@ -1176,6 +1166,9 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
             <Tribute className="rp-tribute in" onReserve={sheet === 'reserve' ? undefined : reserveHere} />
           </section>
         </>
+      )}
+      {peek && !sheet && (
+        <PeekCard id={peek.id} top={peek.top} bottom={peek.bottom} />
       )}
       <p className="rp-toast" role="status">
         {toast}

@@ -2,9 +2,11 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
-import { BILLBOARD, PERSONAS, STAGE, THEME_KEY, TRIBUTE_LONG, minLabel, trip as getTrip, tripMinutes, type PersonaId, type TripId } from '@/lib/uber';
+import { BILLBOARD, PERSONAS, THEME_KEY, TRIBUTE_LONG, type PersonaId } from '@/lib/uber';
 import PhoneApp, { type PhoneHandle } from './PhoneApp';
+import StagePanel from './StagePanel';
 import { Icon } from './icons';
+import { useRide } from './useRide';
 
 /** The stage is drawn on a 1440 × 900 canvas, like the artboards, and scaled to fit the window. */
 const CANVAS = { w: 1440, h: 900 };
@@ -59,7 +61,8 @@ function useDark(): [boolean, (dark: boolean) => void] {
 export default function UberPage({ fonts, children }: { fonts: string; children?: ReactNode }) {
   const [dark, chooseDark] = useDark();
   const [persona, setPersona] = useState<PersonaId>('pm');
-  const [showing, setShowing] = useState<TripId>('trucost');
+  /** Where the visitor is in the app: the phone and the panel beside it both read this. */
+  const ride = useRide();
   const desk = useMedia(DESK, true);
   const reduced = useMedia('(prefers-reduced-motion: reduce)', false);
   /** True once the scroll has carried the phone to the centre of the stage. */
@@ -129,18 +132,15 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
     [desk, reduced],
   );
 
-  const start = () => toPhone(() => phone.current?.ride('story'));
+  const start = () => toPhone(() => ride.ride('story'));
   const open = () => toPhone(() => phone.current?.focus());
-  const reserve = () => toPhone(() => phone.current?.reserve());
+  const reserve = () => toPhone(() => ride.openSheet('reserve'));
   const pick = (id: PersonaId) => {
     setPersona(id);
     open();
   };
   const askMiniRam = () => window.dispatchEvent(new Event('mini-ram:open'));
 
-  const t = getTrip(showing);
-  const min = tripMinutes(t);
-  const receipt = [...(t.receipt ?? []), ...(min !== null && t.id !== 'idle-minutes' ? [{ label: t.id === 'story' ? 'The whole road' : 'Distance from today', value: minLabel(min) }] : [])];
   const tick = <Icon name="check" size={28} w={2.5} />;
 
   return (
@@ -197,54 +197,15 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
               </div>
             </section>
 
-            {/* after the scroll: the booking story on the left, the selected stop on the right */}
-            <section className="ub-arrived" aria-label="Ram's portfolio" inert={desk && !arrived ? true : undefined}>
-              <div className="ub-left">
-                <p className="ub-status sm">
-                  <Icon name="check" size={24} w={2.6} />
-                  {STAGE.status}
-                </p>
-                <h2 className="ub-h2">{STAGE.headline}</h2>
-                <p className="ub-body">{STAGE.body}</p>
-                <button type="button" className="ub-btn solid tall" onClick={reserve}>
-                  {BILLBOARD.reserve}
-                </button>
-              </div>
-              <aside className="ub-now" aria-live="polite">
-                <p className="ub-now-k">
-                  <i aria-hidden="true" />
-                  {STAGE.nowShowing}
-                </p>
-                <h2 className={`ub-now-name ${t.name.length > 14 ? 'long' : ''}`}>{t.name}</h2>
-                <p className="ub-now-blurb">{t.blurb}</p>
-                {t.did && (
-                  <ul className="ub-ticks">
-                    {t.did.map((x) => (
-                      <li key={x}>
-                        <i aria-hidden="true">
-                          <Icon name="check" size={12} w={3.2} />
-                        </i>
-                        <span>{x}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <dl className="ub-receipt">
-                  {receipt.map((r) => (
-                    <div key={r.label}>
-                      <dt>{r.label}</dt>
-                      <i aria-hidden="true" />
-                      <dd>{r.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </aside>
-            </section>
+            {/* after the scroll: the phone on the left, and beside it the same moment at full size */}
+            <div className="ub-arrived" inert={desk && !arrived ? true : undefined}>
+              {desk && <StagePanel app={ride} persona={persona} onPersona={setPersona} reducedMotion={reduced} />}
+            </div>
 
             <div className="ub-phone" ref={app}>
               <div className="ub-frame">
                 <div className="ub-glass" inert={desk && !arrived ? true : undefined}>
-                  <PhoneApp ref={phone} persona={persona} onPersona={setPersona} dark={dark} onDark={chooseDark} onShow={setShowing} reducedMotion={reduced} />
+                  <PhoneApp ref={phone} persona={persona} onPersona={setPersona} dark={dark} onDark={chooseDark} app={ride} reducedMotion={reduced} />
                 </div>
                 {desk && !arrived && (
                   <button type="button" className="ub-phone-open" onClick={open} aria-label="Open the phone: it is Ram's portfolio" />
