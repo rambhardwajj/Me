@@ -151,10 +151,10 @@ body:has(.ub) { background: transparent; transition: none; }
 .ub-head { position: absolute; z-index: 4; left: calc(72px + 422px * var(--p)); top: calc(40px - 16px * var(--p)); display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; max-width: 700px; }
 .ub-mark { font-family: var(--u-display); font-size: 30px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
 .ub-tribute { font-size: 13px; color: var(--u-text-2); white-space: nowrap; }
-.ub-head-links { position: absolute; left: calc(940px - 422px * var(--p)); top: 4px; width: 356px; display: flex; justify-content: flex-end; gap: 6px; }
+.ub-head-links { position: absolute; left: calc(1056px - 422px * var(--p)); top: 4px; width: 240px; display: flex; justify-content: flex-end; gap: 6px; }
 .ub-head-links > * { height: 36px; display: flex; align-items: center; padding: 0 12px; border-radius: 18px; font-size: 13.5px; font-weight: 500; color: var(--u-text-2); white-space: nowrap; }
 .ub-head-links > *:hover { background: var(--u-surface); color: var(--u-text); }
-.ub-theme { gap: 6px; border: 1px solid var(--u-line); color: var(--u-text) !important; }
+.ub-theme { width: 36px; padding: 0 !important; justify-content: center; border: 1px solid var(--u-line); color: var(--u-text) !important; }
 
 .ub-bill, .ub-arrived { position: absolute; inset: 0; }
 .ub-bill { opacity: clamp(0, calc(1 - var(--p) * 2.5), 1); }
@@ -745,6 +745,8 @@ body:has(.ub) { background: transparent; transition: none; }
 .ub-side-p { font-size: 14.5px; line-height: 21px; color: var(--u-body); }
 .ub-side-hint { margin-top: auto; font-size: 13px; line-height: 19px; color: var(--u-text-2); }
 .ub-side-btns { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+.ub-side-btns.row { flex-direction: row; margin-top: 0; }
+.ub-side-btns.row .ub-btn { flex: 1; padding: 11px 10px; }
 .ub-side-btns .ub-btn { padding: 13px 16px; font-size: 15px; font-family: var(--u-ui); font-weight: 600; }
 .ub-side .ub-ticks { font-size: 14px; line-height: 20px; gap: 7px; }
 .ub-side .ub-receipt { padding-top: 12px; gap: 8px; font-size: 14px; }
@@ -877,3 +879,49 @@ body:has(.ub) { background: transparent; transition: none; }
 .ub[data-theme='dark'] .lm-shield { fill: #f2c94c; }
 /* the night glow stays put while the page scrolls under the pinned stage */
 .ub[data-theme='dark'] .ub-stage { background: radial-gradient(900px 520px at 78% -8%, rgba(59, 130, 255, 0.16), transparent 70%), radial-gradient(700px 480px at 6% 108%, rgba(180, 107, 255, 0.1), transparent 70%), var(--u-bg); }
+
+/* ==========================================================================
+   Daylight map: what the light theme adds beside the phone. The first screen
+   stays pure white; the warm page tone fades in as the phone arrives.
+   ========================================================================== */
+.ub[data-theme='light'] {
+  --u-map-land: #f3efe4;
+  --u-map-hill: #e6e0d0;
+  --u-map-road: #ffffff;
+  --u-map-casing: #cdc5b3;
+  --u-map-street: #ffffff;
+  --u-map-water: #a8d2f6;
+  --u-map-park: #c6e5bd;
+  --u-map-label: #2f5fd0;
+  --u-map-idle: #9aa0aa;
+  --u-edge: #e8e2d4;
+  --u-lift: 0 18px 44px rgba(70, 55, 25, 0.1), 0 2px 6px rgba(70, 55, 25, 0.05);
+}
+.ub[data-theme='light'] .ub-stage { background: color-mix(in srgb, #f7f4ec calc(var(--p) * 100%), #ffffff); }
+html:has(.ub[data-theme='light']) { background: #f7f4ec; }
+.ub[data-theme='light'] .ub-frame { box-shadow: 0 0 0 1.5px #3a3a3a inset, 0 44px 90px rgba(70, 55, 25, 0.26), 0 10px 24px rgba(70, 55, 25, 0.14); }
+.ub[data-theme='light'] .ub-side { background: #ffffff; border: 1px solid var(--u-edge); box-shadow: var(--u-lift); }
+.ub[data-theme='light'] .ub-mapbox { border-color: var(--u-edge); box-shadow: var(--u-lift); }
+.ub[data-theme='light'] .ub-events li { background: #faf8f3; border: 1px solid var(--u-edge); }
+.ub[data-theme='light'] .ub-drive-ctl button { background: #ffffff; border-color: var(--u-edge); box-shadow: 0 2px 6px rgba(70, 55, 25, 0.06); }
+.ub[data-theme='light'] .ub-cap-tag { background: #ffffff; box-shadow: inset 0 0 0 1px var(--u-edge); }
+.ub[data-theme='light'] .ub-cap-tag.here { background: color-mix(in srgb, var(--acc) 30%, #fff); box-shadow: none; }
+.ub[data-theme='light'] .ub-theme { background: #ffffff; border-color: var(--u-edge); }
+.ub[data-theme='light'] .ub-facts button { background: linear-gradient(160deg, color-mix(in srgb, var(--acc) 34%, #fff), color-mix(in srgb, var(--acc) 14%, #fff)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) 40%, transparent); }
+.ub[data-theme='light'] .ub-facts button:hover { background: linear-gradient(160deg, color-mix(in srgb, var(--acc) 48%, #fff), color-mix(in srgb, var(--acc) 22%, #fff)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) 60%, transparent), 0 16px 36px color-mix(in srgb, var(--acc) 26%, transparent); }
+.ub[data-theme='light'] .ub-hero-photo { background: radial-gradient(120% 90% at 50% 100%, color-mix(in srgb, var(--acc) 88%, #fff), color-mix(in srgb, var(--acc) 42%, #fff) 75%); box-shadow: var(--u-lift); }
+.ub[data-theme='light'] .ub-tcard-art, .ub[data-theme='light'] .ub-sstop-art { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06); }
+.ub[data-theme='light'] .ub-tcard:hover .ub-tcard-art { box-shadow: 0 16px 34px color-mix(in srgb, var(--acc) 30%, transparent); }
+.ub[data-theme='light'] .ub-side .ub-bigstat { background: color-mix(in srgb, var(--acc) 24%, #fff); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) 38%, transparent); }
+.ub[data-theme='light'] .ub-quote { background: color-mix(in srgb, var(--acc) 20%, #fff); }
+.ub[data-theme='light'] .ub-cap-reserve, .ub[data-theme='light'] .ub-arrived .ub-btn.solid { box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18); }
+/* the map by day: a blue route on a cream city, with light name tags */
+.ub[data-theme='light'] .lm-route { stroke: var(--u-accent); filter: drop-shadow(0 2px 3px rgba(39, 110, 241, 0.35)); }
+.ub[data-theme='light'] .lm-driven { stroke: #0b2a7a; }
+.ub[data-theme='light'] .lm-dot.on { stroke: var(--u-accent); fill: #ffffff; }
+.ub[data-theme='light'] .lm-pin.on > rect:first-child { fill: #111111; }
+.ub[data-theme='light'] .lm-pin-eye { fill: #ffffff; }
+.ub[data-theme='light'] .lm-leader { stroke: #9aa0aa; }
+.ub[data-theme='light'] .lm-tag.off { background: #ffffff; color: #5e5e5e; box-shadow: inset 0 0 0 1px #dcd6c7, 0 2px 6px rgba(70, 55, 25, 0.08); }
+.ub[data-theme='light'] .lm-ctl button, .ub[data-theme='light'] .ub-mapbox-sum { background: #ffffff; box-shadow: 0 4px 14px rgba(70, 55, 25, 0.16); }
+.ub[data-theme='light'] .lm-thumb { box-shadow: 0 0 0 2px var(--u-accent), 0 6px 16px rgba(70, 55, 25, 0.3); }

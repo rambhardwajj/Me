@@ -498,10 +498,12 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
         </span>
       )}
 
-      {/* photos of the stops the car has passed; once it has arrived, only the places keep theirs */}
+      {/* photos of the stops the car has just passed, so they never pile up on the map */}
       {drive &&
         order
-          .filter((s) => s.type !== 'you' && fracOf(s.at) <= p + 0.001 && (driving || s.type === 'place' || s.id === from || s.id === to) && inBox(s.at, 0))
+          .filter((s) => s.type !== 'you' && fracOf(s.at) <= p + 0.001 && inBox(s.at, 0))
+          // while driving, only the last three stops keep their photo; once arrived, only the destination does
+          .filter((s, i, passed) => (driving ? i >= passed.length - 3 : s.id === to || (to === 'you' && s.id === from)))
           .map((s) => {
             const photo = stopPhoto(s.id);
             return (

@@ -185,20 +185,24 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
       const at = passing ?? stops[0];
       const n = stops.findIndex((x) => x.id === at.id) + 1;
       side = arrived ? (
-        <div className="ub-side-in" key="arrived">
+        <div className="ub-side-in scroll" key="arrived" tabIndex={0} role="group" aria-label={`Arrived at ${onTrip!.name}`}>
           <p className="ub-side-k">Arrived</p>
-          <SideTrip t={onTrip!} />
-          <div className="ub-side-btns">
+          <div className="ub-side-btns row">
             <button type="button" className="ub-btn solid" onClick={() => setMode('full')}>
-              Read the full story
+              Full story
             </button>
-            <button type="button" className="ub-btn line" onClick={() => {
-              setPausedKey('');
-              setReplay((x) => x + 1);
-            }}>
-              Replay the ride
+            <button
+              type="button"
+              className="ub-btn line"
+              onClick={() => {
+                setPausedKey('');
+                setReplay((x) => x + 1);
+              }}
+            >
+              Replay
             </button>
           </div>
+          <SideTrip t={onTrip!} />
         </div>
       ) : (
         <div className="ub-side-in">
