@@ -231,8 +231,10 @@ body:has(.ub) { background: transparent; transition: none; }
 .rp [tabindex='-1']:focus { outline: none; }
 .rp-tribute { position: absolute; z-index: 1; left: 0; right: 0; top: 20px; text-align: center; font-size: 11px; letter-spacing: 0.01em; color: var(--u-muted); pointer-events: none; }
 .rp-tribute.in { position: static; margin-top: 10px; flex: none; }
+.rp-tribute-reserve { pointer-events: auto; position: relative; margin: -16px -4px; padding: 16px 4px; font-weight: 600; color: var(--u-text); text-decoration: underline; text-underline-offset: 2px; border-radius: 6px; }
+.rp-tribute-reserve:focus-visible { outline-offset: -12px; }
 .rp-tribute.at-foot { top: auto; bottom: 24px; }
-.rp-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 16px 124px; scrollbar-width: none; }
+.rp-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 16px 124px; scrollbar-width: none; scroll-padding: 12px 0 112px; }
 .rp-scroll::-webkit-scrollbar { display: none; }
 .rp-scroll.flush { padding: 0 0 124px; }
 .rp-empty { padding: 20px 0; font-size: 15px; color: var(--u-text-2); }
@@ -393,7 +395,7 @@ body:has(.ub) { background: transparent; transition: none; }
 .rp-sheet { position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; max-height: calc(100% - 56px); overflow-y: auto; scrollbar-width: none; background: var(--u-bg); border-radius: 20px 20px 0 0; box-shadow: var(--u-sheet); padding: 0 16px calc(20px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; animation: rp-rise 0.24s cubic-bezier(0.22, 1, 0.36, 1); }
 .rp-sheet::-webkit-scrollbar { display: none; }
 .rp-sheet.choose { height: 420px; }
-.rp-sheet.finding { height: 284px; }
+.rp-sheet.finding { min-height: 284px; }
 .rp-sheet.details { height: 592px; padding: 0; overflow: hidden; }
 .rp-grab { flex: none; align-self: center; width: 40px; height: 4px; border-radius: 2px; background: var(--u-grab); margin-top: 8px; }
 .rp-sheet-h { flex: none; text-align: center; font-size: 18px !important; font-weight: 600 !important; letter-spacing: -0.02em; margin: 14px 0 16px; }
@@ -549,7 +551,7 @@ body:has(.ub) { background: transparent; transition: none; }
 /* ==========================================================================
    The life map
    ========================================================================== */
-.lm { position: absolute; inset: 0; overflow: hidden; background: var(--u-map-land); }
+.lm { position: absolute; inset: 0; overflow: hidden; overflow: clip; background: var(--u-map-land); }
 .lm svg { display: block; font-family: var(--u-ui); }
 .lm-land { fill: var(--u-map-land); }
 .lm-park { fill: var(--u-map-park); }

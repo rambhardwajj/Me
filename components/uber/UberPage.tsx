@@ -10,8 +10,8 @@ import { Icon } from './icons';
 const CANVAS = { w: 1440, h: 900 };
 /** Laptop layout from this size up; below it the page is an intro followed by the app, full screen. */
 const DESK = '(min-width: 1024px) and (min-height: 560px)';
-/** How far the page scrolls while the phone straightens, as a share of the window's height. */
-const TRAVEL = 0.9;
+/** How far the page can scroll: the phone travels from the Billboard to the stage over exactly this distance. */
+const maxScroll = () => Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
 
 /** A media query as state. On the server, and until hydration, it reads as `onServer`. */
 function useMedia(query: string, onServer: boolean) {
@@ -82,12 +82,15 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
     }
     // scroll events already arrive once per frame, so this runs straight from the listener
     const update = () => {
-      const raw = Math.min(1, Math.max(0, window.scrollY / (window.innerHeight * TRAVEL)));
+      const max = maxScroll();
+      // arrived means the page is at (or within a pixel of) the end of its scroll, whatever the rounding
+      const atEnd = window.scrollY >= max - 1;
+      const raw = max <= 0 || atEnd ? 1 : Math.min(1, Math.max(0, window.scrollY / max));
       // reduced motion: no in-between frames, the same two end states
       const p = reduced ? (raw > 0.5 ? 1 : 0) : raw;
       el.style.setProperty('--p', p.toFixed(4));
       el.style.setProperty('--cs', Math.min(1.3, window.innerWidth / CANVAS.w, window.innerHeight / CANVAS.h).toFixed(4));
-      const there = p >= 0.999;
+      const there = p >= 1;
       setScrolled(there);
       if (there && pending.current) {
         const run = pending.current;
@@ -113,8 +116,8 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
         then();
         return;
       }
-      const top = Math.ceil(window.innerHeight * TRAVEL) + 2;
-      if (window.scrollY >= top - 4) {
+      const top = maxScroll();
+      if (window.scrollY >= top - 1) {
         then();
         return;
       }

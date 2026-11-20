@@ -16,7 +16,7 @@
  *     rank 1 coder, the EDST award and the CienaGPT hackathon. Their "min" figures come from the approved map.
  *  8. Super 30 Hacker House start: the site says Sep 2025, the resume says Jul 2025. The map uses Sep 2025.
  *  9. St. Dominic's School: the map's 91 min assumes the Class 12 result in Apr 2019.
- * 10. TruCost: the month it was sold (the trip shows the contract's last month, Oct 2026, from the site).
+ * 10. TruCost: the months it went live and was sold (the trip says "by October 2026", the contract's last month on the site).
  */
 
 /** Where the page remembers the chosen theme (the main site uses its own key). */
@@ -173,7 +173,7 @@ export const TRIPS: Trip[] = [
     blurb: 'A ride-hailing app with an in-cab tablet that earns from advertisers during the ride.',
     leg: [
       { title: 'Took the contract as Product Manager', when: 'June 2026' },
-      { title: 'Live on the App Store and Play Store', when: 'October 2026' }, // OWED 10: the month it was sold
+      { title: 'Both apps live on the App Store and Play Store', when: 'By October 2026' }, // the contract's last month; OWED 10: the launch and sale months
     ],
     result: { sub: 'Sold to the founder', value: '₹2.5L' },
     proof: { title: '100 drivers onboarded', badge: 'Live on both app stores', note: 'Hired and led the development team' },
@@ -242,8 +242,8 @@ export const TRIPS: Trip[] = [
     pickup: 'Founder, 2026',
     blurb: 'Case and guesstimate practice for MBA aspirants, taken from a PRD to a live product.',
     leg: [
-      { title: 'Started from user research and a PRD', when: 'September 2026' },
-      { title: 'MVP live across Masters’ Union', when: 'October 2026' },
+      { title: 'Launched, from a PRD to an MVP', when: 'September 2026' },
+      { title: '150 users across Masters’ Union communities', when: 'Now' },
     ],
     result: { sub: 'Users', value: '150' },
     proof: { title: '70% activation', badge: '124 problems', note: 'PRD to MVP in under two months' },
@@ -541,7 +541,7 @@ export const HOME = {
   tabs: { ram: 'Ram', shipped: 'Shipped', journey: 'Journey' },
 };
 
-/** The Shipped tab: products that reached users, newest first. */
+/** The Shipped tab: products Ram built or co-founded, newest first. */
 export const SHIPPED: TripId[] = ['leetcase', 'trucost', 'unbothrrd', 'newral', 'synappses'];
 
 /* ------------------------------------------------------------------ Search */

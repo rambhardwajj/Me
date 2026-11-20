@@ -70,7 +70,25 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'account', label: 'Account', icon: 'user' },
 ];
 
-const Tribute = ({ className = 'rp-tribute' }: { className?: string }) => <p className={className}>{TRIBUTE}</p>;
+/**
+ * The not-affiliated line, on every screen. It also carries a small "Reserve Ram" link,
+ * so the one action that counts is never more than a tap away.
+ */
+function Tribute({ className = 'rp-tribute', onReserve }: { className?: string; onReserve?: () => void }) {
+  return (
+    <p className={className}>
+      {TRIBUTE}
+      {onReserve && (
+        <>
+          {' '}
+          <button type="button" className="rp-tribute-reserve" onClick={onReserve}>
+            {RESERVE.title}
+          </button>
+        </>
+      )}
+    </p>
+  );
+}
 
 /** The two ends of a trip as a route box: a dot, a line and a square. */
 function Ends({ a, b }: { a: ReactNode; b: ReactNode }) {
@@ -174,6 +192,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
     setCopied(false);
     setSheet(s);
   };
+  const reserveHere = () => openSheet('reserve');
   const closeSheet = useCallback(() => {
     setSheet(null);
     const el = opener.current;
@@ -377,7 +396,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
   const homeShipped = (
     <>
       <h2 className="rp-h2 first">Shipped</h2>
-      <p className="rp-lede">Products Ram took to real users, newest first.</p>
+      <p className="rp-lede">Products Ram built or co-founded, newest first.</p>
       <div className="rp-rows">
         {SHIPPED.map((id) => {
           const t = getTrip(id);
@@ -455,7 +474,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
 
   const home = (
     <>
-      <Tribute />
+      <Tribute onReserve={reserveHere} />
       <div className="rp-top">
         <button type="button" className="rp-switch" data-first onClick={() => openSheet('switch')} aria-haspopup="dialog">
           <i className="rp-loc" aria-hidden="true" />
@@ -517,7 +536,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
 
   const search = (
     <>
-      <Tribute />
+      <Tribute onReserve={reserveHere} />
       <header className="rp-bar">
         <button type="button" className="rp-back" aria-label="Back" onClick={back}>
           <Icon name="back" size={24} w={2.2} />
@@ -628,7 +647,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
         <button type="button" className="rp-btn pill primary" onClick={() => confirm(t.id)}>
           Choose {RIDE[mode].name}
         </button>
-        <Tribute className="rp-tribute in" />
+        <Tribute className="rp-tribute in" onReserve={reserveHere} />
       </section>
     </>
   );
@@ -661,7 +680,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
             <span className="rp-tag green">{RIDE.freeRide}</span>
           </span>
         </div>
-        <Tribute className="rp-tribute in" />
+        <Tribute className="rp-tribute in" onReserve={reserveHere} />
       </section>
     </>
   );
@@ -811,7 +830,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
             <button type="button" className="rp-btn primary" onClick={() => openSheet('reserve')}>
               {RIDE.reserve}
             </button>
-            <Tribute className="rp-tribute in" />
+            <Tribute className="rp-tribute in" onReserve={reserveHere} />
           </div>
         </section>
       </>
@@ -822,7 +841,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
 
   const services = (
     <>
-      <Tribute />
+      <Tribute onReserve={reserveHere} />
       <h1 className="rp-title" tabIndex={-1} data-first>
         {SERVICES.title}
       </h1>
@@ -863,7 +882,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
 
   const activity = (
     <>
-      <Tribute />
+      <Tribute onReserve={reserveHere} />
       <h1 className="rp-title" tabIndex={-1} data-first>
         {ACTIVITY.title}
       </h1>
@@ -930,7 +949,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
 
   const inbox = (
     <>
-      <Tribute />
+      <Tribute onReserve={reserveHere} />
       <header className="rp-bar">
         <button type="button" className="rp-back" aria-label="Back" data-first onClick={back}>
           <Icon name="back" size={24} w={2.2} />
@@ -977,7 +996,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
 
   const account = (
     <>
-      <Tribute />
+      <Tribute onReserve={reserveHere} />
       <div className="rp-scroll account">
         <div className="rp-me">
           <span>
@@ -1154,7 +1173,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
           <section className={`rp-sheet modal ${sheet}`} role="dialog" aria-labelledby="rp-sheet-h">
             <span className="rp-grab" aria-hidden="true" />
             {sheets[sheet]}
-            <Tribute className="rp-tribute in" />
+            <Tribute className="rp-tribute in" onReserve={sheet === 'reserve' ? undefined : reserveHere} />
           </section>
         </>
       )}

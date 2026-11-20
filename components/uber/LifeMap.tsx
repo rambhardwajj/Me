@@ -222,8 +222,11 @@ export default function LifeMap({ from, to, pad = {}, onPick, label }: { from: S
         </span>
       ))}
 
+      {/* pins outside the box are not buttons: the From and To lists reach every place */}
       {onPick &&
-        places.map((s) => (
+        places
+          .filter((s) => sx(s.at) > 20 && sx(s.at) < size.w - 20 && sy(s.at) > 20 && sy(s.at) < size.h - 20)
+          .map((s) => (
           <button key={s.id} type="button" className="lm-hit" style={{ left: sx(s.at), top: sy(s.at) }} onClick={() => onPick(s.id)} aria-label={`${s.name}, ${minLabel(minutesAway(s.when))} away. Set as the destination`} aria-pressed={s.id === to} />
         ))}
     </div>
