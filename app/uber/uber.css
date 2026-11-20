@@ -126,9 +126,10 @@ body:has(.ub) { background: transparent; transition: none; }
 .ub-head { position: absolute; z-index: 4; left: calc(72px + 422px * var(--p)); top: calc(40px - 16px * var(--p)); display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; max-width: 700px; }
 .ub-mark { font-family: var(--u-display); font-size: 30px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
 .ub-tribute { font-size: 13px; color: var(--u-text-2); white-space: nowrap; }
-.ub-head-links { position: absolute; left: calc(1010px - 422px * var(--p)); top: 4px; width: 286px; display: flex; justify-content: flex-end; gap: 6px; }
+.ub-head-links { position: absolute; left: calc(940px - 422px * var(--p)); top: 4px; width: 356px; display: flex; justify-content: flex-end; gap: 6px; }
 .ub-head-links > * { height: 36px; display: flex; align-items: center; padding: 0 12px; border-radius: 18px; font-size: 13.5px; font-weight: 500; color: var(--u-text-2); white-space: nowrap; }
 .ub-head-links > *:hover { background: var(--u-surface); color: var(--u-text); }
+.ub-theme { gap: 6px; border: 1px solid var(--u-line); color: var(--u-text) !important; }
 
 .ub-bill, .ub-arrived { position: absolute; inset: 0; }
 .ub-bill { opacity: clamp(0, calc(1 - var(--p) * 2.5), 1); }

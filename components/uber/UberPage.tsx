@@ -157,6 +157,10 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
                   Ask Mini Ram
                 </button>
                 <Link href="/">Main site</Link>
+                <button type="button" className="ub-theme" role="switch" aria-checked={dark} aria-label="Dark theme" onClick={() => chooseDark(!dark)}>
+                  <Icon name={dark ? 'sun' : 'moon'} size={17} />
+                  {dark ? 'Light' : 'Dark'}
+                </button>
               </nav>
             </header>
 
