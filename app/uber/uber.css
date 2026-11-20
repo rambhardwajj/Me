@@ -55,44 +55,69 @@
   color-scheme: light;
 }
 .ub[data-theme='dark'] {
-  --u-bg: #1b1b1b;
-  --u-surface: #262626;
-  --u-line: #333333;
+  /* Night city: a near-black page, the map lit like a city at night, panels as dark glass */
+  --u-bg: #0a0b0f;
+  --u-surface: #14161c;
+  --u-line: #242833;
   --u-text: #ffffff;
-  --u-text-2: #b5b5b5;
-  --u-muted: #a6a6a6;
-  --u-body: #c4c4c4;
-  --u-status: #9a9a9a;
+  --u-text-2: #aab0be;
+  --u-muted: #9299a8;
+  --u-body: #cdd2dd;
+  --u-status: #8d94a3;
   --u-primary: #ffffff;
-  --u-on-primary: #1b1b1b;
-  --u-tint: #15264d;
+  --u-on-primary: #0a0b0f;
+  --u-accent: #3b82ff;
+  --u-tint: #12234a;
   --u-tint-ink: #9db5f0;
   --u-positive: #12a35a;
   --u-ink: #f1f1f1;
   --u-grab: #5c5c5c;
+  --u-track: #2a2e39;
+  --u-ring: #3a3f4c;
+  --u-photo: #2a2e39;
+  --u-idea: #3a2f12;
+  --u-dash: #4a5060;
+  --u-float: 0 12px 34px rgba(0, 0, 0, 0.6), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --u-map-btn: 0 4px 14px rgba(0, 0, 0, 0.6);
+  --u-sheet: 0 -8px 30px rgba(0, 0, 0, 0.5);
+  --u-glass: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  --u-edge: rgba(255, 255, 255, 0.09);
+
+  --u-map-land: #10131a;
+  --u-map-hill: #1a1e28;
+  --u-map-road: #323848;
+  --u-map-casing: #06070a;
+  --u-map-street: #1a1e28;
+  --u-map-water: #0d2447;
+  --u-map-park: #11241e;
+  --u-map-label: #8fb0ff;
+  --u-map-idle: #68707f;
+  --u-map-badge: #0a0b0f;
+  --u-map-badge-line: #3a3f4c;
+  color-scheme: dark;
+  background:
+    radial-gradient(900px 520px at 78% -8%, rgba(59, 130, 255, 0.16), transparent 70%),
+    radial-gradient(700px 480px at 6% 108%, rgba(180, 107, 255, 0.1), transparent 70%),
+    var(--u-bg);
+}
+/* inside the phone the app keeps Uber's own dark, as on the approved dark artboards */
+.ub[data-theme='dark'] .rp {
+  --u-bg: #1b1b1b;
+  --u-surface: #262626;
+  --u-line: #333333;
+  --u-text-2: #b5b5b5;
+  --u-muted: #a6a6a6;
+  --u-body: #c4c4c4;
+  --u-on-primary: #1b1b1b;
+  --u-accent: #276ef1;
+  --u-tint: #15264d;
   --u-track: #3d3d3d;
   --u-ring: #4a4a4a;
   --u-photo: #3d3d3d;
-  --u-idea: #3a2f12;
-  --u-dash: #5c5c5c;
-  --u-float: 0 8px 28px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.06);
-  --u-map-btn: 0 2px 8px rgba(0, 0, 0, 0.5);
-
-  --u-map-land: #3a3e49;
-  --u-map-hill: #2e313a;
-  --u-map-road: #1b1d24;
-  --u-map-casing: #23262e;
-  --u-map-street: #2e313a;
-  --u-map-water: #2b3654;
-  --u-map-park: #36423f;
-  --u-map-label: #9db5f0;
-  --u-map-idle: #8e94a3;
   --u-map-badge: #000000;
-  --u-map-badge-line: #3d3d3d;
-  color-scheme: dark;
 }
 html:has(.ub) { background: #ffffff; scroll-behavior: auto; }
-html:has(.ub[data-theme='dark']) { background: #1b1b1b; }
+html:has(.ub[data-theme='dark']) { background: #0a0b0f; }
 body:has(.ub) { background: transparent; transition: none; }
 
 .ub :focus-visible { outline: 3px solid #276ef1; outline-offset: 2px; }
@@ -785,3 +810,70 @@ body:has(.ub) { background: transparent; transition: none; }
 .ub-cloud-in small { font-size: 13px; color: var(--u-text-2); max-width: 260px; }
 @keyframes ub-cloud { from { opacity: 0; transform: scale(0.9); } }
 @keyframes ub-cloud-dot { from { opacity: 0; transform: scale(0.4); } }
+
+/* ---- the car drive's controls ---- */
+.ub-drive-bar { flex: none; height: 5px; border-radius: 3px; background: var(--u-track); overflow: hidden; }
+.ub-drive-bar span { display: block; height: 100%; border-radius: 3px; background: var(--u-accent); transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.ub-drive-ctl { flex: none; display: flex; gap: 8px; }
+.ub-drive-ctl button { flex: 1; height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 22px; background: var(--u-bg); border: 1px solid var(--u-line); font-size: 13.5px; font-weight: 600; white-space: nowrap; transition: transform 0.12s; }
+.ub-drive-ctl button:hover { transform: translateY(-1px); }
+.ub-rail { flex: 1; min-height: 0; list-style: none; overflow-y: auto; scrollbar-width: none; margin-top: 4px; padding-top: 8px; border-top: 1px solid var(--u-line); }
+.ub-rail li { position: relative; display: flex; align-items: center; gap: 10px; min-height: 28px; font-size: 13px; color: var(--u-muted); }
+.ub-rail li i { flex: none; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--u-muted); }
+.ub-rail li::before { content: ''; position: absolute; left: 4px; top: -9px; width: 2px; height: 18px; background: var(--u-line); }
+.ub-rail li:first-child::before { display: none; }
+.ub-rail li span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ub-rail li small { flex: none; font-size: 11.5px; }
+.ub-rail li.done { color: var(--u-body); }
+.ub-rail li.done i { background: var(--u-accent); border-color: var(--u-accent); }
+.ub-rail li.done::before, .ub-rail li.now::before { background: var(--u-accent); }
+.ub-rail li.now { color: var(--u-text); font-weight: 700; }
+.ub-rail li.now i { width: 12px; height: 12px; margin: 0 -1px; background: var(--u-bg); border: 3px solid var(--u-accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--u-accent) 28%, transparent); }
+
+/* ==========================================================================
+   Night city: what the dark theme adds beside the phone. Depth, glass and light.
+   ========================================================================== */
+.ub[data-theme='dark'] .ub-frame { box-shadow: 0 0 0 1.5px #3a3f4c inset, 0 0 0 1px rgba(255, 255, 255, 0.06), 0 40px 90px rgba(0, 0, 0, 0.7), 0 0 110px rgba(59, 130, 255, 0.16); }
+.ub[data-theme='dark'] .ub-side { background: var(--u-glass), var(--u-surface); border: 1px solid var(--u-edge); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45); }
+.ub[data-theme='dark'] .ub-mapbox { border-color: var(--u-edge); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), inset 0 0 90px rgba(59, 130, 255, 0.07); }
+.ub[data-theme='dark'] .ub-events li, .ub[data-theme='dark'] .ub-drive-ctl button { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--u-edge); }
+.ub[data-theme='dark'] .ub-cap-tag { background: rgba(255, 255, 255, 0.07); }
+.ub[data-theme='dark'] .ub-cap-tag.here { background: color-mix(in srgb, var(--acc) 22%, transparent); color: color-mix(in srgb, var(--acc) 70%, #fff); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) 45%, transparent); }
+.ub[data-theme='dark'] .ub-head-links > *:hover { background: rgba(255, 255, 255, 0.08); }
+.ub[data-theme='dark'] .ub-theme { border-color: var(--u-edge); }
+.ub[data-theme='dark'] .ub-choose, .ub[data-theme='dark'] .ub-choose::before { background: #0f1116; }
+.ub[data-theme='dark'] .ub-choose button { background: var(--u-surface); border-color: var(--u-edge); }
+.ub[data-theme='dark'] .ub-choose button.on { border-color: #fff; box-shadow: 0 0 40px rgba(59, 130, 255, 0.25); }
+.ub[data-theme='dark'] .ub-2min { box-shadow: 0 0 80px rgba(59, 130, 255, 0.35); }
+/* accent colours stay clean on black: a faint wash, a lit edge, and the number in the colour itself */
+.ub[data-theme='dark'] .ub-facts button { background: linear-gradient(160deg, color-mix(in srgb, var(--acc) 20%, transparent), color-mix(in srgb, var(--acc) 5%, transparent)), var(--u-surface); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) 40%, transparent); }
+.ub[data-theme='dark'] .ub-facts button:hover { background: linear-gradient(160deg, color-mix(in srgb, var(--acc) 32%, transparent), color-mix(in srgb, var(--acc) 10%, transparent)), var(--u-surface); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) 70%, transparent), 0 14px 40px color-mix(in srgb, var(--acc) 22%, transparent); }
+.ub[data-theme='dark'] .ub-facts b, .ub[data-theme='dark'] .ub-side .ub-bigstat b { color: color-mix(in srgb, var(--acc) 78%, #fff); }
+.ub[data-theme='dark'] .ub-side .ub-bigstat { background: color-mix(in srgb, var(--acc) 12%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) 38%, transparent); }
+.ub[data-theme='dark'] .ub-hero-photo { background: radial-gradient(120% 90% at 50% 100%, color-mix(in srgb, var(--acc) 75%, #000), color-mix(in srgb, var(--acc) 22%, #0a0b0f) 70%); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) 45%, transparent), 0 30px 80px color-mix(in srgb, var(--acc) 18%, transparent); }
+.ub[data-theme='dark'] .ub-tcard-art, .ub[data-theme='dark'] .ub-sstop-art { background: color-mix(in srgb, var(--acc) 16%, var(--u-surface)); box-shadow: inset 0 0 0 1px var(--u-edge); }
+.ub[data-theme='dark'] .ub-tcard:hover .ub-tcard-art { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) 60%, transparent), 0 16px 40px color-mix(in srgb, var(--acc) 20%, transparent); }
+.ub[data-theme='dark'] .ub-quote { background: color-mix(in srgb, var(--acc) 12%, var(--u-surface)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) 38%, transparent); }
+.ub[data-theme='dark'] .ub-who.on { box-shadow: 0 0 40px rgba(59, 130, 255, 0.22); }
+.ub[data-theme='dark'] .ub-cap-reserve, .ub[data-theme='dark'] .ub-btn.solid { box-shadow: 0 8px 30px rgba(255, 255, 255, 0.14); }
+.ub[data-theme='dark'] .ub-cloud { --ol: #6f7889; }
+.ub[data-theme='dark'] .ub-cloud-dot, .ub[data-theme='dark'] .ub-cloud-body .puff { background: #171a21; }
+/* the map at night: the route and everything on it is lit */
+.ub[data-theme='dark'] .lm-route { stroke: #ffffff; filter: drop-shadow(0 0 5px rgba(59, 130, 255, 0.9)) drop-shadow(0 0 14px rgba(59, 130, 255, 0.55)); }
+.ub[data-theme='dark'] .lm-driven { stroke: #6aa2ff; filter: drop-shadow(0 0 8px rgba(59, 130, 255, 1)); }
+.ub[data-theme='dark'] .lm-pin.on > rect:first-child { fill: #ffffff; filter: drop-shadow(0 0 6px rgba(59, 130, 255, 0.9)); }
+.ub[data-theme='dark'] .lm-pin-eye { fill: #0a0b0f; }
+.ub[data-theme='dark'] .lm-dot.on { fill: #0a0b0f; stroke: #ffffff; }
+.ub[data-theme='dark'] .lm-you { filter: drop-shadow(0 0 10px rgba(59, 130, 255, 1)); }
+.ub[data-theme='dark'] .lm-tag { background: #ffffff; color: #0a0b0f; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6); }
+.ub[data-theme='dark'] .lm-tag.off { background: #272b36; color: #aab0be; }
+.ub[data-theme='dark'] .lm-tag.hot { background: var(--u-accent); color: #fff; }
+.ub[data-theme='dark'] .lm-leader { stroke: #5c6474; }
+.ub[data-theme='dark'] .lm-car { fill: #ffffff; filter: drop-shadow(0 0 12px rgba(59, 130, 255, 1)); }
+.ub[data-theme='dark'] .lm-car-ico, .ub[data-theme='dark'] .lm-car-wheel { fill: #0a0b0f; stroke: #ffffff; }
+.ub[data-theme='dark'] .lm-thumb { border-color: #fff; box-shadow: 0 0 0 2px rgba(59, 130, 255, 0.8), 0 8px 22px rgba(0, 0, 0, 0.7); }
+.ub[data-theme='dark'] .lm-ctl button, .ub[data-theme='dark'] .ub-mapbox-sum, .ub[data-theme='dark'] .lm-card { background: rgba(20, 22, 28, 0.86); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--u-edge); }
+.ub[data-theme='dark'] .lm-here { background: rgba(20, 22, 28, 0.9); }
+.ub[data-theme='dark'] .lm-shield { fill: #f2c94c; }
+/* the night glow stays put while the page scrolls under the pinned stage */
+.ub[data-theme='dark'] .ub-stage { background: radial-gradient(900px 520px at 78% -8%, rgba(59, 130, 255, 0.16), transparent 70%), radial-gradient(700px 480px at 6% 108%, rgba(180, 107, 255, 0.1), transparent 70%), var(--u-bg); }

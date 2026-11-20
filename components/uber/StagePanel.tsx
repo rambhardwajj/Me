@@ -35,9 +35,9 @@ import { Icon, Pict } from './icons';
 import type { Ride } from './useRide';
 
 /** A photo that quietly steps aside if it cannot load, leaving the coloured tile behind it. */
-export function Shot({ photo, className = '' }: { photo: Photo; className?: string }) {
+export function Shot({ photo, className = '', eager }: { photo: Photo; className?: string; eager?: boolean }) {
   // eslint-disable-next-line @next/next/no-img-element
-  return <img className={`ub-shot ${photo.contain ? 'contain' : ''} ${className}`} src={photo.src} alt={photo.alt} loading="lazy" onError={(e) => (e.currentTarget.style.visibility = 'hidden')} />;
+  return <img className={`ub-shot ${photo.contain ? 'contain' : ''} ${className}`} src={photo.src} alt={photo.alt} loading={eager ? 'eager' : 'lazy'} onError={(e) => (e.currentTarget.style.visibility = 'hidden')} />;
 }
 
 const when = (s: Stop) => (s.type === 'you' ? 'Now' : s.monthAssumed ? s.when.slice(0, 4) : monthLabel(s.when, true));
@@ -66,7 +66,7 @@ function SideStop({ s, small }: { s: Stop; small?: boolean }) {
     <div className={`ub-sstop ${small ? 'small' : ''}`} style={{ ['--acc' as string]: ACCENT[s.trip] }}>
       {photo && (
         <span className="ub-sstop-art">
-          <Shot photo={photo} />
+          <Shot photo={photo} eager />
         </span>
       )}
       <small>
@@ -97,7 +97,7 @@ function SideTrip({ t, bare }: { t: Trip; bare?: boolean }) {
     <div className="ub-strip" style={{ ['--acc' as string]: ACCENT[t.id] }}>
       {!bare && photo && (
         <span className="ub-sstop-art big">
-          <Shot photo={photo} />
+          <Shot photo={photo} eager />
         </span>
       )}
       {!bare && <h3 className="ub-side-h">{t.name}</h3>}
@@ -152,6 +152,9 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
   const [replay, setReplay] = useState(0);
   const [pass, setPass] = useState<{ key: string; stop: StopId }>({ key: '', stop: 'you' });
   const [done, setDone] = useState('');
+  /** The drive that is paused, by its key, so a new ride never starts paused. */
+  const [pausedKey, setPausedKey] = useState('');
+  const [skip, setSkip] = useState('');
   const [copied, setCopied] = useState(false);
   const ex = EXPLAIN[where];
   const t = onTrip ?? (route ? getTrip(journeyTrip) : null);
@@ -161,7 +164,8 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
   /* ---------------------------------------------------------------- a route is on the map */
   let body;
   const browsing = where === 'search';
-  const onMap = route ?? (browsing ? { from: 'st-dominics' as StopId, to: 'you' as StopId } : null);
+  // a sheet open in the phone (Reserve Ram, Riding with, Lost and found) takes over the panel, whatever is behind it
+  const onMap = app.sheet ? null : (route ?? (browsing ? { from: 'st-dominics' as StopId, to: 'you' as StopId } : null));
   if (onMap) {
     const { between, minutes } = routeBetween(onMap.from, onMap.to);
     const stops = [stop(onMap.from), ...between, stop(onMap.to)];
@@ -170,6 +174,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
     const full = inDetails && tripMode === 'full';
     const driveKey = quick ? `${onTrip!.id}:${replay}` : null;
     const arrived = !!driveKey && done === driveKey;
+    const paused = !!driveKey && pausedKey === driveKey;
     const passing = quick && pass.key === driveKey ? stop(pass.stop) : null;
     const setMode = (m: 'quick' | 'full') => onTrip && setStack((st) => [...st.slice(0, -1), { s: 'details', trip: onTrip.id, mode: m }]);
 
@@ -187,7 +192,10 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
             <button type="button" className="ub-btn solid" onClick={() => setMode('full')}>
               Read the full story
             </button>
-            <button type="button" className="ub-btn line" onClick={() => setReplay((x) => x + 1)}>
+            <button type="button" className="ub-btn line" onClick={() => {
+              setPausedKey('');
+              setReplay((x) => x + 1);
+            }}>
               Replay the ride
             </button>
           </div>
@@ -197,8 +205,29 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           <p className="ub-side-k">
             Now passing · stop {n} of {stops.length}
           </p>
-          <SideStop s={at} key={at.id} />
-          <p className="ub-side-hint">The car is driving the whole route. Each stop shows its photo as it passes.</p>
+          <div className="ub-drive-bar" role="progressbar" aria-label="How far the car has driven" aria-valuemin={0} aria-valuemax={stops.length} aria-valuenow={n}>
+            <span style={{ width: `${(n / stops.length) * 100}%` }} />
+          </div>
+          <div className="ub-drive-ctl">
+            <button type="button" onClick={() => setPausedKey(paused ? '' : (driveKey ?? ''))} aria-pressed={paused}>
+              <Icon name={paused ? 'play' : 'pause'} size={16} w={2.4} />
+              {paused ? 'Resume' : 'Pause'}
+            </button>
+            <button type="button" onClick={() => driveKey && setSkip(driveKey)}>
+              Skip to the end
+              <Icon name="arrow" size={16} />
+            </button>
+          </div>
+          <SideStop s={at} key={at.id} small />
+          <ol className="ub-rail" aria-label="Stops on this ride">
+            {stops.map((x, i) => (
+              <li key={x.id} className={i + 1 < n ? 'done' : i + 1 === n ? 'now' : ''}>
+                <i aria-hidden="true" />
+                <span>{x.name}</span>
+                <small>{x.type === 'you' ? 'Now' : minLabel(minutesAway(x.when))}</small>
+              </li>
+            ))}
+          </ol>
         </div>
       );
     } else if (full) {
@@ -298,6 +327,8 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
             onHot={setHot}
             onPick={(id) => ride(stop(id).trip)}
             drive={driveKey}
+            paused={paused}
+            skip={skip}
             onPass={(id) => driveKey && setPass({ key: driveKey, stop: id })}
             onDone={() => driveKey && setDone(driveKey)}
             searching={screen.s === 'finding'}
@@ -460,7 +491,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
         <div className="ub-cap-row" key={where}>
           <h2 aria-live="polite">
             {ex.title}
-            {onTrip && <span> · {onTrip.name}</span>}
+            {onTrip && !app.sheet && <span> · {onTrip.name}</span>}
           </h2>
           <p>
             <span className="ub-cap-tag">In Uber</span>
@@ -471,7 +502,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           </p>
         </div>
       </header>
-      <div className={`ub-panel-body w-${where}`} key={route || where === 'search' ? 'map' : where}>
+      <div className={`ub-panel-body w-${where}`} key={!app.sheet && (route || where === 'search') ? 'map' : where}>
         {body}
       </div>
     </section>

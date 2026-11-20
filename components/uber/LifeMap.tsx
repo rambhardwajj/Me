@@ -160,6 +160,10 @@ type Props = {
   drive?: string | null;
   onPass?: (id: StopId) => void;
   onDone?: () => void;
+  /** Hold the car where it is. */
+  paused?: boolean;
+  /** Set to the drive's own string to send the car straight to the end. */
+  skip?: string | null;
   /** Pulse the destination, while a ride is being found. */
   searching?: boolean;
   reducedMotion?: boolean;
@@ -168,7 +172,7 @@ type Props = {
 /**
  * The life map. It flies to the route between two stops, draws the route, and can be zoomed and dragged.
  */
-export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, hot, onHot, fit = 'route', noBadge, drive = null, onPass, onDone, searching, reducedMotion }: Props) {
+export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, hot, onHot, fit = 'route', noBadge, drive = null, onPass, onDone, paused, skip, searching, reducedMotion }: Props) {
   const box = useRef<HTMLDivElement>(null);
   // `n` counts measurements: until the box has been measured once, the camera does not animate
   const [size, setSize] = useState({ w: 390, h: 440, n: 0 });
@@ -223,9 +227,10 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
   const [run, setRun] = useState({ key: '', p: 1 });
   const p = drive ? (run.key === drive ? run.p : 0) : 1;
   const driving = !!drive && p < 1;
-  const calls = useRef({ onPass, onDone });
+  const calls = useRef({ onPass, onDone, paused: !!paused });
+  const end = useRef<null | (() => void)>(null);
   useEffect(() => {
-    calls.current = { onPass, onDone };
+    calls.current = { onPass, onDone, paused: !!paused };
   });
   useEffect(() => {
     if (!drive) return;
@@ -247,37 +252,51 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
       }
     };
     let done = false;
+    let raf = 0;
     const finish = () => {
       if (done) return;
       done = true;
+      cancelAnimationFrame(raf);
       setRun({ key: drive, p: 1 });
       mark(1);
       calls.current.onDone?.();
     };
+    end.current = finish;
     if (!ms) {
       const id = window.setTimeout(finish, 0);
       return () => window.clearTimeout(id);
     }
-    const t0 = performance.now();
-    let raf = 0;
-    const tick = (now: number) => {
-      const at = Math.min(1, (now - t0) / ms);
+    // time only counts while the car is not paused
+    let driven = 0;
+    let seen = performance.now();
+    const advance = (now: number) => {
+      const dt = Math.min(now - seen, 600);
+      seen = now;
+      if (!calls.current.paused) driven += dt;
+      const at = Math.min(1, driven / ms);
       if (at >= 1) return finish();
       setRun({ key: drive, p: at });
       mark(at);
-      raf = requestAnimationFrame(tick);
+    };
+    const tick = (now: number) => {
+      advance(now);
+      if (!done) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    // the drive always arrives, even if animation frames stop coming
-    const safety = window.setTimeout(() => {
-      cancelAnimationFrame(raf);
-      finish();
-    }, ms + 500);
+    // if animation frames stop coming (a hidden tab), a slow timer keeps the car moving so it always arrives
+    const backup = window.setInterval(() => {
+      if (!done && performance.now() - seen > 700) advance(performance.now());
+    }, 500);
     return () => {
+      done = true;
       cancelAnimationFrame(raf);
-      window.clearTimeout(safety);
+      window.clearInterval(backup);
+      end.current = null;
     };
   }, [drive, from, to, reducedMotion]);
+  useEffect(() => {
+    if (skip && skip === drive) end.current?.();
+  }, [skip, drive]);
   const car = pointAt(aFrom + (aTo - aFrom) * p);
 
   const flown = useFlight(target, reducedMotion || dragging || size.n < 2 ? 0 : mine.z !== 1 || mine.dx || mine.dy ? 320 : 900);
@@ -293,7 +312,26 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
   const sy = (p: Pt) => (p.y - vy) * k;
   const inv = 1 / k;
 
-  const zoom = (f: number) => setOwn({ ...mine, z: Math.max(0.5, Math.min(5, mine.z * f)) });
+  const zoom = (f: number) => setOwn((o) => {
+    const cur = o.key === routeKey ? o : { key: routeKey, z: 1, dx: 0, dy: 0 };
+    return { ...cur, z: Math.max(0.5, Math.min(5, cur.z * f)) };
+  });
+  const zoomRef = useRef(zoom);
+  useEffect(() => {
+    zoomRef.current = zoom;
+  });
+  // pinch on a trackpad (or Ctrl/⌘ + scroll) zooms the big map; a plain scroll still scrolls the page
+  useEffect(() => {
+    const el = box.current;
+    if (!el || !controls || !detail) return;
+    const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      zoomRef.current(Math.exp(-e.deltaY * 0.012));
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, [controls, detail]);
   const refit = () => setOwn({ key: routeKey, z: 1, dx: 0, dy: 0 });
   const grab = useRef<{ x: number; y: number; dx: number; dy: number } | null>(null);
   const onDown = (e: React.PointerEvent) => {
@@ -353,13 +391,14 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
   })();
 
   // the photo card for the stop the pointer is on
-  const hotStop = hot && onHot ? STOPS.find((s) => s.id === hot) : undefined;
+  // (the big map has a whole column for this, so it only lights the stop up)
+  const hotStop = hot && onHot && !detail ? STOPS.find((s) => s.id === hot) : undefined;
   const card = hotStop && inBox(hotStop.at, 0) ? { s: hotStop, photo: stopPhoto(hotStop.id), x: sx(hotStop.at), y: sy(hotStop.at) } : null;
   const cardLeft = card ? Math.max(8, Math.min(size.w - 228, card.x - 110)) : 0;
   const cardBelow = card ? card.y < 250 : false;
 
   return (
-    <div className={`lm ${detail ? 'detail' : ''} ${controls && detail ? 'movable' : ''} ${dragging ? 'dragging' : ''}`} ref={box} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}>
+    <div className={`lm ${detail ? 'detail' : ''} ${controls && detail ? 'movable' : ''} ${dragging ? 'dragging' : ''}`} ref={box} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} onDoubleClick={(e) => controls && detail && !(e.target as HTMLElement).closest('button') && zoom(1.6)}>
       <svg
         role="img"
         aria-label={`Map of Ram's life. The route runs from ${A.name} to ${B.name}: ${minutes} minutes, one minute for each month, with ${between.length} ${between.length === 1 ? 'stop' : 'stops'} on the way.`}
