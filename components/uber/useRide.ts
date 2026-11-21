@@ -1,7 +1,11 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
-import { stop, trip as getTrip, type FacetId, type ScreenKey, type StopId, type TripId } from '@/lib/uber';
+import { minutesAway, stop, trip as getTrip, type FacetId, type ScreenKey, type StopId, type TripId } from '@/lib/uber';
+
+type Ends = { from: StopId; to: StopId };
+/** A Journey route always runs forward in time: from the older place to the newer one. */
+const forward = (j: Ends): Ends => (minutesAway(stop(j.from).when) >= minutesAway(stop(j.to).when) ? j : { from: j.to, to: j.from });
 
 export type Tab = 'home' | 'services' | 'activity' | 'account';
 export type HomeTab = 'ram' | 'shipped' | 'journey';
@@ -18,7 +22,8 @@ export function useRide() {
   const [homeTab, setHomeTab] = useState<HomeTab>('ram');
   const [sheet, setSheet] = useState<Sheet>(null);
   const [mode, setMode] = useState<Mode>('quick');
-  const [journey, setJourney] = useState<{ from: StopId; to: StopId }>({ from: 'st-dominics', to: 'you' });
+  const [journey, setJourneyRaw] = useState<Ends>({ from: 'st-dominics', to: 'you' });
+  const setJourney = useCallback((j: Ends) => setJourneyRaw(forward(j)), []);
   /** The stop the pointer is on, in the map or in a list, so each can light up the other. */
   const [hot, setHotOnly] = useState<StopId | null>(null);
   /** The last place pointed at. It stays on show beside the map until another one is pointed at. */
@@ -98,11 +103,12 @@ export function useRide() {
     [step],
   );
 
-  /** Set one end of the Journey route; picking the place already at the other end swaps the two. */
+  /** Set one end of the Journey route. The two ends are then put in time order. */
   const setEnd = (end: 'from' | 'to', id: StopId) =>
-    setJourney((j) => {
+    setJourneyRaw((j) => {
       const other = end === 'from' ? 'to' : 'from';
-      return j[other] === id ? { from: j.to, to: j.from } : { ...j, [end]: id };
+      // the same place at both ends makes no route, so that pick is ignored
+      return j[other] === id ? j : forward({ ...j, [end]: id });
     });
 
   // what the panel beside the phone should show for this moment
