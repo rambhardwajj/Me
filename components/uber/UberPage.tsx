@@ -209,7 +209,8 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
               {desk && <StagePanel app={ride} persona={persona} onPersona={setPersona} reducedMotion={reduced} />}
             </div>
 
-            {desk && arrived && ride.peek && !ride.sheet && <ThoughtCloud trip={ride.peek.trip} x={ride.peek.x} y={ride.peek.y} />}
+            {/* the cloud is for screens without the map; on the map, the place's own card opens instead */}
+            {desk && arrived && ride.peek && !ride.sheet && !ride.route && ride.where !== 'search' && <ThoughtCloud trip={ride.peek.trip} x={ride.peek.x} y={ride.peek.y} />}
 
             <div className="ub-phone" ref={app}>
               <div className="ub-frame">

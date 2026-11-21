@@ -992,3 +992,17 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
   .ub-phone::before { display: none; }
   .ub-frame { animation: none; }
 }
+
+/* ---- no context column any more: a card opens beside the place being pointed at, and a ride or story docks in the map's corner ---- */
+.lm-pop, .lm-dock { position: absolute; z-index: 6; width: 300px; padding: 16px 16px 18px; border-radius: 18px; background: var(--u-bg); color: var(--u-text); box-shadow: var(--u-float); cursor: default; }
+.lm-pop { animation: ub-pop 0.18s ease-out; }
+.lm-dock { left: 14px; top: 14px; max-height: calc(100% - 28px); display: flex; flex-direction: column; }
+.lm-pop .ub-brief, .lm-dock .ub-brief { gap: 12px; }
+.lm-pop .ub-brief-art, .lm-dock .ub-brief-art { height: 156px; border-radius: 10px; }
+.lm-pop .ub-brief h3, .lm-dock .ub-brief h3 { font-size: 32px; }
+.lm-pop .ub-brief h3.long, .lm-dock .ub-brief h3.long { font-size: 25px; }
+.lm-pop .ub-brief-p, .lm-dock .ub-brief-p { font-size: 15px; line-height: 22px; }
+.lm-pop .ub-brief-big b { font-size: 40px; }
+.ub[data-theme='light'] .lm-pop, .ub[data-theme='light'] .lm-dock { background: #ffffff; box-shadow: 0 24px 60px rgba(70, 55, 25, 0.22), 0 2px 8px rgba(70, 55, 25, 0.1); }
+.ub[data-theme='dark'] .lm-pop, .ub[data-theme='dark'] .lm-dock { background: rgba(18, 20, 26, 0.94); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--u-edge); box-shadow: 0 24px 70px rgba(0, 0, 0, 0.75), 0 0 60px rgba(59, 130, 255, 0.14); }
+.ub-mapbox-sum { left: auto; right: 16px; }

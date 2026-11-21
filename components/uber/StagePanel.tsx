@@ -135,7 +135,7 @@ type Props = {
  * what the phone is already saying.
  */
 export default function StagePanel({ app, persona, onPersona, reducedMotion }: Props) {
-  const { where, onTrip, route, screen, hot, setHot, look, ride, openSheet, tripMode, setStack, facet, setFacet, setProject } = app;
+  const { where, onTrip, route, screen, hot, setHot, ride, openSheet, tripMode, setStack, facet, setFacet, setProject } = app;
   /** The car's drive on the Quick ride: how many times it has been replayed, the stop it is passing, and whether it has arrived. */
   const [replay, setReplay] = useState(0);
   const [pass, setPass] = useState<{ key: string; stop: StopId }>({ key: '', stop: 'you' });
@@ -174,7 +174,9 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
     const mapTo = tale ? own[own.length - 1].id : onMap.to;
     const setMode = (m: 'quick' | 'full') => onTrip && setStack((st) => [...st.slice(0, -1), { s: 'details', trip: onTrip.id, mode: m }]);
 
-    let side;
+    // what is docked on the map (a ride or a story in progress), and what opens beside a place being pointed at
+    let side: ReactNode = null;
+    let pop: ReactNode = null;
     if (quick && !arrived) {
       // Quick ride, driving: the stop the car is passing
       const s = passing ?? stops[0];
@@ -240,44 +242,46 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           )}
         </Brief>
       );
-    } else if (look && !(onTrip && inDetails)) {
-      // pointing at a place, or a destination just chosen: what it is, and what came of it
-      const lt = getTrip(look.trip);
-      const ls = look.stop && stop(look.stop).name !== lt.name ? stop(look.stop) : null;
-      const tell = ls ? stopStory(ls.id) : null;
-      const pointing = browsing || app.onJourney;
-      side = (
+    } else if (onTrip && inDetails) {
+      // a trip with no stops of its own to drive through: the phone has the whole story
+      side = <Brief label={tripMode === 'full' ? 'The full story' : 'Your destination'} name={onTrip.name} text={tripMode === 'full' ? 'The whole story is in the phone: the problem, the work and the receipt.' : onTrip.blurb} />;
+    }
+
+    // pointing at a place, on the map or in the phone's list: a card opens beside it, and closes when the pointer leaves
+    const ps = hot && hot !== 'you' && !(quick && !arrived) ? stop(hot) : null;
+    if (ps) {
+      const lt = getTrip(ps.trip);
+      const own1 = ps.name !== lt.name ? ps : null;
+      const tell = own1 ? stopStory(own1.id) : null;
+      pop = (
         <Brief
-          label={pointing ? 'You are pointing at' : 'Your destination'}
-          photo={ls ? (stopPhoto(ls.id) ?? tripPhotos(lt.id)[0]) : tripPhotos(lt.id)[0]}
-          meta={ls ? `${when(ls)} · ${minLabel(minutesAway(ls.when))} away · on the way to ${lt.name}` : undefined}
+          label={own1 ? `On the way to ${lt.name}` : `${minLabel(minutesAway(ps.when))} away`}
+          photo={own1 ? (stopPhoto(own1.id) ?? tripPhotos(lt.id)[0]) : tripPhotos(lt.id)[0]}
+          meta={own1 ? `${when(own1)} · ${minLabel(minutesAway(own1.when))} away` : undefined}
           name={tell ? tell.title : lt.name}
           text={tell ? (tell.body ? firstSentence(tell.body) : undefined) : lt.blurb}
-          big={ls ? undefined : lt.result}
-          rows={ls ? [] : tripRows(lt)}
+          big={own1 ? undefined : lt.result}
+          rows={own1 ? [] : tripRows(lt).filter((r) => r.label !== 'Distance from today')}
         >
-          {pointing && (
+          {onTrip?.id !== lt.id && (
             <button type="button" className="ub-btn solid" onClick={() => ride(lt.id)}>
               Ride to {lt.name}
             </button>
           )}
         </Brief>
       );
-    } else if (onTrip) {
-      // a trip with no stops of its own to drive through: the phone has the whole story
-      side = <Brief label={tripMode === 'full' ? 'The full story' : 'Your destination'} photo={tripPhotos(onTrip.id)[0]} name={onTrip.name} text={tripMode === 'full' ? 'The whole story is in the phone: the problem, the work and the receipt.' : onTrip.blurb} />;
-    } else {
-      side = <Brief label="The whole map" name="Point at any place." text="What it was and what came of it shows up here. Click a place to ride there." />;
     }
 
     body = (
       <div className="ub-three">
-        <aside className="ub-col">{side}</aside>
         <div className="ub-mapbox">
           <LifeMap
             from={mapFrom}
             to={mapTo}
             carAt={carAt}
+            hoverCard={pop}
+            dock={side}
+            pad={side ? { left: 300 } : undefined}
             detail
             controls
             fit="all"
@@ -293,10 +297,16 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
             searching={screen.s === 'finding'}
             reducedMotion={reducedMotion}
           />
-          {!browsing && !tale && (
+          {!tale && (
             <p className="ub-mapbox-sum">
-              <b>{minLabel(minutes)}</b>
-              {between.length} {between.length === 1 ? 'stop' : 'stops'} on the way
+              {browsing ? (
+                'Point at any place to see what it was. Click it to ride there.'
+              ) : (
+                <>
+                  <b>{minLabel(minutes)}</b>
+                  {between.length} {between.length === 1 ? 'stop' : 'stops'} on the way
+                </>
+              )}
             </p>
           )}
         </div>

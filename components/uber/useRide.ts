@@ -34,13 +34,24 @@ export function useRide() {
   const opener = useRef<HTMLElement | null>(null);
 
   const step = useCallback(() => setMoves((n) => n + 1), []);
+  const cool = useRef<number | undefined>(undefined);
+  /** Pointing ends a moment after the pointer leaves, so it can travel from a place to the card that opened beside it. */
   const setHot = useCallback((id: StopId | null) => {
+    window.clearTimeout(cool.current);
+    if (!id) {
+      cool.current = window.setTimeout(() => setHotOnly(null), 260);
+      return;
+    }
     setHotOnly(id);
-    if (id && id !== 'you') setLookState({ stop: id, trip: stop(id).trip });
+    if (id !== 'you') setLookState({ stop: id, trip: stop(id).trip });
   }, []);
   /** Point at a whole trip (from a row in the phone): its end stop lights up on the map. */
   const setLook = useCallback((id: TripId | null) => {
-    if (!id) return setHotOnly(null);
+    window.clearTimeout(cool.current);
+    if (!id) {
+      cool.current = window.setTimeout(() => setHotOnly(null), 260);
+      return;
+    }
     const t = getTrip(id);
     const end = t.to === 'you' ? t.from : t.to;
     setHotOnly(id === 'story' || id === 'idle-minutes' ? null : end);

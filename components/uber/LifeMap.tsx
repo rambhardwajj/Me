@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { AREA_NAMES, ROAD, ROAD_NAMES, STOPS, minLabel, minutesAway, monthLabel, stop, type Pt, type StopId } from '@/lib/uber';
 import { stopPhoto } from '@/lib/uber-photos';
 import { Icon } from './icons';
@@ -217,6 +217,10 @@ type Props = {
   onDone?: () => void;
   /** The stop-by-stop story: park the car at this stop. It glides there along the road and the camera follows. */
   carAt?: StopId | null;
+  /** A card that opens beside the stop being pointed at (the big map). It stays open while the pointer is on it. */
+  hoverCard?: ReactNode;
+  /** A card docked in the map's top-left corner, for a ride or a story in progress. */
+  dock?: ReactNode;
   /** Hold the car where it is. */
   paused?: boolean;
   /** Set to the drive's own string to send the car straight to the end. */
@@ -229,7 +233,7 @@ type Props = {
 /**
  * The life map. It flies to the route between two stops, draws the route, and can be zoomed and dragged.
  */
-export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, hot, onHot, fit = 'route', noBadge, drive = null, onPass, onDone, paused, skip, carAt = null, searching, reducedMotion }: Props) {
+export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, hot, onHot, fit = 'route', noBadge, drive = null, onPass, onDone, paused, skip, carAt = null, hoverCard, dock, searching, reducedMotion }: Props) {
   const box = useRef<HTMLDivElement>(null);
   // `n` counts measurements: until the box has been measured once, the camera does not animate
   const [size, setSize] = useState({ w: 390, h: 440, n: 0 });
@@ -399,7 +403,7 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
   const refit = () => setOwn({ key: routeKey, z: 1, dx: 0, dy: 0 });
   const grab = useRef<{ x: number; y: number; dx: number; dy: number } | null>(null);
   const onDown = (e: React.PointerEvent) => {
-    if (!controls || !detail || (e.target as HTMLElement).closest('button')) return;
+    if (!controls || !detail || (e.target as HTMLElement).closest('button, .lm-pop, .lm-dock')) return;
     grab.current = { x: e.clientX, y: e.clientY, dx: mine.dx, dy: mine.dy };
     e.currentTarget.setPointerCapture(e.pointerId);
     setDragging(true);
@@ -462,7 +466,7 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
   const cardBelow = card ? card.y < 250 : false;
 
   return (
-    <div className={`lm ${detail ? 'detail' : ''} ${controls && detail ? 'movable' : ''} ${dragging ? 'dragging' : ''}`} ref={box} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} onDoubleClick={(e) => controls && detail && !(e.target as HTMLElement).closest('button') && zoom(1.6)}>
+    <div className={`lm ${detail ? 'detail' : ''} ${controls && detail ? 'movable' : ''} ${dragging ? 'dragging' : ''}`} ref={box} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} onDoubleClick={(e) => controls && detail && !(e.target as HTMLElement).closest('button, .lm-pop, .lm-dock') && zoom(1.6)}>
       <svg
         role="img"
         aria-label={`Map of Ram's life. The route runs from ${A.name} to ${B.name}: ${minutes} minutes, one minute for each month, with ${between.length} ${between.length === 1 ? 'stop' : 'stops'} on the way.`}
@@ -607,6 +611,21 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
           .map((s) => (
             <button key={s.id} type="button" className="lm-hit" style={{ left: sx(s.at), top: sy(s.at) }} onClick={() => onPick(s.id)} aria-label={`${s.name}, ${minLabel(minutesAway(s.when))} away. Set as the destination`} aria-pressed={s.id === to} />
           ))}
+
+      {hoverCard &&
+        hot &&
+        onHot &&
+        (() => {
+          const at = stop(hot).at;
+          const x = sx(at);
+          const right = x < size.w / 2;
+          return (
+            <div className="lm-pop" style={{ left: right ? x + 26 : x - 26 - 300, top: Math.max(12, Math.min(size.h - 470, sy(at) - 190)) }} onMouseEnter={() => onHot(hot)} onMouseLeave={() => onHot(null)}>
+              {hoverCard}
+            </div>
+          );
+        })()}
+      {dock && <div className="lm-dock">{dock}</div>}
 
       {card && (
         <div className={`lm-card ${cardBelow ? 'below' : ''}`} style={{ left: cardLeft, top: card.y }} aria-hidden="true">
