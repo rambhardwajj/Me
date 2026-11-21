@@ -151,7 +151,7 @@ body:has(.ub) { background: transparent; transition: none; }
 .ub-head { position: absolute; z-index: 4; left: calc(72px + 422px * var(--p)); top: calc(40px - 16px * var(--p)); display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; max-width: 700px; }
 .ub-mark { font-family: var(--u-display); font-size: 30px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
 .ub-tribute { font-size: 13px; color: var(--u-text-2); white-space: nowrap; }
-.ub-head-links { position: absolute; left: 634px; top: 4px; width: 240px; display: flex; justify-content: flex-end; gap: 6px; }
+.ub-head-links { position: absolute; left: calc(634px + 16px * var(--p)); top: 4px; width: 240px; display: flex; justify-content: flex-end; gap: 6px; }
 .ub-head-links > * { height: 36px; display: flex; align-items: center; padding: 0 12px; border-radius: 18px; font-size: 13.5px; font-weight: 500; color: var(--u-text-2); white-space: nowrap; }
 .ub-head-links > *:hover { background: var(--u-surface); color: var(--u-text); }
 .ub-theme { width: 36px; padding: 0 !important; justify-content: center; border: 1px solid var(--u-line); color: var(--u-text) !important; }
@@ -916,20 +916,6 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
 .ub-mapbox-sum b { height: auto; line-height: inherit; padding: 0; background: none; color: var(--u-text); font-weight: 700; }
 
 /* before anything is tapped, and Reserve Ram: words on the left, Ram on the right */
-.ub-home { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 40px; padding-top: 14px; }
-.ub-home-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; min-height: 0; }
-.ub-home-copy h3 { font-family: var(--u-display); font-size: 76px; line-height: 0.94; font-weight: 900; letter-spacing: -0.045em; font-stretch: 75%; }
-.ub-home-copy > p:not(.ub-status):not(.ub-links) { font-size: 18px; line-height: 28px; color: var(--u-body); max-width: 440px; }
-.ub-home-copy .ub-btn { padding: 0 32px; }
-.ub-face { position: relative; align-self: end; height: 520px; }
-.ub-face .ub-shot { object-fit: contain; object-position: bottom; }
-.ub-proofs { align-self: stretch; margin-top: auto; padding-bottom: 6px; display: flex; flex-direction: column; }
-.ub-proofs > div { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 5px 0; border-top: 1px solid var(--u-line); }
-.ub-proofs dt button { display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: 16px; color: var(--u-body); border-radius: 6px; }
-.ub-proofs dt button:hover { color: var(--u-text); }
-.ub-proofs dt .ui { transition: transform 0.18s; }
-.ub-proofs dt button:hover .ui { transform: translateX(4px); }
-.ub-proofs dd { font-family: var(--u-display); font-size: 34px; line-height: 1; font-weight: 900; letter-spacing: -0.03em; font-stretch: 75%; white-space: nowrap; }
 .ub-mail { font-size: 22px !important; font-weight: 600; color: var(--u-text) !important; user-select: all; }
 .ub-links { display: flex; gap: 24px; }
 
@@ -1006,3 +992,23 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
 .ub[data-theme='light'] .lm-pop, .ub[data-theme='light'] .lm-dock { background: #ffffff; box-shadow: 0 24px 60px rgba(70, 55, 25, 0.22), 0 2px 8px rgba(70, 55, 25, 0.1); }
 .ub[data-theme='dark'] .lm-pop, .ub[data-theme='dark'] .lm-dock { background: rgba(18, 20, 26, 0.94); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--u-edge); box-shadow: 0 24px 70px rgba(0, 0, 0, 0.75), 0 0 60px rgba(59, 130, 255, 0.14); }
 .ub-mapbox-sum { left: auto; right: 16px; }
+
+/* ---- before anything is tapped (and Reserve Ram): the words, Ram beside them, results along the bottom ---- */
+.ub-home { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 350px; grid-template-rows: minmax(0, 1fr) auto; column-gap: 28px; }
+.ub-home-copy { align-self: center; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding-bottom: 12px; }
+.ub-home-copy h3 { font-family: var(--u-display); font-size: 76px; line-height: 0.94; font-weight: 900; letter-spacing: -0.045em; font-stretch: 75%; }
+.ub-panel-body.w-home .ub-home-copy h3 { font-size: 104px; }
+.ub-home-copy > p:not(.ub-status):not(.ub-links) { font-size: 18px; line-height: 28px; color: var(--u-body); max-width: 440px; }
+.ub-home-acts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+.ub-home-copy .ub-btn { padding: 0 32px; }
+/* Ram stands on the rule that the results hang from */
+.ub-face { position: relative; align-self: end; height: min(100%, 620px); }
+.ub-face .ub-shot { object-fit: contain; object-position: bottom; }
+.ub-proofs { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--u-text); }
+.ub-proofs > div { display: flex; flex-direction: column-reverse; gap: 2px; padding: 16px 24px 6px; border-left: 1px solid var(--u-line); }
+.ub-proofs > div:first-child { padding-left: 0; border-left: 0; }
+.ub-proofs dt button { display: flex; align-items: center; gap: 8px; min-height: 40px; font-size: 15px; line-height: 20px; color: var(--u-body); border-radius: 6px; }
+.ub-proofs dt button:hover { color: var(--u-text); }
+.ub-proofs dt .ui { flex: none; transition: transform 0.18s; }
+.ub-proofs dt button:hover .ui { transform: translateX(4px); }
+.ub-proofs dd { font-family: var(--u-display); font-size: 52px; line-height: 1; font-weight: 900; letter-spacing: -0.035em; font-stretch: 75%; white-space: nowrap; }

@@ -313,7 +313,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
       </div>
     );
   } else if (where === 'home') {
-    /* ---------------------------------------------------------------- nothing tapped yet */
+    /* ---------------------------------------------------------------- nothing tapped yet: the arrival, Ram, and three results */
     body = (
       <div className="ub-home">
         <div className="ub-home-copy">
@@ -323,26 +323,31 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           </p>
           <h3>{STAGE.headline}</h3>
           <p>{STAGE.body}</p>
-          <button type="button" className="ub-btn solid tall" onClick={() => ride('story')}>
-            {BILLBOARD.start}
-          </button>
-          <dl className="ub-proofs">
-            {HERO_FACTS.map((f) => (
-              <div key={f.trip}>
-                <dt>
-                  <button type="button" onClick={() => ride(f.trip)}>
-                    {f.label}
-                    <Icon name="arrow" size={15} />
-                  </button>
-                </dt>
-                <dd>{f.value}</dd>
-              </div>
-            ))}
-          </dl>
+          <div className="ub-home-acts">
+            <button type="button" className="ub-btn solid tall" onClick={() => ride('story')}>
+              {BILLBOARD.start}
+            </button>
+            <button type="button" className="ub-btn line tall" onClick={reserve}>
+              {BILLBOARD.reserve}
+            </button>
+          </div>
         </div>
         <span className="ub-face">
           <Shot photo={PORTRAIT} eager />
         </span>
+        <dl className="ub-proofs">
+          {HERO_FACTS.map((f) => (
+            <div key={f.trip}>
+              <dt>
+                <button type="button" onClick={() => ride(f.trip)}>
+                  {f.label}
+                  <Icon name="arrow" size={15} />
+                </button>
+              </dt>
+              <dd>{f.value}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
     );
   } else if (where === 'reserve') {
@@ -456,6 +461,8 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
 
   return (
     <section className="ub-panel" aria-label="What the phone is showing">
+      {!(where === 'home' && !app.sheet) && (
+        <>
       <header className="ub-cap">
         <div className="ub-cap-top">
           <p className="ub-kicker">{STAGE.nowShowing}</p>
@@ -487,6 +494,8 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           </p>
         </div>
       </header>
+        </>
+      )}
       <div className={`ub-panel-body w-${where}`} key={!app.sheet && (route || where === 'search') ? 'map' : where}>
         {body}
       </div>
