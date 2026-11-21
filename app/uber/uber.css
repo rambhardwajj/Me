@@ -148,10 +148,10 @@ body:has(.ub) { background: transparent; transition: none; }
 }
 .ub-canvas { position: absolute; left: 50%; top: 50%; width: 1440px; height: 900px; transform: translate(-50%, -50%) scale(var(--cs)); }
 
-.ub-head { position: absolute; z-index: 4; left: calc(72px + 422px * var(--p)); top: calc(40px - 16px * var(--p)); display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; max-width: 700px; }
+.ub-head { position: absolute; z-index: 4; left: 72px; top: calc(40px - 16px * var(--p)); display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; max-width: 700px; }
 .ub-mark { font-family: var(--u-display); font-size: 30px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
 .ub-tribute { font-size: 13px; color: var(--u-text-2); white-space: nowrap; }
-.ub-head-links { position: absolute; left: calc(1056px - 422px * var(--p)); top: 4px; width: 240px; display: flex; justify-content: flex-end; gap: 6px; }
+.ub-head-links { position: absolute; left: 634px; top: 4px; width: 240px; display: flex; justify-content: flex-end; gap: 6px; }
 .ub-head-links > * { height: 36px; display: flex; align-items: center; padding: 0 12px; border-radius: 18px; font-size: 13.5px; font-weight: 500; color: var(--u-text-2); white-space: nowrap; }
 .ub-head-links > *:hover { background: var(--u-surface); color: var(--u-text); }
 .ub-theme { width: 36px; padding: 0 !important; justify-content: center; border: 1px solid var(--u-line); color: var(--u-text) !important; }
@@ -175,17 +175,6 @@ body:has(.ub) { background: transparent; transition: none; }
 .ub-btn.line { padding: 14px 20px; border: 2px solid var(--u-text); }
 .ub-btn.tall { align-self: flex-start; margin-top: 8px; height: 56px; padding: 0 32px; font-family: var(--u-ui); font-weight: 600; }
 
-.ub-choose { position: absolute; left: 0; right: 0; bottom: 0; isolation: isolate; padding: 18px 72px 22px; display: flex; flex-direction: column; gap: 10px; font-family: var(--u-display); background: var(--u-surface); transform: translateY(calc(var(--p) * 60px)); }
-.ub-choose::before { content: ''; position: absolute; z-index: -1; inset: 0 -3000px; background: var(--u-surface); }
-.ub-choose h2 { font-size: 16px; font-weight: 700; }
-.ub-choose > div { display: flex; gap: 16px; }
-.ub-choose button { flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 16px 20px; border-radius: 16px; background: var(--u-bg); border: 3px solid transparent; }
-.ub-choose button:hover { border-color: var(--u-grab); }
-.ub-choose button.on { border-color: var(--u-text); }
-.ub-choose button > span:first-child { display: flex; justify-content: space-between; align-items: baseline; }
-.ub-choose b { font-size: 22px; font-weight: 800; }
-.ub-choose small { font-size: 14px; font-weight: 600; color: var(--u-text-2); }
-.ub-choose button > span:last-child { font-size: 15px; line-height: 1.35; color: var(--u-body); }
 
 
 .ub-now-k { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: var(--u-text-2); }
@@ -202,7 +191,7 @@ body:has(.ub) { background: transparent; transition: none; }
 /* the phone: tilted beside the headline at --p 0, upright in the centre at --p 1 */
 .ub-phone {
   position: absolute; z-index: 3; left: 0; top: 0; transform-origin: top left; will-change: transform;
-  transform: translate(calc(770px - 714px * var(--p)), calc(30px - 14px * var(--p))) rotate(calc(3deg - 3deg * var(--p))) scale(calc(0.86 + 0.14 * var(--p)));
+  transform: translate(calc(960px + 10px * var(--p)), calc(14px + 2px * var(--p))) rotate(calc(3deg - 3deg * var(--p))) scale(calc(0.96 + 0.04 * var(--p)));
 }
 .ub-frame { position: relative; width: 414px; height: 868px; border-radius: 54px; background: #0b0b0b; padding: 12px; box-shadow: 0 0 0 1.5px #3a3a3a inset, 0 40px 90px rgba(0, 0, 0, 0.28), 0 8px 20px rgba(0, 0, 0, 0.12); }
 .ub-glass { width: 390px; height: 844px; border-radius: 42px; overflow: hidden; }
@@ -227,7 +216,7 @@ body:has(.ub) { background: transparent; transition: none; }
   .ub-pitch { position: static; width: auto; max-width: 440px; gap: 12px; }
   .ub-pitch p { margin-bottom: 6px; }
   .ub-btn.solid, .ub-btn.line { min-height: 54px; }
-  .ub-choose, .ub-arrived { display: none; }
+  .ub-arrived { display: none; }
   .ub-phone { position: relative; transform: none; width: 100%; max-width: 520px; height: 100svh; margin: 0 auto; }
   .ub-frame { width: 100%; height: 100%; padding: 0; border-radius: 0; background: none; box-shadow: none; }
   .ub-glass { width: 100%; height: 100%; border-radius: 0; }
@@ -642,7 +631,7 @@ body:has(.ub) { background: transparent; transition: none; }
    The panel beside the phone (after the scroll). It shows the phone's current
    moment at full size. --acc is the colour of the trip on show.
    ========================================================================== */
-.ub-panel { position: absolute; left: 494px; top: 72px; width: 890px; height: 812px; display: flex; flex-direction: column; gap: 14px; --acc: var(--u-accent); }
+.ub-panel { position: absolute; left: 72px; top: 72px; width: 874px; height: 812px; display: flex; flex-direction: column; gap: 14px; --acc: var(--u-accent); }
 .ub-cap { flex: none; }
 .ub-cap-top { display: flex; align-items: center; justify-content: space-between; height: 36px; }
 .ub-now-k i { background: var(--acc); transition: background-color 0.3s; }
@@ -702,7 +691,7 @@ body:has(.ub) { background: transparent; transition: none; }
   /* an ink outline round the whole cloud and its trail, like a cartoon thought bubble */
   filter: drop-shadow(2px 0 0 var(--ol)) drop-shadow(-2px 0 0 var(--ol)) drop-shadow(0 2px 0 var(--ol)) drop-shadow(0 -2px 0 var(--ol)) drop-shadow(0 12px 22px rgba(0, 0, 0, 0.22)); }
 .ub-cloud-dot { position: absolute; border-radius: 50%; background: var(--u-bg); animation: ub-cloud-dot 0.25s calc(var(--i) * 60ms) ease-out both; }
-.ub-cloud-body { position: absolute; animation: ub-cloud 0.3s 0.12s ease-out both; transform-origin: 10% 80%; }
+.ub-cloud-body { position: absolute; animation: ub-cloud 0.3s 0.12s ease-out both; transform-origin: 90% 80%; }
 .ub-cloud-body .puff { position: absolute; border-radius: 50%; background: var(--u-bg); }
 .ub-cloud-body .puff.a { left: 0; top: 34%; width: 44%; height: 62%; }
 .ub-cloud-body .puff.b { left: 20%; top: 2%; width: 42%; height: 62%; }
@@ -734,9 +723,6 @@ body:has(.ub) { background: transparent; transition: none; }
 .ub[data-theme='dark'] .ub-mapbox { border-color: var(--u-edge); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), inset 0 0 90px rgba(59, 130, 255, 0.07); }
 .ub[data-theme='dark'] .ub-head-links > *:hover { background: rgba(255, 255, 255, 0.08); }
 .ub[data-theme='dark'] .ub-theme { border-color: var(--u-edge); }
-.ub[data-theme='dark'] .ub-choose, .ub[data-theme='dark'] .ub-choose::before { background: #0f1116; }
-.ub[data-theme='dark'] .ub-choose button { background: var(--u-surface); border-color: var(--u-edge); }
-.ub[data-theme='dark'] .ub-choose button.on { border-color: #fff; box-shadow: 0 0 40px rgba(59, 130, 255, 0.25); }
 .ub[data-theme='dark'] .ub-2min { box-shadow: 0 0 80px rgba(59, 130, 255, 0.35); }
 /* accent colours stay clean on black: a faint wash, a lit edge, and the number in the colour itself */
 .ub[data-theme='dark'] .ub-cap-reserve, .ub[data-theme='dark'] .ub-btn.solid { box-shadow: 0 8px 30px rgba(255, 255, 255, 0.14); }
@@ -910,7 +896,7 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
 .ub-cap-say b { font-weight: 600; color: var(--u-text); }
 
 /* the column beside the map */
-.ub-col { flex: none; width: 262px; min-height: 0; display: flex; flex-direction: column; padding: 4px 0 0 6px; }
+.ub-col { flex: none; width: 262px; min-height: 0; display: flex; flex-direction: column; padding: 4px 8px 0 0; }
 .ub-brief { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 14px; }
 .ub-bar { flex: none; display: block; height: 2px; background: var(--u-line); }
 .ub-bar i { display: block; height: 100%; background: var(--u-text); transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -983,3 +969,26 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
 .ub-say { padding: 16px 0 4px; }
 .ub-say p { font-family: var(--u-display); font-size: 40px; line-height: 1.04; font-weight: 900; letter-spacing: -0.035em; font-stretch: 78%; max-width: 760px; }
 .ub-say footer { margin-top: 12px; font-size: 15px; line-height: 22px; color: var(--u-body); max-width: 620px; }
+
+/* ==========================================================================
+   First screen (laptop): just the headline and the phone. The phone is lifted:
+   larger, floating a little, with a deep shadow and a glow under it.
+   ========================================================================== */
+.ub-cue { position: absolute; left: 72px; bottom: 56px; display: flex; gap: 28px; }
+.ub-cue .ub-link { font-family: var(--u-ui); font-size: 16px; }
+@media (min-width: 1024px) and (min-height: 560px) {
+  .ub-pitch { display: none; }
+}
+@media (max-width: 1023.98px), (max-height: 559.98px) {
+  .ub-cue { display: none; }
+}
+.ub-phone::before { content: ''; position: absolute; z-index: -1; left: -70px; right: -70px; top: 60px; bottom: -40px; border-radius: 50%; background: radial-gradient(closest-side, rgba(39, 110, 241, 0.22), transparent); opacity: calc(1 - var(--p)); filter: blur(10px); pointer-events: none; }
+.ub-frame { animation: ub-float 5s ease-in-out infinite; }
+.ub[data-theme='light'] .ub-frame { box-shadow: 0 0 0 1.5px #3a3a3a inset, 0 calc(44px + 46px * (1 - var(--p))) calc(90px + 60px * (1 - var(--p))) rgba(70, 55, 25, calc(0.26 + 0.12 * (1 - var(--p)))), 0 10px 24px rgba(70, 55, 25, 0.14); }
+.ub[data-theme='dark'] .ub-phone::before { background: radial-gradient(closest-side, rgba(59, 130, 255, 0.4), transparent); }
+.ub[data-theme='dark'] .ub-frame { box-shadow: 0 0 0 1.5px #4a5060 inset, 0 0 0 1px rgba(255, 255, 255, 0.08), 0 calc(40px + 40px * (1 - var(--p))) calc(90px + 50px * (1 - var(--p))) rgba(0, 0, 0, 0.75), 0 0 calc(110px + 70px * (1 - var(--p))) rgba(59, 130, 255, calc(0.16 + 0.2 * (1 - var(--p)))); }
+@keyframes ub-float { 50% { transform: translateY(calc(-12px * (1 - var(--p)))); } }
+@media (max-width: 1023.98px), (max-height: 559.98px) {
+  .ub-phone::before { display: none; }
+  .ub-frame { animation: none; }
+}

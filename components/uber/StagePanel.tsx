@@ -272,6 +272,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
 
     body = (
       <div className="ub-three">
+        <aside className="ub-col">{side}</aside>
         <div className="ub-mapbox">
           <LifeMap
             from={mapFrom}
@@ -299,7 +300,6 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
             </p>
           )}
         </div>
-        <aside className="ub-col">{side}</aside>
       </div>
     );
   } else if (where === 'home') {

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
-import { BILLBOARD, PERSONAS, THEME_KEY, TRIBUTE_LONG, type PersonaId } from '@/lib/uber';
+import { BILLBOARD, THEME_KEY, TRIBUTE_LONG, type PersonaId } from '@/lib/uber';
 import PhoneApp, { type PhoneHandle } from './PhoneApp';
 import ProjectDialog from './ProjectDialog';
 import StagePanel from './StagePanel';
@@ -137,10 +137,6 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
   const start = () => toPhone(() => ride.ride('story'));
   const open = () => toPhone(() => phone.current?.focus());
   const reserve = () => toPhone(() => ride.openSheet('reserve'));
-  const pick = (id: PersonaId) => {
-    setPersona(id);
-    open();
-  };
   const askMiniRam = () => window.dispatchEvent(new Event('mini-ram:open'));
 
   const tick = <Icon name="check" size={28} w={2.5} />;
@@ -187,6 +183,7 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
                   {BILLBOARD.headline.before} <span className="ub-2min">{BILLBOARD.headline.badge}</span> {BILLBOARD.headline.after}
                 </h1>
               </div>
+              {/* phone widths only: the pitch and the two buttons that lead into the app */}
               <div className="ub-pitch">
                 <p>{BILLBOARD.pitch}</p>
                 <button type="button" className="ub-btn solid" onClick={start}>
@@ -196,23 +193,18 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
                   {BILLBOARD.reserve}
                 </button>
               </div>
-              <div className="ub-choose">
-                <h2>{BILLBOARD.chooseTitle}</h2>
-                <div role="radiogroup" aria-label={BILLBOARD.chooseTitle}>
-                  {PERSONAS.map((p) => (
-                    <button key={p.id} type="button" role="radio" aria-checked={p.id === persona} className={p.id === persona ? 'on' : ''} onClick={() => pick(p.id)}>
-                      <span>
-                        <b>{p.card.name}</b>
-                        <small>{p.card.time}</small>
-                      </span>
-                      <span>{p.card.line}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+              {/* laptop: one quiet line, so the phone stays the thing to tap */}
+              <p className="ub-cue">
+                <button type="button" className="ub-link" onClick={start}>
+                  Tap the phone to start
+                </button>
+                <button type="button" className="ub-link" onClick={reserve}>
+                  {BILLBOARD.reserve}
+                </button>
+              </p>
             </section>
 
-            {/* after the scroll: the phone on the left, and beside it the same moment at full size */}
+            {/* after the scroll: the phone on the right, and to its left the same moment at full size */}
             <div className="ub-arrived" inert={desk && !arrived ? true : undefined}>
               {desk && <StagePanel app={ride} persona={persona} onPersona={setPersona} reducedMotion={reduced} />}
             </div>
