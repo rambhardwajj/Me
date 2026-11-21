@@ -381,7 +381,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
   const homeShipped = (
     <>
       <h2 className="rp-h2 first">Shipped</h2>
-      <p className="rp-lede">Products Ram built or co-founded, newest first. Tap one to ride there, or open its details.</p>
+      <p className="rp-lede">Products Ram built or led, newest first. Tap one to ride there, or open its details.</p>
       <div className="rp-rows">
         {SHIPPED.map((id) => {
           const t = getTrip(id);

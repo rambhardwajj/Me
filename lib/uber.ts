@@ -10,7 +10,9 @@
  *  2. "Lost and found": what did not work, and what he learned.
  *  3. The promo code and the hidden story it unlocks (the Chicago dance battle). Not built until both exist.
  *  4. unBothrrd: the months it ran, so it can become its own stop on the map (it hangs on Masters' Union for now).
- *  5. Synappses: what he did there and any result. The briefs give only "Co-Founder, Apr 2026 to Jun 2026".
+ *  5. Synappses: what he did there and any result. Ram confirmed on 22 Nov 2026: it was a product inside Newral, and he was
+ *     its Founding Manager, Oct 2025 to Jun 2026 (not Co-Founder, and not a separate company, as the design brief implied).
+ *     Open: whether the $0 to $6K monthly revenue shown for Newral is Synappses' revenue.
  *  6. Netflix Fraternity: the month, so it can become its own stop (shown inside the Masters' Union trip for now).
  *  7. Exact months for stops placed by year only: 10+ dance wins, the world dance battle, Choreography Head,
  *     rank 1 coder, the EDST award and the CienaGPT hackathon. Their "min" figures come from the approved map.
@@ -105,9 +107,9 @@ export const STOPS: Stop[] = [
   { id: 'cienagpt', type: 'dot', name: 'Top 10, CienaGPT AI hackathon', when: '2024-12', monthAssumed: true, at: { x: 1543, y: 620 }, trip: 'ciena', win: true },
   { id: 'super-30', type: 'dot', name: 'Super 30 Hacker House', when: '2025-09', monthAssumed: true, at: { x: 1604, y: 960 }, trip: 'super-30', win: true },
   { id: 'newral', type: 'place', name: 'Newral', note: 'Noida. Engineer, then product', when: '2025-10', at: { x: 1556, y: 960 }, tag: { x: 1658, y: 1040 }, trip: 'newral' },
+  { id: 'synappses', type: 'dot', name: 'Synappses, built inside Newral', when: '2025-10', at: { x: 1510, y: 960 }, trip: 'synappses' },
   { id: 'tech-lead', type: 'dot', name: 'Tech Lead and Best Employee', when: '2025-12', at: { x: 1459, y: 960 }, trip: 'newral', win: true },
   { id: 'wingathon', type: 'dot', name: 'YC VibeCon Wingathon winner', when: '2026-04', at: { x: 1267, y: 960 }, trip: 'newral', win: true },
-  { id: 'synappses', type: 'dot', name: 'Synappses, Co-Founder', when: '2026-04', at: { x: 1243, y: 960 }, trip: 'synappses' },
   { id: 'product-manager', type: 'dot', name: 'Product Manager', when: '2026-05', at: { x: 1219, y: 960 }, trip: 'newral' },
   { id: 'trucost', type: 'place', name: 'TruCost', note: 'Ride-hailing app, built and sold', when: '2026-06', at: { x: 1171, y: 960 }, tag: { x: 1312, y: 1076 }, trip: 'trucost' },
   { id: 'masters-union', type: 'place', name: 'Masters’ Union', note: 'Gurugram. PGP, now', when: '2026-07', at: { x: 1123, y: 960 }, tag: { x: 880, y: 1060 }, trip: 'masters-union' },
@@ -278,17 +280,20 @@ export const TRIPS: Trip[] = [
   {
     id: 'synappses',
     name: 'Synappses',
-    sub: 'Co-Founder, April to June 2026',
+    sub: 'Newral’s AI LMS, as Founding Manager',
     icon: 'cap',
     from: 'you',
     to: 'synappses',
-    pickup: 'Co-Founder, 2026',
-    blurb: 'An AI-native LMS for coaching centres. Ram was a co-founder from April to June 2026.', // OWED 5: what he did and the result
+    pickup: 'Founding Manager, 2025',
+    blurb: 'An AI-native LMS for coaching centres, built inside Newral. Ram was its Founding Manager from October 2025 to June 2026.', // OWED 5: what he did and the result
     leg: [
-      { title: 'Co-Founder', when: 'April 2026' },
-      { title: 'Co-Founder', when: 'June 2026' },
+      { title: 'Joined as Founding Manager', when: 'October 2025' },
+      { title: 'Founding Manager', when: 'June 2026' },
     ],
-    receipt: [{ label: 'Role', value: 'Co-Founder' }],
+    receipt: [
+      { label: 'Role', value: 'Founding Manager' },
+      { label: 'Built at', value: 'Newral' },
+    ],
   },
   {
     id: 'super-30',
@@ -513,7 +518,7 @@ export type Persona = {
 export const PERSONAS: Persona[] = [
   { id: 'pm', label: 'Ram, Product Manager', proof: 'Newral, TruCost, LeetCase', icon: 'chart', card: { name: 'Ram PM', time: '2 min', line: 'Took Newral from $0 to $6K monthly revenue' }, lead: 'trucost', first: [] },
   { id: 'engineer', label: 'Ram, Engineer', proof: 'Ciena, Super 30, rank 1 coder', icon: 'code', card: { name: 'Ram Engineer', time: '2 min', line: 'Built TruCost for iOS and Android; 100 drivers onboarded' }, lead: 'ciena', first: ['ciena', 'super-30'] },
-  { id: 'founder', label: 'Ram, Founder', proof: 'unBothrrd, Synappses', icon: 'bag', card: { name: 'Ram Growth', time: '2 min', line: 'Ran a D2C brand to ₹7.2L revenue' }, lead: 'unbothrrd', first: ['unbothrrd', 'synappses'] },
+  { id: 'founder', label: 'Ram, Founder', proof: 'unBothrrd, LeetCase', icon: 'bag', card: { name: 'Ram Growth', time: '2 min', line: 'Ran a D2C brand to ₹7.2L revenue' }, lead: 'unbothrrd', first: ['unbothrrd', 'leetcase'] },
   { id: 'dancer', label: 'Ram, Dancer', proof: 'India at a world final', icon: 'music', card: { name: 'Ram Performer', time: '2 min', line: 'Represented India at a world dance battle' }, lead: 'dance', first: ['dance'] },
 ];
 
@@ -541,7 +546,7 @@ export const HOME = {
   tabs: { ram: 'Ram', shipped: 'Shipped', journey: 'Journey' },
 };
 
-/** The Shipped tab: products Ram built or co-founded, newest first. */
+/** The Shipped tab: products Ram built or led, newest first. */
 export const SHIPPED: TripId[] = ['leetcase', 'trucost', 'unbothrrd', 'newral', 'synappses'];
 
 /* ------------------------------------------------------------------ Search */
@@ -707,7 +712,7 @@ export const AREA_NAMES: { name: string; x: number; y: number }[] = [
 export type ScreenKey = 'home' | 'shipped' | 'journey' | 'search' | 'choose' | 'finding' | 'details' | 'services' | 'activity' | 'account' | 'inbox' | 'switch' | 'reserve' | 'lost';
 export const EXPLAIN: Record<ScreenKey, { title: string; uber: string; here: string }> = {
   home: { title: 'Home', uber: '“Where to?” and your recent places', here: 'Where do you want to take Ram? The tiles are the places he has already been.' },
-  shipped: { title: 'Shipped', uber: 'The second tab of the home screen', here: 'Products Ram built or co-founded. Tap one to ride there.' },
+  shipped: { title: 'Shipped', uber: 'The second tab of the home screen', here: 'Products Ram built or led. Tap one to ride there.' },
   journey: { title: 'Journey', uber: 'The map, with pickup and drop-off', here: 'One road from Mathura to today. Pick two places and the stops between them appear.' },
   search: { title: 'Plan your ride', uber: 'Search, with saved and recent places', here: 'Every place on Ram’s map, nearest first. One minute away is one month ago.' },
   choose: { title: 'Choose a trip', uber: 'Choose a ride', here: 'Same destination, two ways to get there: the headline numbers, or the full story.' },
@@ -748,12 +753,11 @@ export type Job = {
 
 /**
  * Every place Ram has worked, newest first. Titles and dates are from the resume data in lib/data.ts;
- * Synappses is from the briefs (Co-Founder, Apr 2026 to Jun 2026).
- * OWED: logo files for Synappses and 100xSchool; until they are in public/images/logos, those two show a pictogram.
+ * Synappses is not an employer: Ram confirmed on 22 Nov 2026 that it was a product inside Newral, so it is a role there.
+ * OWED: a logo file for 100xSchool; until it is in public/images/logos, it shows a pictogram.
  */
 export const EXPERIENCE: Job[] = [
   { company: 'TruCost', what: 'Ride-hailing app with an in-cab tablet', icon: 'car', logo: '/images/logos/trucost.png', trip: 'trucost', roles: [{ title: 'Product Manager, on contract', when: 'Jun 2026 to Oct 2026' }], result: '100 drivers onboarded, sold for ₹2.5L' },
-  { company: 'Synappses', what: 'AI-native LMS for coaching centres', icon: 'cap', trip: 'synappses', roles: [{ title: 'Co-Founder', when: 'Apr 2026 to Jun 2026' }] },
   {
     company: 'Newral',
     what: 'Early-stage AI startup, Noida',
@@ -762,6 +766,7 @@ export const EXPERIENCE: Job[] = [
     trip: 'newral',
     roles: [
       { title: 'Product Manager', when: 'May 2026' },
+      { title: 'Founding Manager, Synappses (Newral’s AI LMS)', when: 'Oct 2025 to Jun 2026' },
       { title: 'Product Tech Lead', when: 'Dec 2025 to Apr 2026' },
       { title: 'Software Engineer', when: 'Oct 2025 to Nov 2025' },
     ],

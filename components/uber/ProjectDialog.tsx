@@ -7,7 +7,7 @@ import { stopStory, tripPhotos } from '@/lib/uber-photos';
 import { Shot } from './StagePanel';
 import { Icon, Pict } from './icons';
 
-/** Which entry of the site's project list each trip is, for its live link and skill tags. Synappses is left out: the briefs give only its role and dates. */
+/** Which entry of the site's project list each trip is, for its live link and skill tags. Synappses is left out: only its role and dates are confirmed. */
 const SITE_PROJECT: Partial<Record<TripId, string>> = { trucost: 'trucost', leetcase: 'leetcase', unbothrrd: 'unbothered' };
 
 type Props = {
