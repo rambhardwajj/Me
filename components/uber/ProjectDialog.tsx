@@ -2,10 +2,11 @@
 
 import { useEffect, useRef } from 'react';
 import { PROJECTS } from '@/lib/data';
-import { ACCENT, STOPS, minLabel, trip as getTrip, tripMinutes, type TripId } from '@/lib/uber';
+import { ACCENT, EXPERIENCE, LOGO, STOPS, minLabel, trip as getTrip, tripMinutes, type TripId } from '@/lib/uber';
 import { stopStory, tripPhotos } from '@/lib/uber-photos';
 import { Shot } from './StagePanel';
-import { Icon, Pict } from './icons';
+import { Icon } from './icons';
+import Mark from './Mark';
 
 /** Which entry of the site's project list each trip is, for its live link and skill tags. Synappses is left out: only its role and dates are confirmed. */
 const SITE_PROJECT: Partial<Record<TripId, string>> = { trucost: 'trucost', leetcase: 'leetcase', unbothrrd: 'unbothered' };
@@ -31,6 +32,7 @@ export default function ProjectDialog({ id, onClose, onRide, onReserve }: Props)
   const site = id ? PROJECTS.find((x) => x.id === SITE_PROJECT[id]) : undefined;
   const photos = id ? tripPhotos(id) : [];
   const min = t ? tripMinutes(t) : null;
+  const job = id ? EXPERIENCE.find((j) => j.trip === id) : undefined;
   const events = id ? STOPS.filter((x) => x.type !== 'you' && x.trip === id).map((x) => ({ x, story: stopStory(x.id) })).filter((e) => e.story.body) : [];
 
   return (
@@ -45,8 +47,8 @@ export default function ProjectDialog({ id, onClose, onRide, onReserve }: Props)
       {t && (
         <div className="ub-dialog-in">
           <header className="ub-dialog-head">
-            <span className="ub-dialog-ico">
-              <Pict name={t.icon} size={40} />
+            <span className={`ub-dialog-ico ${LOGO[t.id] ? 'logo' : ''}`}>
+              <Mark id={t.id} size={LOGO[t.id] ? 60 : 40} />
             </span>
             <div>
               <h2 id="ub-dialog-h">{t.name}</h2>
@@ -75,6 +77,19 @@ export default function ProjectDialog({ id, onClose, onRide, onReserve }: Props)
               <div>
                 <h3>What it is</h3>
                 <p>{t.blurb}</p>
+                {job && (
+                  <>
+                    <h3>Roles Ram held</h3>
+                    <ol className="ub-roles">
+                      {job.roles.map((r) => (
+                        <li key={r.title}>
+                          <b>{r.title}</b>
+                          <span>{r.when}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </>
+                )}
                 {t.problem && (
                   <>
                     <h3>The problem</h3>

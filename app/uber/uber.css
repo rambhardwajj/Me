@@ -1022,3 +1022,136 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
 /* real company logos in Experience: white tiles in both themes, since the logo files have white backgrounds */
 .rp-job-logo { flex: none; width: 52px; height: 52px; border-radius: 10px; background: #ffffff; object-fit: contain; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08); }
 .ub[data-theme='light'] .rp-job-logo { outline: 1px solid var(--u-line); outline-offset: -1px; }
+
+/* ==========================================================================
+   Logos: an organisation's own mark wherever there is a file for it
+   ========================================================================== */
+.ub-logo { flex: none; display: block; border-radius: 24%; background: #ffffff; object-fit: contain; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08); }
+.rp-tile-art .ub-logo { width: 58%; height: 58%; }
+.rp-place-when.logo { gap: 4px; }
+.ub-dialog-ico.logo { background: none; border-radius: 14px; }
+.ub-dialog-ico.logo .ub-logo { border-radius: 14px; }
+
+/* ==========================================================================
+   The place card: what opens beside a stop on the map
+   ========================================================================== */
+.lm-pop { padding: 0; overflow: hidden; }
+.ub-pc { display: flex; flex-direction: column; }
+.ub-pc-art { position: relative; display: block; height: 150px; background: var(--u-surface); overflow: hidden; }
+.ub-pc-art::after { content: ''; position: absolute; inset: 50% 0 0; background: linear-gradient(transparent, rgba(0, 0, 0, 0.45)); }
+.ub-pc-away { position: absolute; z-index: 1; right: 12px; bottom: 10px; height: 24px; line-height: 24px; padding: 0 9px; border-radius: 12px; background: #ffffff; color: #000000; font-size: 12.5px; font-weight: 700; }
+.ub-pc-head { display: flex; align-items: flex-end; gap: 12px; margin: -22px 16px 0; position: relative; z-index: 1; }
+.ub-pc-mark { flex: none; width: 52px; height: 52px; border-radius: 14px; background: var(--u-bg); box-shadow: 0 0 0 3px var(--u-bg), 0 4px 14px rgba(0, 0, 0, 0.18); display: flex; align-items: center; justify-content: center; }
+.ub-pc-mark.logo { background: #ffffff; }
+.ub-pc-mark .ub-logo { border-radius: 12px; box-shadow: none; }
+.ub-pc-head > div { min-width: 0; padding-top: 26px; }
+.ub-pc-kick { font-size: 12.5px; line-height: 16px; color: var(--u-text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ub-pc h3 { margin-top: 2px; font-family: var(--u-display); font-size: 25px; line-height: 1; font-weight: 900; letter-spacing: -0.03em; font-stretch: 75%; }
+.ub-pc-p { margin: 12px 16px 0; font-size: 14.5px; line-height: 21px; color: var(--u-body); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.ub-pc-big { margin: 12px 16px 0; display: flex; align-items: baseline; gap: 10px; }
+.ub-pc-big b { font-family: var(--u-display); font-size: 36px; line-height: 1; font-weight: 900; letter-spacing: -0.03em; font-stretch: 75%; color: var(--u-accent); }
+.ub-pc-big span { font-size: 13px; line-height: 16px; color: var(--u-body); }
+.ub-pc-marks { margin: 12px 16px 0; padding-top: 10px; border-top: 1px solid var(--u-line); display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; line-height: 18px; }
+.ub-pc-marks li { display: flex; align-items: baseline; gap: 8px; }
+.ub-pc-marks i { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--u-accent); transform: translateY(-1px); }
+.ub-pc-marks span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ub-pc-marks small { flex: none; font-size: 12.5px; color: var(--u-text-2); }
+.ub-pc-act { display: flex; align-items: center; gap: 18px; padding: 14px 16px 16px; }
+.ub-pc-act .ub-btn { padding: 11px 18px; font-family: var(--u-ui); font-size: 14.5px; font-weight: 600; }
+
+/* roles, in the project dialog */
+.ub-roles { display: flex; flex-direction: column; gap: 0; border-left: 2px solid var(--u-line); margin-left: 5px; }
+.ub-roles li { position: relative; display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 5px 0 5px 16px; font-size: 15.5px; line-height: 22px; }
+.ub-roles li::before { content: ''; position: absolute; left: -7px; top: 11px; width: 8px; height: 8px; border-radius: 50%; background: var(--u-bg); border: 2px solid var(--acc, var(--u-accent)); }
+.ub-roles b { font-weight: 600; color: var(--u-text); }
+.ub-roles span { flex: none; font-size: 14px; color: var(--u-text-2); }
+
+/* ==========================================================================
+   The 20 idle minutes: a tablet to try, the driver's trip, the case
+   ========================================================================== */
+.td { container-type: inline-size; width: 100%; display: flex; flex-direction: column; align-items: center; }
+.td-frame { width: 100%; aspect-ratio: 16 / 10; padding: 2.4cqw; border-radius: 5cqw; background: #101114; box-shadow: 0 2cqw 6cqw rgba(0, 0, 0, 0.28), inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
+.td-arm { width: 16cqw; height: 4.5cqw; border-radius: 0 0 2cqw 2cqw; background: linear-gradient(#2a2c31, #17181b); }
+.td-screen { height: 100%; border-radius: 3cqw; background: #ffffff; color: #000000; display: flex; flex-direction: column; padding: 3.4cqw 4.4cqw 4cqw; animation: td-in 0.3s ease-out; }
+@keyframes td-in { from { opacity: 0; transform: translateX(2cqw); } }
+.td-top { flex: none; display: flex; justify-content: space-between; font-size: max(10px, 2.5cqw); font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #6b6b6b; }
+.td-mid { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 2cqw; }
+.td-big { font-family: var(--u-display); font-size: 8.4cqw; line-height: 1; font-weight: 900; letter-spacing: -0.035em; font-stretch: 75%; }
+.td-sub { font-size: max(12px, 3.3cqw); line-height: 1.4; color: #3d3d3d; max-width: 34em; }
+.td-q { font-size: 5.2cqw; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; }
+.td-acts { display: flex; align-items: center; gap: 3cqw; margin-top: 1.6cqw; }
+.td-go, .td-opts button { height: max(40px, 9.6cqw); padding: 0 5cqw; border-radius: 99px; font-size: max(13px, 3.4cqw); font-weight: 600; }
+.td-go { background: #000000; color: #ffffff; }
+.td-no { height: max(40px, 9.6cqw); font-size: max(13px, 3.2cqw); font-weight: 600; color: #3d3d3d; text-decoration: underline; text-underline-offset: 3px; }
+.td-opts { display: flex; flex-wrap: wrap; gap: 2cqw; margin-top: 1cqw; }
+.td-opts button { background: #f1f1f1; color: #000000; transition: background 0.15s, color 0.15s; }
+.td-opts button:hover { background: #000000; color: #ffffff; }
+.td-bar { display: block; height: 1cqw; margin-top: 2.4cqw; border-radius: 1cqw; background: #e4e4e4; overflow: hidden; }
+.td-bar i { display: block; height: 100%; background: #276ef1; transition: width 0.3s; }
+.td-tick { width: 9cqw; height: 9cqw; border-radius: 50%; background: #0e8345; color: #ffffff; display: flex; align-items: center; justify-content: center; }
+.td-tick svg { width: 60%; height: 60%; }
+
+.tm { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 2px solid var(--u-text); }
+.tm > div { padding: 12px 14px 0 0; display: flex; flex-direction: column-reverse; gap: 4px; }
+.tm dt { font-size: 13px; line-height: 17px; color: var(--u-text-2); }
+.tm dd { font-family: var(--u-display); font-size: 38px; line-height: 1; font-weight: 900; letter-spacing: -0.03em; font-stretch: 75%; white-space: nowrap; transition: color 0.3s; }
+.tm-bonus dd { color: var(--u-text-2); font-size: 26px; line-height: 38px; }
+.tm.done .tm-bonus dd { color: var(--u-positive); font-size: 38px; }
+.tm-total span { margin-left: 8px; padding: 3px 8px; border-radius: 6px; background: var(--u-positive); color: #ffffff; font-family: var(--u-ui); font-size: 12.5px; font-weight: 700; letter-spacing: 0; font-stretch: 100%; vertical-align: 8px; }
+.ub[data-theme='dark'] .tm.done .tm-bonus dd { color: #4ad98a; }
+
+.fs { display: flex; flex-direction: column; gap: 8px; }
+.fs-top { display: flex; align-items: baseline; gap: 10px; }
+.fs-top b { font-family: var(--u-display); font-size: 44px; line-height: 1; font-weight: 900; letter-spacing: -0.03em; font-stretch: 75%; }
+.fs-top span { font-size: 13px; line-height: 17px; color: var(--u-body); }
+.fs-bar { display: block; height: 12px; border-radius: 6px; background: var(--u-track); overflow: hidden; }
+.fs-bar i { display: block; height: 100%; background: var(--u-positive); }
+.fs-legend { display: flex; justify-content: space-between; gap: 12px; font-size: 13.5px; color: var(--u-body); }
+.fs-legend b { color: var(--u-text); font-weight: 700; }
+.fs-note { font-size: 12.5px; color: var(--u-text-2); }
+
+.ub-idea { flex: 1; min-height: 0; display: grid; grid-template-columns: 500px minmax(0, 1fr); gap: 44px; }
+.ub-idea-try { display: flex; flex-direction: column; gap: 12px; }
+.ub-idea-try .td { margin-bottom: 6px; }
+.ub-idea-tag { margin-left: 8px; padding: 2px 7px; border-radius: 5px; background: var(--u-surface); font-size: 11px; letter-spacing: 0.02em; text-transform: none; }
+.ub-idea-note { font-size: 12.5px; line-height: 18px; color: var(--u-text-2); }
+.ub-idea-say { display: flex; flex-direction: column; gap: 14px; min-height: 0; }
+.ub-idea-say h3 { font-family: var(--u-display); font-size: 44px; line-height: 0.96; font-weight: 900; letter-spacing: -0.035em; font-stretch: 75%; }
+.ub-idea-p { font-size: 15px; line-height: 22px; color: var(--u-body); }
+.ub-idea-say .fs { margin-top: 4px; padding-top: 14px; border-top: 1px solid var(--u-line); }
+.ub-idea-res { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding-top: 14px; border-top: 1px solid var(--u-line); }
+.ub-idea-res dd { font-family: var(--u-display); font-size: 30px; font-weight: 900; font-stretch: 75%; }
+.ub-idea-res dt { font-size: 13px; color: var(--u-body); }
+.ub-idea-res small { display: block; color: var(--u-text-2); }
+.ub-idea-fig { display: flex; gap: 12px; align-items: center; margin-top: auto; }
+.ub-idea-fig > span { position: relative; flex: none; width: 116px; height: 78px; border-radius: 10px; overflow: hidden; background: var(--u-surface); }
+.ub-idea-fig figcaption { font-size: 12.5px; line-height: 17px; color: var(--u-text-2); }
+
+/* the same page in the phone */
+.rp-prog { padding-top: 14px; display: flex; flex-direction: column; }
+.rp-prog > h2 { margin-top: 6px; font-family: var(--u-display); font-size: 34px; line-height: 0.98; font-weight: 900; letter-spacing: -0.035em; font-stretch: 75%; }
+.rp-prog-p { margin-top: 10px; font-size: 15.5px; line-height: 23px; color: var(--u-body); }
+.rp-prog .rp-h3 { display: flex; align-items: center; margin-bottom: 10px; }
+.rp-drv { padding: 14px; border-radius: 14px; background: var(--u-surface); transition: background 0.3s; }
+.rp-drv.done { background: color-mix(in srgb, var(--u-positive) 16%, var(--u-surface)); }
+.rp-drv-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.rp-drv-top span { display: flex; flex-direction: column; }
+.rp-drv-top b { font-size: 15.5px; font-weight: 600; }
+.rp-drv-top small { font-size: 13px; color: var(--u-text-2); }
+.rp-drv .tm { grid-template-columns: minmax(0, 1fr); border-top: 1px solid var(--u-line); }
+.rp-drv .tm > div { flex-direction: row; justify-content: space-between; align-items: baseline; padding: 9px 0 0; }
+.rp-drv .tm dt { font-size: 14.5px; color: var(--u-body); }
+.rp-drv .tm dd, .rp-drv .tm-bonus dd, .rp-drv .tm.done .tm-bonus dd { font-family: var(--u-ui); font-size: 15.5px; line-height: 22px; font-weight: 700; letter-spacing: 0; font-stretch: 100%; }
+.rp-drv .tm-total dd { font-size: 19px; }
+.rp-drv .tm-total span { vertical-align: 2px; }
+.rp-prog-hint { margin-top: 8px; font-size: 12.5px; line-height: 18px; color: var(--u-text-2); }
+.rp-prog-part { margin-top: 20px; }
+.rp-prog-part h3 { display: flex; align-items: center; margin-bottom: 5px; font-size: 13.5px; font-weight: 600; color: var(--u-text-2); }
+.rp-prog-part p { font-size: 15px; line-height: 22px; color: var(--u-body); }
+.rp-prog-fig { margin: 22px 0 20px; }
+.rp-prog-fig .rp-photo { width: 100%; height: 170px; }
+.rp-prog-fig figcaption { margin-top: 8px; font-size: 13px; line-height: 18px; color: var(--u-text-2); }
+/* beside the panel the tablet is on the right, at full size */
+@media (min-width: 1024px) and (min-height: 560px) {
+  .rp-prog-tab { display: none; }
+}

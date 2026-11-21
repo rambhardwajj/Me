@@ -105,7 +105,7 @@ export const STOPS: Stop[] = [
   { id: 'full-time', type: 'dot', name: 'Full-time engineer', when: '2024-07', at: { x: 1302, y: 620 }, trip: 'ciena' },
   { id: 'edst', type: 'dot', name: 'EDST award, 4 of 14,000', when: '2024-10', monthAssumed: true, at: { x: 1447, y: 620 }, trip: 'ciena', win: true },
   { id: 'cienagpt', type: 'dot', name: 'Top 10, CienaGPT AI hackathon', when: '2024-12', monthAssumed: true, at: { x: 1543, y: 620 }, trip: 'ciena', win: true },
-  { id: 'super-30', type: 'dot', name: 'Super 30 Hacker House', when: '2025-09', monthAssumed: true, at: { x: 1604, y: 960 }, trip: 'super-30', win: true },
+  { id: 'super-30', type: 'place', name: 'Super 30 Hacker House', note: '100xSchool. 1 of 30 builders', when: '2025-09', monthAssumed: true, at: { x: 1604, y: 960 }, tag: { x: 1478, y: 866 }, trip: 'super-30' },
   { id: 'newral', type: 'place', name: 'Newral', note: 'Noida. Engineer, then product', when: '2025-10', at: { x: 1556, y: 960 }, tag: { x: 1658, y: 1040 }, trip: 'newral' },
   { id: 'tech-lead', type: 'dot', name: 'Tech Lead and Best Employee', when: '2025-12', at: { x: 1459, y: 960 }, trip: 'newral', win: true },
   { id: 'wingathon', type: 'dot', name: 'YC VibeCon Wingathon winner', when: '2026-04', at: { x: 1267, y: 960 }, trip: 'newral', win: true },
@@ -117,7 +117,7 @@ export const STOPS: Stop[] = [
 ];
 
 export const stop = (id: StopId): Stop => STOPS.find((s) => s.id === id)!;
-/** The seven places with square pins, plus "You are here". */
+/** The eight places with square pins, plus "You are here". */
 export const PLACES = STOPS.filter((s) => s.type !== 'dot');
 
 /* ------------------------------------------------------------------ trips */
@@ -296,7 +296,7 @@ export const TRIPS: Trip[] = [
   },
   {
     id: 'super-30',
-    name: 'Super 30',
+    name: 'Super 30 Hacker House',
     sub: '1 of 30 builders, 100xSchool',
     icon: 'code',
     from: 'you',
@@ -475,6 +475,47 @@ export const TEARDOWN: { title: string; parts: { heading: string; text: string; 
   ],
 };
 
+/**
+ * The page for "The 20 idle minutes": a back-seat tablet the visitor can try, and what it does to one trip.
+ * Every number is from the interview with Ram (ux-brief.md). The split and the trip are his illustration, and say so.
+ * The survey questions are samples written for the demo: no real brand, no real data.
+ * OWED: Ram's research on what brands pay (ad revenue by brand and format). Until he sends it, `research` stays empty and its section is not shown.
+ */
+export const IDEA = {
+  kicker: 'A concept by Ram. Not an Uber programme.',
+  title: 'The 20 idle minutes',
+  line: 'Let riders top up their driver’s earnings.',
+  pitch: 'A back-seat tablet shows a short brand survey. When the rider completes it, most of the fee goes to that driver, on that trip.',
+  /** Rupees. The fee is what advertisers quoted Ram at TruCost. The driver's share and the trip are his illustration. */
+  fee: 25,
+  driver: 15,
+  km: 8,
+  perKm: 15,
+  notes: {
+    fee: 'Quoted to me by advertisers, per completed survey, during TruCost deals',
+    driver: 'The driver’s share. My assumption',
+    fare: 'By my field estimate, a cab driver nets about ₹15 per km',
+    label: 'Illustration, not data',
+  },
+  tablet: {
+    brand: 'Sample survey',
+    ask: 'Your driver earns more if you answer 3 quick questions.',
+    start: 'Start',
+    skip: 'No thanks',
+    skipped: 'No problem. Enjoy the ride.',
+    done: 'Thank you.',
+    again: 'Try it again',
+    questions: [
+      { q: 'How often do you order food online?', a: ['Most days', 'Weekly', 'Rarely'] },
+      { q: 'What matters most when you pick a snack?', a: ['Taste', 'Price', 'Health'] },
+      { q: 'Would you try a new brand at half price?', a: ['Yes', 'Maybe', 'No'] },
+    ],
+  },
+  evidence: { caption: 'TruCost, where I ran in-cab tablet advertising. Drivers there got a share of the ad money.' },
+  /** Filled from Ram's research when he sends it. */
+  research: [] as { value: string; label: string; source: string }[],
+};
+
 /* ------------------------------------------------------------------ the page around the phone */
 
 export const TRIBUTE = 'A fan-made portfolio. Not affiliated with Uber.';
@@ -527,10 +568,10 @@ export const PERSONAS: Persona[] = [
 export const TILES: { trip: TripId; badge?: string }[] = [
   { trip: 'trucost', badge: 'Sold ₹2.5L' },
   { trip: 'newral', badge: '$0 to $6K' },
+  { trip: 'super-30', badge: '1 of 30' },
   { trip: 'ciena' },
   { trip: 'leetcase' },
   { trip: 'unbothrrd', badge: '₹7.2L' },
-  { trip: 'super-30' },
   { trip: 'dance' },
 ];
 
@@ -709,7 +750,7 @@ export const AREA_NAMES: { name: string; x: number; y: number }[] = [
  * What each phone screen stands for, shown beside the phone: the Uber feature, and what it means here.
  * Wording follows the mapping bank in ux-brief.md.
  */
-export type ScreenKey = 'home' | 'shipped' | 'journey' | 'search' | 'choose' | 'finding' | 'details' | 'services' | 'activity' | 'account' | 'inbox' | 'switch' | 'reserve' | 'lost';
+export type ScreenKey = 'home' | 'shipped' | 'journey' | 'search' | 'choose' | 'finding' | 'details' | 'services' | 'activity' | 'account' | 'inbox' | 'switch' | 'reserve' | 'lost' | 'idea';
 export const EXPLAIN: Record<ScreenKey, { title: string; uber: string; here: string }> = {
   home: { title: 'Home', uber: '“Where to?” and your recent places', here: 'Where do you want to take Ram? The tiles are the places he has already been.' },
   shipped: { title: 'Shipped', uber: 'The second tab of the home screen', here: 'Products Ram built or led. Tap one to ride there.' },
@@ -725,6 +766,7 @@ export const EXPLAIN: Record<ScreenKey, { title: string; uber: string; here: str
   switch: { title: 'Riding with', uber: 'Switching the rider profile', here: 'Same person, a different vehicle. Each one comes with its own proof.' },
   reserve: { title: 'Reserve Ram', uber: 'Reserve a ride for later', here: 'The one action that counts: send Ram a message.' },
   lost: { title: 'Lost and found', uber: 'Lost and found', here: 'What did not work, and what he learned.' },
+  idea: { title: 'The 20 idle minutes', uber: 'Nothing yet. This is a proposal', here: 'Ram’s idea for Uber. Try the back-seat tablet, and watch what it does to the driver’s trip.' },
 };
 
 /** Three proofs on the panel before anything is tapped. Each opens its trip. */
@@ -754,7 +796,6 @@ export type Job = {
 /**
  * Every place Ram has worked, newest first. Titles and dates are from the resume data in lib/data.ts;
  * Synappses is not listed here: it was a product inside Newral, and Ram wants it shown under Shipped only.
- * OWED: a logo file for 100xSchool; until it is in public/images/logos, it shows a pictogram.
  */
 export const EXPERIENCE: Job[] = [
   { company: 'TruCost', what: 'Ride-hailing app with an in-cab tablet', icon: 'car', logo: '/images/logos/trucost.png', trip: 'trucost', roles: [{ title: 'Product Manager, on contract', when: 'Jun 2026 to Oct 2026' }], result: '100 drivers onboarded, sold for ₹2.5L' },
@@ -771,7 +812,7 @@ export const EXPERIENCE: Job[] = [
     ],
     result: '$0 to $6K monthly revenue',
   },
-  { company: '100xSchool, Super 30', what: 'Hacker House funded by YC', icon: 'code', trip: 'super-30', roles: [{ title: 'Students Affairs Head', when: '2026' }, { title: 'Hacker House builder', when: '2025' }], result: '1 of 30 builders nationwide' },
+  { company: '100xSchool, Super 30', what: 'Hacker House funded by YC', icon: 'code', logo: '/images/logos/100xschool.png', trip: 'super-30', roles: [{ title: 'Students Affairs Head', when: '2026' }, { title: 'Hacker House builder', when: '2025' }], result: '1 of 30 builders nationwide' },
   {
     company: 'Ciena',
     what: 'NYSE-listed networking company, Gurugram',
@@ -842,4 +883,24 @@ export const ABOUT = {
       photo: 'product-manager',
     },
   ] as { id: FacetId; label: string; title: string; text: string; trip: TripId; /** The stop whose photo goes with it. */ photo: StopId }[],
+};
+
+/* ------------------------------------------------------------------ logos */
+
+/**
+ * Each organisation's own logo, from public/images/logos, by trip. A trip that is not listed shows its pictogram.
+ * The files were taken from each organisation's own website on 21 Nov 2026, with Ram's yes.
+ */
+export const LOGO: Partial<Record<TripId, string>> = {
+  trucost: '/images/logos/trucost.png',
+  newral: '/images/logos/newral.png',
+  ciena: '/images/logos/ciena.png',
+  'super-30': '/images/logos/100xschool.png',
+  'masters-union': '/images/logos/masters-union.png',
+  ramjas: '/images/logos/ramjas.png',
+  amity: '/images/logos/amity.png',
+  'st-dominics': '/images/logos/st-dominics.png',
+  leetcase: '/images/logos/leetcase.png',
+  unbothrrd: '/images/logos/unbothrrd.png',
+  synappses: '/images/logos/synappses.png',
 };

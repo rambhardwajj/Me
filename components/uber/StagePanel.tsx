@@ -9,6 +9,9 @@ import {
   EXPERIENCE,
   EXPLAIN,
   HERO_FACTS,
+  IDEA,
+  LOGO,
+  TEARDOWN,
   INBOX,
   PERSONAS,
   REROUTES,
@@ -23,7 +26,6 @@ import {
   monthLabel,
   stop,
   trip as getTrip,
-  tripMinutes,
   type PersonaId,
   type Stop,
   type StopId,
@@ -33,6 +35,8 @@ import {
 import { PORTRAIT_HALFTONE, stopPhoto, stopStory, tripPhotos, type Photo } from '@/lib/uber-photos';
 import LifeMap, { routeBetween } from './LifeMap';
 import { Icon } from './icons';
+import Mark from './Mark';
+import { FeeSplit, TabletDemo, TripMeter } from './TabletDemo';
 import type { Ride } from './useRide';
 
 /** The reroute note shown above the first stop after a turn in the road. */
@@ -95,12 +99,6 @@ function Brief({ label, bar, photo, meta, name, text, big, rows = [], children }
   );
 }
 
-/** The rows for a trip: its receipt without the line that repeats the headline number, then how far it is from today. */
-function tripRows(t: Trip): Row[] {
-  const min = tripMinutes(t);
-  return [...(t.receipt ?? []).filter((r) => !t.result || !r.value.startsWith(t.result.value)), ...(min !== null && t.id !== 'idle-minutes' ? [{ label: 'Distance from today', value: minLabel(min) }] : [])];
-}
-
 /** The stops a full story visits: the trip's own, in the order they happened. */
 const ownStops = (t: Trip): Stop[] => (t.id === 'idle-minutes' ? [] : STOPS.filter((x) => x.type !== 'you' && (t.id === 'story' || x.trip === t.id)));
 
@@ -119,6 +117,63 @@ function Tile({ t, onOpen, onInfo, i }: { t: Trip; onOpen: (id: TripId) => void;
           Details
         </button>
       )}
+    </div>
+  );
+}
+
+/**
+ * What opens beside a place on the map: its photo and logo, where and when it was, the headline number,
+ * what happened there, and the way into the whole story.
+ */
+function PlaceCard({ s, onDetails, onRide }: { s: Stop; onDetails: (id: TripId) => void; onRide?: (id: TripId) => void }) {
+  const t = getTrip(s.trip);
+  const own = s.name !== t.name && s.type === 'dot' ? s : null;
+  const tell = own ? stopStory(own.id) : null;
+  const photo = own ? (stopPhoto(own.id) ?? tripPhotos(t.id)[0]) : tripPhotos(t.id)[0];
+  const marks = own ? [] : STOPS.filter((x) => x.type === 'dot' && x.trip === t.id).slice(0, 3);
+  return (
+    <div className="ub-pc" key={s.id}>
+      <span className="ub-pc-art">
+        {photo && <Shot photo={photo} eager />}
+        <span className="ub-pc-away">{minLabel(minutesAway(s.when))} away</span>
+      </span>
+      <div className="ub-pc-head">
+        <span className={`ub-pc-mark ${LOGO[t.id] ? 'logo' : ''}`}>
+          <Mark id={t.id} size={LOGO[t.id] ? 44 : 30} />
+        </span>
+        <div>
+          <p className="ub-pc-kick">{own ? `${when(own)} · at ${t.name}` : `${when(s)}${s.note ? ` · ${s.note.split('.')[0]}` : ''}`}</p>
+          <h3>{tell ? tell.title : t.name}</h3>
+        </div>
+      </div>
+      <p className="ub-pc-p">{tell ? (tell.body ? firstSentence(tell.body) : t.sub) : t.blurb}</p>
+      {!own && t.result && (
+        <p className="ub-pc-big">
+          <b>{t.result.value}</b>
+          <span>{t.result.sub}</span>
+        </p>
+      )}
+      {marks.length > 0 && (
+        <ul className="ub-pc-marks">
+          {marks.map((m) => (
+            <li key={m.id}>
+              <i aria-hidden="true" />
+              <span>{m.name}</span>
+              <small>{when(m)}</small>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="ub-pc-act">
+        <button type="button" className="ub-btn solid" onClick={() => onDetails(t.id)}>
+          What Ram did here
+        </button>
+        {onRide && (
+          <button type="button" className="ub-link" onClick={() => onRide(t.id)}>
+            Ride there
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -250,26 +305,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
     // pointing at a place, on the map or in the phone's list: a card opens beside it, and closes when the pointer leaves
     const ps = hot && hot !== 'you' && !(quick && !arrived) ? stop(hot) : null;
     if (ps) {
-      const lt = getTrip(ps.trip);
-      const own1 = ps.name !== lt.name ? ps : null;
-      const tell = own1 ? stopStory(own1.id) : null;
-      pop = (
-        <Brief
-          label={own1 ? `On the way to ${lt.name}` : `${minLabel(minutesAway(ps.when))} away`}
-          photo={own1 ? (stopPhoto(own1.id) ?? tripPhotos(lt.id)[0]) : tripPhotos(lt.id)[0]}
-          meta={own1 ? `${when(own1)} · ${minLabel(minutesAway(own1.when))} away` : undefined}
-          name={tell ? tell.title : lt.name}
-          text={tell ? (tell.body ? firstSentence(tell.body) : undefined) : lt.blurb}
-          big={own1 ? undefined : lt.result}
-          rows={own1 ? [] : tripRows(lt).filter((r) => r.label !== 'Distance from today')}
-        >
-          {onTrip?.id !== lt.id && (
-            <button type="button" className="ub-btn solid" onClick={() => ride(lt.id)}>
-              Ride to {lt.name}
-            </button>
-          )}
-        </Brief>
-      );
+      pop = <PlaceCard s={ps} onDetails={setProject} onRide={onTrip?.id !== ps.trip ? ride : undefined} />;
     }
 
     body = (
@@ -288,7 +324,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
             noBadge={browsing}
             hot={hot}
             onHot={setHot}
-            onPick={(id) => ride(stop(id).trip)}
+            onPick={(id) => setProject(stop(id).trip)}
             drive={driveKey}
             paused={paused}
             skip={skip}
@@ -300,7 +336,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           {!tale && (
             <p className="ub-mapbox-sum">
               {browsing ? (
-                'Point at any place to see what it was. Click it to ride there.'
+                'Point at any place to see what it was. Click it to read what Ram did there.'
               ) : (
                 <>
                   <b>{minLabel(minutes)}</b>
@@ -348,6 +384,52 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
             </div>
           ))}
         </dl>
+      </div>
+    );
+  } else if (where === 'idea') {
+    /* ---------------------------------------------------------------- the idea for Uber: a tablet to try, and what it does to one trip */
+    const photo = tripPhotos('idle-minutes')[0];
+    const part = (h: string) => TEARDOWN.parts.find((x) => x.heading === h)?.text;
+    body = (
+      <div className="ub-idea">
+        <div className="ub-idea-try">
+          <p className="ub-kicker">The rider’s tablet. Try it</p>
+          <TabletDemo step={app.survey} onStep={app.setSurvey} />
+          <p className="ub-kicker">
+            The driver’s trip <span className="ub-idea-tag">{IDEA.notes.label}</span>
+          </p>
+          <TripMeter step={app.survey} />
+          <p className="ub-idea-note">
+            {IDEA.notes.fare}. {IDEA.notes.driver}.
+          </p>
+        </div>
+        <div className="ub-idea-say">
+          <p className="ub-kicker">{IDEA.kicker}</p>
+          <h3>{IDEA.line}</h3>
+          <p className="ub-idea-p">{part('The problem')}</p>
+          <p className="ub-idea-p">{part('The insight')}</p>
+          <FeeSplit />
+          {IDEA.research.length > 0 && (
+            <dl className="ub-idea-res">
+              {IDEA.research.map((r) => (
+                <div key={r.label}>
+                  <dd>{r.value}</dd>
+                  <dt>
+                    {r.label} <small>{r.source}</small>
+                  </dt>
+                </div>
+              ))}
+            </dl>
+          )}
+          {photo && (
+            <figure className="ub-idea-fig">
+              <span>
+                <Shot photo={photo} eager />
+              </span>
+              <figcaption>{IDEA.evidence.caption}</figcaption>
+            </figure>
+          )}
+        </div>
       </div>
     );
   } else if (where === 'reserve') {

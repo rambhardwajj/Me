@@ -620,7 +620,7 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
           const x = sx(at);
           const right = x < size.w / 2;
           return (
-            <div className="lm-pop" style={{ left: right ? x + 26 : x - 26 - 300, top: Math.max(12, Math.min(size.h - 470, sy(at) - 190)) }} onMouseEnter={() => onHot(hot)} onMouseLeave={() => onHot(null)}>
+            <div className="lm-pop" style={{ left: right ? x + 26 : x - 26 - 300, top: Math.max(12, Math.min(size.h - 500, sy(at) - 190)) }} onMouseEnter={() => onHot(hot)} onMouseLeave={() => onHot(null)}>
               {hoverCard}
             </div>
           );

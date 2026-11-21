@@ -10,7 +10,9 @@ import {
   ACTIVITY,
   CHAPTERS,
   HOME,
+  IDEA,
   INBOX,
+  LOGO,
   NOW_LABEL,
   PERSONAS,
   PLACES,
@@ -38,6 +40,8 @@ import {
 } from '@/lib/uber';
 import LifeMap, { routeBetween } from './LifeMap';
 import { Icon, Pict, Solid } from './icons';
+import Mark from './Mark';
+import { SURVEY_DONE, TabletDemo, TripMeter } from './TabletDemo';
 import type { HomeTab, Mode, Ride, Sheet, Tab } from './useRide';
 import { PORTRAIT, stopPhoto, tripPhotos, type Photo } from '@/lib/uber-photos';
 
@@ -217,7 +221,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
   }, [screen]);
 
   // after a screen change the keyboard continues from the new screen's first control
-  const key = screen.s === 'tab' ? `tab-${screen.tab}` : screen.s === 'search' || screen.s === 'inbox' ? screen.s : `${screen.s}-${screen.trip}`;
+  const key = screen.s === 'tab' ? `tab-${screen.tab}` : screen.s === 'search' || screen.s === 'inbox' || screen.s === 'idea' ? screen.s : `${screen.s}-${screen.trip}`;
   useEffect(() => {
     if (moves) root.current?.querySelector<HTMLElement>('.rp-screen [data-first]')?.focus({ preventScroll: true });
   }, [moves]);
@@ -340,7 +344,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
             <button key={id} type="button" className="rp-tile" onClick={() => ride(id)} {...peeks(id)}>
               <span className="rp-tile-art">
                 {badge && <span className="rp-badge">{badge}</span>}
-                <Pict name={t.icon} />
+                <Mark id={id} />
               </span>
               <span className="rp-tile-name">{t.name}</span>
             </button>
@@ -396,7 +400,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
             <div key={id} className="rp-prodrow">
               <button type="button" className="rp-prod" onClick={() => ride(id)} {...peeks(id)}>
                 <span className="rp-prod-art">
-                  <Pict name={t.icon} size={40} />
+                  <Mark id={id} size={40} />
                 </span>
                 <span className="rp-prod-text">
                   <b>{t.name}</b>
@@ -578,8 +582,8 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
         {rows.length === 0 && <p className="rp-empty">{SEARCH.empty}</p>}
         {rows.map((r) => (
           <button key={r.key} type="button" className="rp-place" onClick={() => ride(r.trip)} {...peeks(r.trip)}>
-            <span className="rp-place-when">
-              <Icon name="clock" w={1.8} />
+            <span className={`rp-place-when ${LOGO[r.trip] ? 'logo' : ''}`}>
+              {LOGO[r.trip] ? <Mark id={r.trip} size={34} /> : <Icon name="clock" w={1.8} />}
               {r.min && <small>{r.min}</small>}
             </span>
             <span className="rp-place-text">
@@ -699,22 +703,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
             </button>
           </div>
           <div className="rp-details-body">
-            {t.id === 'idle-minutes' ? (
-              <article className="rp-idea">
-                <h2>{TEARDOWN.title}</h2>
-                {TEARDOWN.parts
-                  .filter((p) => full || p.quick)
-                  .map((p) => (
-                    <section key={p.heading}>
-                      <h3>
-                        {p.heading}
-                        {p.label && <span className="rp-tag grey">{p.label}</span>}
-                      </h3>
-                      <p>{p.text}</p>
-                    </section>
-                  ))}
-              </article>
-            ) : t.id === 'story' ? (
+            {t.id === 'story' ? (
               <div className="rp-story">
                 <p className="rp-about">{t.blurb}</p>
                 <StopList from={t.from} to={t.to} full={full} onOpen={ride} onHot={app.setHot} />
@@ -934,6 +923,69 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
         </ol>
       </div>
       {tabBar('activity')}
+    </>
+  );
+
+  /* ---------------------------------------------------------------- The 20 idle minutes: a page of its own */
+
+  const ideaPhoto = tripPhotos('idle-minutes')[0];
+  const idea = (
+    <>
+      <Tribute onReserve={reserveHere} />
+      <header className="rp-bar">
+        <button type="button" className="rp-back" aria-label="Back" data-first onClick={back}>
+          <Icon name="back" size={24} w={2.2} />
+        </button>
+        <h1>{IDEA.title}</h1>
+      </header>
+      <div className="rp-scroll rp-prog">
+        <p className="rp-kicker">{IDEA.kicker}</p>
+        <h2>{IDEA.line}</h2>
+        <p className="rp-prog-p">{IDEA.pitch}</p>
+
+        <div className="rp-prog-tab">
+          <h3 className="rp-h3">The rider’s tablet. Try it</h3>
+          <TabletDemo step={app.survey} onStep={app.setSurvey} />
+        </div>
+
+        <h3 className="rp-h3">
+          The driver’s phone
+          <span className="rp-tag grey">{IDEA.notes.label}</span>
+        </h3>
+        <div className={`rp-drv ${app.survey === SURVEY_DONE ? 'done' : ''}`}>
+          <p className="rp-drv-top">
+            <Solid name="car" />
+            <span>
+              <b>{app.survey === SURVEY_DONE ? 'Bonus added to this trip' : 'Trip in progress'}</b>
+              <small>{app.survey === SURVEY_DONE ? 'Your rider answered the survey' : app.survey === -1 ? 'Your rider skipped the survey' : app.survey > 0 ? 'Your rider is answering the survey' : 'A survey is waiting on the back-seat tablet'}</small>
+            </span>
+          </p>
+          <TripMeter step={app.survey} />
+        </div>
+        <p className="rp-prog-hint">{IDEA.notes.fare}. {IDEA.notes.driver}.</p>
+
+        {TEARDOWN.parts.map((p) => (
+          <section key={p.heading} className="rp-prog-part">
+            <h3>
+              {p.heading}
+              {p.label && <span className="rp-tag grey">{p.label}</span>}
+            </h3>
+            <p>{p.text}</p>
+          </section>
+        ))}
+
+        {ideaPhoto && (
+          <figure className="rp-prog-fig">
+            <span>
+              <Thumb photo={ideaPhoto} className="rp-photo" />
+            </span>
+            <figcaption>{IDEA.evidence.caption}</figcaption>
+          </figure>
+        )}
+        <button type="button" className="rp-btn primary" onClick={reserveHere}>
+          {RIDE.reserve}
+        </button>
+      </div>
     </>
   );
 
@@ -1168,6 +1220,8 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
         ? search
         : screen.s === 'inbox'
           ? inbox
+          : screen.s === 'idea'
+            ? idea
           : screen.s === 'choose'
             ? choose(getTrip(screen.trip))
             : screen.s === 'finding'

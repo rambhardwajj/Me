@@ -11,7 +11,7 @@ const flip = (j: Ends): Ends => ({ from: j.to, to: j.from });
 export type Tab = 'home' | 'services' | 'activity' | 'account';
 export type HomeTab = 'ram' | 'shipped' | 'journey';
 export type Mode = 'quick' | 'full';
-export type Screen = { s: 'tab'; tab: Tab } | { s: 'search' } | { s: 'inbox' } | { s: 'choose'; trip: TripId } | { s: 'finding'; trip: TripId; mode: Mode } | { s: 'details'; trip: TripId; mode: Mode };
+export type Screen = { s: 'tab'; tab: Tab } | { s: 'search' } | { s: 'inbox' } | { s: 'idea' } | { s: 'choose'; trip: TripId } | { s: 'finding'; trip: TripId; mode: Mode } | { s: 'details'; trip: TripId; mode: Mode };
 export type Sheet = null | 'switch' | 'reserve' | 'lost';
 
 /**
@@ -43,6 +43,8 @@ export function useRide() {
   const [peek, setPeek] = useState<{ trip: TripId; x: number; y: number } | null>(null);
   /** The project whose details are open in the modal. */
   const [project, setProject] = useState<TripId | null>(null);
+  /** Where the visitor is in the sample survey on the idea page: 0 the ask, 1 to 3 the questions, 4 done, -1 declined. */
+  const [survey, setSurvey] = useState(0);
   /** The side of Ram on show in About. */
   const [facet, setFacet] = useState<FacetId>('roots');
   /** Counts moves between screens, so the keyboard can follow each one. */
@@ -108,6 +110,13 @@ export function useRide() {
       setProject(null);
       setHotOnly(null);
       setPeek(null);
+      // the idea for Uber is not a place on the road: it has a page of its own
+      if (id === 'idle-minutes') {
+        setLookState(null);
+        setSurvey(0);
+        setStack((st) => [...st.filter((sc) => sc.s === 'tab' || sc.s === 'search').slice(0, 2), { s: 'idea' }]);
+        return;
+      }
       setLookState({ trip: id });
       setStack((st) => [...st.filter((sc) => sc.s === 'tab' || sc.s === 'search').slice(0, 2), { s: 'choose', trip: id }]);
     },
@@ -135,7 +144,7 @@ export function useRide() {
   const tripMode: Mode = screen.s === 'finding' || screen.s === 'details' ? screen.mode : mode;
 
   return {
-    stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, swapEnds, hot, setHot, look, setLook, peek, setPeek, project, setProject, facet, setFacet, moves, step,
+    stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, swapEnds, hot, setHot, look, setLook, peek, setPeek, project, setProject, survey, setSurvey, facet, setFacet, moves, step,
     push, back, goTab, openSheet, closeSheet, ride,
     where, onTrip, onJourney, journeyTrip, route, tripMode,
   };
