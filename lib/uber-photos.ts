@@ -104,3 +104,6 @@ export function stopStory(id: StopId): StopStory {
   if (!m) return { title: s.name, org: s.note ?? '', body: '', points: [] };
   return { title: m.title, org: m.org, body: BODY_OVERRIDE[id] ?? m.body, points: (m.points ?? []).filter((x) => !SKIP_POINT.test(x)), stat: m.stat };
 }
+
+/** The same portrait as a halftone sticker, the one on the main site's title card. Used large, beside the phone. */
+export const PORTRAIT_HALFTONE: Photo = { src: '/vox/me-suit.webp', alt: 'Ram Bhardwaj', caption: 'Ram Bhardwaj' };

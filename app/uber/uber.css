@@ -1012,8 +1012,7 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
 .ub-proofs dt .ui { flex: none; transition: transform 0.18s; }
 .ub-proofs dt button:hover .ui { transform: translateX(4px); }
 .ub-proofs dd { font-family: var(--u-display); font-size: 52px; line-height: 1; font-weight: 900; letter-spacing: -0.035em; font-stretch: 75%; white-space: nowrap; }
-/* Ram's portrait is black and white, like the rest of the page; pointing at it brings the colour back */
-.ub-face .ub-shot { filter: grayscale(1) contrast(1.12) brightness(1.03); transition: filter 0.5s ease; }
-.ub-face:hover .ub-shot { filter: none; }
-.ub[data-theme='dark'] .ub-face .ub-shot { filter: grayscale(1) contrast(1.15) brightness(1.08); }
-.ub[data-theme='dark'] .ub-face:hover .ub-shot { filter: none; }
+/* Ram's portrait is the halftone sticker from the main site; it lifts a little when pointed at */
+.ub-face .ub-shot { filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.18)); transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1); transform-origin: 50% 100%; }
+.ub-face:hover .ub-shot { transform: rotate(-1.5deg) scale(1.02); }
+.ub[data-theme='dark'] .ub-face .ub-shot { filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.6)); }
