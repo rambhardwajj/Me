@@ -736,6 +736,8 @@ export type Job = {
   /** One line on what the place is. */
   what: string;
   icon: Pictogram;
+  /** The company's own logo, from public/images/logos. Without one, the pictogram is shown. */
+  logo?: string;
   /** The trip this job opens, if it has one on the map. */
   trip?: TripId;
   /** Roles held there, newest first, with their dates as shown. */
@@ -747,14 +749,16 @@ export type Job = {
 /**
  * Every place Ram has worked, newest first. Titles and dates are from the resume data in lib/data.ts;
  * Synappses is from the briefs (Co-Founder, Apr 2026 to Jun 2026).
+ * OWED: logo files for Synappses and 100xSchool; until they are in public/images/logos, those two show a pictogram.
  */
 export const EXPERIENCE: Job[] = [
-  { company: 'TruCost', what: 'Ride-hailing app with an in-cab tablet', icon: 'car', trip: 'trucost', roles: [{ title: 'Product Manager, on contract', when: 'Jun 2026 to Oct 2026' }], result: '100 drivers onboarded, sold for ₹2.5L' },
+  { company: 'TruCost', what: 'Ride-hailing app with an in-cab tablet', icon: 'car', logo: '/images/logos/trucost.png', trip: 'trucost', roles: [{ title: 'Product Manager, on contract', when: 'Jun 2026 to Oct 2026' }], result: '100 drivers onboarded, sold for ₹2.5L' },
   { company: 'Synappses', what: 'AI-native LMS for coaching centres', icon: 'cap', trip: 'synappses', roles: [{ title: 'Co-Founder', when: 'Apr 2026 to Jun 2026' }] },
   {
     company: 'Newral',
     what: 'Early-stage AI startup, Noida',
     icon: 'chart',
+    logo: '/images/logos/newral.png',
     trip: 'newral',
     roles: [
       { title: 'Product Manager', when: 'May 2026' },
@@ -768,6 +772,7 @@ export const EXPERIENCE: Job[] = [
     company: 'Ciena',
     what: 'NYSE-listed networking company, Gurugram',
     icon: 'building',
+    logo: '/images/logos/ciena.png',
     trip: 'ciena',
     roles: [
       { title: 'IT Applications Solutions Engineer', when: 'Jul 2024 to Oct 2025' },
@@ -775,7 +780,7 @@ export const EXPERIENCE: Job[] = [
     ],
     result: '4 of 14,000 won the annual award',
   },
-  { company: 'Ingenious Research Solutions', what: 'Research internship, Noida', icon: 'doc', roles: [{ title: 'Research Intern, on an ISRO blockchain project', when: 'Jun 2023 to Jul 2023' }] },
+  { company: 'Ingenious Research Solutions', what: 'Research internship, Noida', icon: 'doc', logo: '/images/logos/ingenious.png', roles: [{ title: 'Research Intern, on an ISRO blockchain project', when: 'Jun 2023 to Jul 2023' }] },
 ];
 
 /* ------------------------------------------------------------------ About Ram (the Account tab) */

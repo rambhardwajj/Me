@@ -888,9 +888,14 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
               </span>
               <div className="rp-job-card">
                 <div className="rp-past-top">
-                  <span className="art">
-                    <Pict name={j.icon} />
-                  </span>
+                  {j.logo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img className="rp-job-logo" src={j.logo} alt={`${j.company} logo`} width={52} height={52} />
+                  ) : (
+                    <span className="art">
+                      <Pict name={j.icon} />
+                    </span>
+                  )}
                   <span>
                     <b>{j.company}</b>
                     <small>{j.what}</small>
