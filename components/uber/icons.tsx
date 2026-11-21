@@ -76,6 +76,7 @@ const LINE: Record<string, ReactNode> = {
   play: <path d="M7 4.500v15l12-7.500z" />,
   plus: <path d="M12 5v14M5 12h14" />,
   minus: <path d="M5 12h14" />,
+  swap: <path d="M8 19.5V4.500M8 4.500L4.500 8M8 4.500L11.500 8M16 4.500v15M16 19.500L12.500 16M16 19.500l3.500-3.500" />,
   fit: <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />,
   arrow: <path d="M5 12h14M13 6l6 6-6 6" />,
   moon: <path d="M19.500 14.200A8 8 0 0 1 9.800 4.500a8 8 0 1 0 9.700 9.700z" />,

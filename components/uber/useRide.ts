@@ -4,8 +4,9 @@ import { useCallback, useRef, useState } from 'react';
 import { minutesAway, stop, trip as getTrip, type FacetId, type ScreenKey, type StopId, type TripId } from '@/lib/uber';
 
 type Ends = { from: StopId; to: StopId };
-/** A Journey route always runs forward in time: from the older place to the newer one. */
+/** A Journey route runs forward in time, from the older place to the newer one, until the visitor swaps its ends. */
 const forward = (j: Ends): Ends => (minutesAway(stop(j.from).when) >= minutesAway(stop(j.to).when) ? j : { from: j.to, to: j.from });
+const flip = (j: Ends): Ends => ({ from: j.to, to: j.from });
 
 export type Tab = 'home' | 'services' | 'activity' | 'account';
 export type HomeTab = 'ram' | 'shipped' | 'journey';
@@ -23,7 +24,17 @@ export function useRide() {
   const [sheet, setSheet] = useState<Sheet>(null);
   const [mode, setMode] = useState<Mode>('quick');
   const [journey, setJourneyRaw] = useState<Ends>({ from: 'st-dominics', to: 'you' });
-  const setJourney = useCallback((j: Ends) => setJourneyRaw(forward(j)), []);
+  /** True once the visitor has swapped the ends, so the route runs back in time. */
+  const [swapped, setSwapped] = useState(false);
+  const setJourney = useCallback((j: Ends) => {
+    setSwapped(false);
+    setJourneyRaw(forward(j));
+  }, []);
+  /** Swap the two ends, as the button beside them does in a ride app. */
+  const swapEnds = useCallback(() => {
+    setSwapped((v) => !v);
+    setJourneyRaw(flip);
+  }, []);
   /** The stop the pointer is on, in the map or in a list, so each can light up the other. */
   const [hot, setHotOnly] = useState<StopId | null>(null);
   /** The last place pointed at. It stays on show beside the map until another one is pointed at. */
@@ -103,12 +114,14 @@ export function useRide() {
     [step],
   );
 
-  /** Set one end of the Journey route. The two ends are then put in time order. */
+  /** Set one end of the Journey route. The two ends are then put in time order, or the reverse if the visitor swapped them. */
   const setEnd = (end: 'from' | 'to', id: StopId) =>
     setJourneyRaw((j) => {
       const other = end === 'from' ? 'to' : 'from';
       // the same place at both ends makes no route, so that pick is ignored
-      return j[other] === id ? j : forward({ ...j, [end]: id });
+      if (j[other] === id) return j;
+      const f = forward({ ...j, [end]: id });
+      return swapped ? flip(f) : f;
     });
 
   // what the panel beside the phone should show for this moment
@@ -116,12 +129,13 @@ export function useRide() {
   const onJourney = screen.s === 'tab' && screen.tab === 'home' && homeTab === 'journey';
   const where: ScreenKey = sheet ?? (screen.s === 'tab' ? (screen.tab === 'home' ? (homeTab === 'ram' ? 'home' : homeTab) : screen.tab) : screen.s);
   /** The trip a Journey selection opens. */
-  const journeyTrip: TripId = stop(journey.to).type === 'you' ? (journey.from === 'st-dominics' ? 'story' : stop(journey.from).trip) : stop(journey.to).trip;
+  const jf = forward(journey);
+  const journeyTrip: TripId = stop(jf.to).type === 'you' ? (jf.from === 'st-dominics' ? 'story' : stop(jf.from).trip) : stop(jf.to).trip;
   const route = onTrip ? { from: onTrip.from, to: onTrip.to } : onJourney ? journey : null;
   const tripMode: Mode = screen.s === 'finding' || screen.s === 'details' ? screen.mode : mode;
 
   return {
-    stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, hot, setHot, look, setLook, peek, setPeek, project, setProject, facet, setFacet, moves, step,
+    stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, swapEnds, hot, setHot, look, setLook, peek, setPeek, project, setProject, facet, setFacet, moves, step,
     push, back, goTab, openSheet, closeSheet, ride,
     where, onTrip, onJourney, journeyTrip, route, tripMode,
   };

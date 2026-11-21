@@ -106,7 +106,7 @@ function Photos({ photos }: { photos: Photo[] }) {
 }
 
 /** The two ends of a trip as a route box: a dot, a line and a square. */
-function Ends({ a, b }: { a: ReactNode; b: ReactNode }) {
+function Ends({ a, b, onSwap }: { a: ReactNode; b: ReactNode; onSwap?: () => void }) {
   return (
     <div className="rp-ends">
       <div className="rp-ends-rail" aria-hidden="true">
@@ -118,6 +118,11 @@ function Ends({ a, b }: { a: ReactNode; b: ReactNode }) {
         {a}
         {b}
       </div>
+      {onSwap && (
+        <button type="button" className="rp-ends-swap" aria-label="Swap start and destination" onClick={onSwap}>
+          <Icon name="swap" size={20} w={2} />
+        </button>
+      )}
     </div>
   );
 }
@@ -161,8 +166,10 @@ function StopList({ from, to, full, onOpen, onHot }: { from: StopId; to: StopId;
 }
 
 const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onPersona, dark, onDark, app, reducedMotion }, ref) {
-  const { stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, moves, step, push, back, goTab, closeSheet, ride } = app;
+  const { stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, swapEnds, moves, step, push, back, goTab, closeSheet, ride } = app;
   const [query, setQuery] = useState('');
+  /** Plan your ride with its two ends swapped: the ride then ends at Ram today. */
+  const [flipped, setFlipped] = useState(false);
   const [shortcut, setShortcut] = useState<null | 'experience' | 'wins'>(null);
   const [seen, setSeen] = useState<TripId[]>([]);
   const [inboxRead, setInboxRead] = useState(false);
@@ -418,6 +425,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
       <div className="rp-jcard">
         <p className="rp-kicker">Trip selected</p>
         <Ends
+          onSwap={swapEnds}
           a={
             <label>
               <span className="sr">From</span>
@@ -519,6 +527,14 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
       .reverse()
       .map(stopRow);
 
+  const searchHere = <span className="rp-plan-from">{SEARCH.from}</span>;
+  const searchBox = (
+    <label>
+      <span className="sr">{flipped ? 'Start' : 'Destination'}</span>
+      <input type="text" data-first value={query} onChange={(e) => setQuery(e.target.value)} placeholder={flipped ? SEARCH.placeholderFrom : SEARCH.placeholder} autoComplete="off" enterKeyHint="search" />
+    </label>
+  );
+
   const search = (
     <>
       <Tribute onReserve={reserveHere} />
@@ -540,13 +556,9 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
       </div>
       <div className="rp-plan">
         <Ends
-          a={<span className="rp-plan-from">{SEARCH.from}</span>}
-          b={
-            <label>
-              <span className="sr">Destination</span>
-              <input type="text" data-first value={query} onChange={(e) => setQuery(e.target.value)} placeholder={SEARCH.placeholder} autoComplete="off" enterKeyHint="search" />
-            </label>
-          }
+          onSwap={() => setFlipped((v) => !v)}
+          a={flipped ? searchBox : searchHere}
+          b={flipped ? searchHere : searchBox}
         />
         <button type="button" className="rp-round" aria-label="Open the map" onClick={() => goTab('home', 'journey')}>
           <Icon name="map" />

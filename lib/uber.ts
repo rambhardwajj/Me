@@ -554,6 +554,8 @@ export const SEARCH = {
   chips: ['From today', 'For Uber'],
   from: `Ram, ${NOW_LABEL}`,
   placeholder: 'Where to?',
+  /** Shown once the two ends are swapped, so the ride ends at Ram today. */
+  placeholderFrom: 'Where from?',
   shortcuts: { experience: 'Experience', wins: 'Wins' },
   /** The companies listed under "Experience". */
   experience: ['trucost', 'newral', 'ciena'] as TripId[],

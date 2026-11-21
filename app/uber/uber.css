@@ -338,6 +338,8 @@ body:has(.ub) { background: transparent; transition: none; }
 .rp-ends-text input, .rp-ends-text select { width: 100%; height: 36px; padding: 0; border: 0; border-radius: 6px; background: none; color: var(--u-text); font: inherit; font-size: 16px; }
 .rp-ends-text input::placeholder { color: #8c8c8c; opacity: 1; }
 .rp-ends-text select { cursor: pointer; }
+.rp-ends-swap { flex: none; align-self: center; width: 36px; height: 36px; margin-right: -4px; border-radius: 50%; background: var(--u-surface); color: var(--u-text); display: flex; align-items: center; justify-content: center; transition: transform 0.25s ease; }
+.rp-ends-swap:active { transform: rotate(180deg); }
 
 .rp-stops { list-style: none; margin-top: 6px; }
 .rp-stop { width: 100%; min-height: 54px; display: flex; align-items: center; gap: 14px; padding: 7px 0; border-bottom: 1px solid var(--u-line); }
