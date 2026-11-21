@@ -1,10 +1,10 @@
 import { ACCENT, trip as getTrip, type TripId } from '@/lib/uber';
 import { tripPhotos } from '@/lib/uber-photos';
 
-/** Where the phone's screen starts on the stage's 1440 × 900 canvas (the frame at 970, 16 plus its 12px bezel). */
-const SCREEN = { x: 982, y: 28 };
-/** The cloud floats just left of the phone. */
-const CLOUD = { x: 536, w: 400, h: 290 };
+/** Where the phone's screen starts on the stage's 1440 × 900 canvas (the frame at 56, 16 plus its 12px bezel). */
+const SCREEN = { x: 68, y: 28 };
+/** The cloud floats just right of the phone. */
+const CLOUD = { x: 516, w: 400, h: 290 };
 
 /**
  * A cartoon thought cloud: point at a destination in the phone and its photos float up beside the phone,
@@ -17,8 +17,8 @@ export default function ThoughtCloud({ trip, x, y }: { trip: TripId; x: number; 
   if (!photos.length) return null;
   const from = { x: SCREEN.x + x, y: SCREEN.y + y };
   const top = Math.max(86, Math.min(900 - CLOUD.h - 40, from.y - CLOUD.h / 2 - 30));
-  // the trail ends at the cloud's lower-right lobe
-  const to = { x: CLOUD.x + CLOUD.w - 36, y: top + CLOUD.h - 70 };
+  // the trail ends at the cloud's lower-left lobe
+  const to = { x: CLOUD.x + 36, y: top + CLOUD.h - 70 };
   const trail = [0.3, 0.55, 0.8].map((f, i) => ({ x: from.x + (to.x - from.x) * f, y: from.y + (to.y - from.y) * f - Math.sin(f * Math.PI) * 26, r: 7 + i * 5 }));
   return (
     <div className="ub-cloud" aria-hidden="true" style={{ ['--acc' as string]: ACCENT[trip] }}>

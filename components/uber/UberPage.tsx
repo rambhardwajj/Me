@@ -204,7 +204,7 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
               </p>
             </section>
 
-            {/* after the scroll: the phone on the right, and to its left the same moment at full size */}
+            {/* after the scroll: the phone crosses to the left; beside it the context, then the map */}
             <div className="ub-arrived" inert={desk && !arrived ? true : undefined}>
               {desk && <StagePanel app={ride} persona={persona} onPersona={setPersona} reducedMotion={reduced} />}
             </div>
