@@ -753,7 +753,7 @@ export type Job = {
 
 /**
  * Every place Ram has worked, newest first. Titles and dates are from the resume data in lib/data.ts;
- * Synappses is not an employer: Ram confirmed on 22 Nov 2026 that it was a product inside Newral, so it is a role there.
+ * Synappses is not listed here: it was a product inside Newral, and Ram wants it shown under Shipped only.
  * OWED: a logo file for 100xSchool; until it is in public/images/logos, it shows a pictogram.
  */
 export const EXPERIENCE: Job[] = [
@@ -766,7 +766,6 @@ export const EXPERIENCE: Job[] = [
     trip: 'newral',
     roles: [
       { title: 'Product Manager', when: 'May 2026' },
-      { title: 'Founding Manager, Synappses (Newral’s AI LMS)', when: 'Oct 2025 to Jun 2026' },
       { title: 'Product Tech Lead', when: 'Dec 2025 to Apr 2026' },
       { title: 'Software Engineer', when: 'Oct 2025 to Nov 2025' },
     ],
