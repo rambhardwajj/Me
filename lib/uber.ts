@@ -70,7 +70,7 @@ export const ROAD: Pt[] = [
 export type StopId =
   | 'st-dominics' | 'ramjas' | 'amity' | 'ciena' | 'newral' | 'trucost' | 'masters-union' | 'you'
   | 'dance-wins' | 'world-battle' | 'choreography' | 'rank-1' | 'full-time' | 'edst' | 'cienagpt'
-  | 'super-30' | 'tech-lead' | 'wingathon' | 'synappses' | 'product-manager' | 'leetcase';
+  | 'super-30' | 'tech-lead' | 'wingathon' | 'product-manager' | 'leetcase';
 
 export type Stop = {
   id: StopId;
@@ -107,7 +107,6 @@ export const STOPS: Stop[] = [
   { id: 'cienagpt', type: 'dot', name: 'Top 10, CienaGPT AI hackathon', when: '2024-12', monthAssumed: true, at: { x: 1543, y: 620 }, trip: 'ciena', win: true },
   { id: 'super-30', type: 'dot', name: 'Super 30 Hacker House', when: '2025-09', monthAssumed: true, at: { x: 1604, y: 960 }, trip: 'super-30', win: true },
   { id: 'newral', type: 'place', name: 'Newral', note: 'Noida. Engineer, then product', when: '2025-10', at: { x: 1556, y: 960 }, tag: { x: 1658, y: 1040 }, trip: 'newral' },
-  { id: 'synappses', type: 'dot', name: 'Synappses, built inside Newral', when: '2025-10', at: { x: 1510, y: 960 }, trip: 'synappses' },
   { id: 'tech-lead', type: 'dot', name: 'Tech Lead and Best Employee', when: '2025-12', at: { x: 1459, y: 960 }, trip: 'newral', win: true },
   { id: 'wingathon', type: 'dot', name: 'YC VibeCon Wingathon winner', when: '2026-04', at: { x: 1267, y: 960 }, trip: 'newral', win: true },
   { id: 'product-manager', type: 'dot', name: 'Product Manager', when: '2026-05', at: { x: 1219, y: 960 }, trip: 'newral' },
@@ -283,7 +282,7 @@ export const TRIPS: Trip[] = [
     sub: 'Newral’s AI LMS, as Founding Manager',
     icon: 'cap',
     from: 'you',
-    to: 'synappses',
+    to: 'newral', // it has no stop of its own on the map: it was built inside Newral
     pickup: 'Founding Manager, 2025',
     blurb: 'An AI-native LMS for coaching centres, built inside Newral. Ram was its Founding Manager from October 2025 to June 2026.', // OWED 5: what he did and the result
     leg: [
@@ -524,14 +523,13 @@ export const PERSONAS: Persona[] = [
 
 /* ------------------------------------------------------------------ Home */
 
-/** "For you": eight tiles. `badge` is the red result badge. */
+/** "Projects and experience": seven tiles. `badge` is the red result badge. */
 export const TILES: { trip: TripId; badge?: string }[] = [
   { trip: 'trucost', badge: 'Sold ₹2.5L' },
   { trip: 'newral', badge: '$0 to $6K' },
   { trip: 'ciena' },
   { trip: 'leetcase' },
   { trip: 'unbothrrd', badge: '₹7.2L' },
-  { trip: 'synappses' },
   { trip: 'super-30' },
   { trip: 'dance' },
 ];

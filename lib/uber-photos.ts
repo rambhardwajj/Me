@@ -53,7 +53,6 @@ const STOP_JOURNEY: Partial<Record<StopId, string>> = {
 };
 
 export function stopPhoto(id: StopId): Photo | null {
-  if (id === 'synappses') return SHOT.synappses;
   const j = STOP_JOURNEY[id];
   return j ? fromJourney(j) : null;
 }
