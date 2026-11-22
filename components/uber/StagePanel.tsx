@@ -32,7 +32,7 @@ import {
   type Trip,
   type TripId,
 } from '@/lib/uber';
-import { PORTRAIT_HALFTONE, stopPhoto, stopStory, tripPhotos, type Photo } from '@/lib/uber-photos';
+import { PORTRAIT, stopPhoto, stopStory, tripPhotos, type Photo } from '@/lib/uber-photos';
 import LifeMap, { routeBetween } from './LifeMap';
 import { Icon } from './icons';
 import Mark from './Mark';
@@ -369,7 +369,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           </div>
         </div>
         <span className="ub-face">
-          <Shot photo={PORTRAIT_HALFTONE} eager />
+          <Shot photo={PORTRAIT} eager />
         </span>
         <dl className="ub-proofs">
           {HERO_FACTS.map((f) => (
@@ -461,7 +461,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           </p>
         </div>
         <span className="ub-face">
-          <Shot photo={PORTRAIT_HALFTONE} eager />
+          <Shot photo={PORTRAIT} eager />
         </span>
       </div>
     );
