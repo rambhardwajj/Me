@@ -217,7 +217,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
     const quick = inDetails && tripMode === 'quick' && onTrip!.id !== 'idle-minutes';
     const own = inDetails && tripMode === 'full' ? ownStops(onTrip!) : [];
     const tale = own.length > 0;
-    const driveKey = quick ? `${onTrip!.id}:${replay}` : null;
+    const driveKey = quick ? `${onTrip!.id}:${app.driveNo}:${replay}` : null;
     const arrived = !!driveKey && done === driveKey;
     const paused = !!driveKey && pausedKey === driveKey;
     const passing = quick && pass.key === driveKey ? stop(pass.stop) : null;
@@ -328,8 +328,14 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
             drive={driveKey}
             paused={paused}
             skip={skip}
+            brisk={!!onTrip && app.arrive === onTrip.id}
             onPass={(id) => driveKey && setPass({ key: driveKey, stop: id })}
-            onDone={() => driveKey && setDone(driveKey)}
+            onDone={() => {
+              if (!driveKey) return;
+              setDone(driveKey);
+              // a ride started from a Home tile ends with what Ram did there, opened at full size
+              if (onTrip && app.arrive === onTrip.id) app.landed(onTrip.id);
+            }}
             searching={screen.s === 'finding'}
             reducedMotion={reducedMotion}
           />

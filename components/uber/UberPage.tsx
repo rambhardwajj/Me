@@ -112,6 +112,14 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
     };
   }, [desk, reduced]);
 
+  // at phone size there is no map beside the app to drive on: the trip opens, then the place's details
+  const { arrive, landed } = ride;
+  useEffect(() => {
+    if (desk || !arrive) return;
+    const t = window.setTimeout(() => landed(arrive), reduced ? 0 : 900);
+    return () => window.clearTimeout(t);
+  }, [desk, arrive, landed, reduced]);
+
   /** Bring the phone into view, then run something in it. */
   const toPhone = useCallback(
     (then: () => void) => {

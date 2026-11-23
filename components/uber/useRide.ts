@@ -45,6 +45,10 @@ export function useRide() {
   const [project, setProject] = useState<TripId | null>(null);
   /** Where the visitor is in the sample survey on the idea page: 0 the ask, 1 to 3 the questions, 4 done, -1 declined. */
   const [survey, setSurvey] = useState(0);
+  /** A ride started from a Home tile: when the car gets there, that place's details open by themselves. */
+  const [arrive, setArrive] = useState<TripId | null>(null);
+  /** Counts those rides, so the same place can be driven to twice. */
+  const [driveNo, setDriveNo] = useState(0);
   /** The side of Ram on show in About. */
   const [facet, setFacet] = useState<FacetId>('roots');
   /** Counts moves between screens, so the keyboard can follow each one. */
@@ -83,10 +87,12 @@ export function useRide() {
   };
   const back = () => {
     step();
+    setArrive(null);
     setStack((st) => (st.length > 1 ? st.slice(0, -1) : st));
   };
   const goTab = (tab: Tab, home?: HomeTab) => {
     step();
+    setArrive(null);
     if (home) setHomeTab(home);
     setStack([{ s: 'tab', tab }]);
   };
@@ -108,6 +114,7 @@ export function useRide() {
       setMode('quick');
       setSheet(null);
       setProject(null);
+      setArrive(null);
       setHotOnly(null);
       setPeek(null);
       // the idea for Uber is not a place on the road: it has a page of its own
@@ -122,6 +129,28 @@ export function useRide() {
     },
     [step],
   );
+
+  /** A Home tile: no choosing. The car drives straight there, and the place's details open when it arrives. */
+  const driveTo = useCallback(
+    (id: TripId) => {
+      step();
+      setMode('quick');
+      setSheet(null);
+      setProject(null);
+      setHotOnly(null);
+      setPeek(null);
+      setLookState({ trip: id });
+      setArrive(id);
+      setDriveNo((n) => n + 1);
+      setStack((st) => [...st.filter((sc) => sc.s === 'tab' || sc.s === 'search').slice(0, 2), { s: 'details', trip: id, mode: 'quick' }]);
+    },
+    [step],
+  );
+  /** The car has arrived: open what Ram did there. */
+  const landed = useCallback((id: TripId) => {
+    setArrive(null);
+    setProject(id);
+  }, []);
 
   /** Set one end of the Journey route. The two ends are then put in time order, or the reverse if the visitor swapped them. */
   const setEnd = (end: 'from' | 'to', id: StopId) =>
@@ -145,7 +174,7 @@ export function useRide() {
 
   return {
     stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, swapEnds, hot, setHot, look, setLook, peek, setPeek, project, setProject, survey, setSurvey, facet, setFacet, moves, step,
-    push, back, goTab, openSheet, closeSheet, ride,
+    push, back, goTab, openSheet, closeSheet, ride, driveTo, landed, arrive, driveNo,
     where, onTrip, onJourney, journeyTrip, route, tripMode,
   };
 }

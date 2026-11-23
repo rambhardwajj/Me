@@ -225,6 +225,8 @@ type Props = {
   paused?: boolean;
   /** Set to the drive's own string to send the car straight to the end. */
   skip?: string | null;
+  /** A short drive, six seconds at most: for a ride that ends by opening the place's details. */
+  brisk?: boolean;
   /** Pulse the destination, while a ride is being found. */
   searching?: boolean;
   reducedMotion?: boolean;
@@ -233,7 +235,7 @@ type Props = {
 /**
  * The life map. It flies to the route between two stops, draws the route, and can be zoomed and dragged.
  */
-export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, hot, onHot, fit = 'route', noBadge, drive = null, onPass, onDone, paused, skip, carAt = null, hoverCard, dock, searching, reducedMotion }: Props) {
+export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, hot, onHot, fit = 'route', noBadge, drive = null, onPass, onDone, paused, skip, brisk, carAt = null, hoverCard, dock, searching, reducedMotion }: Props) {
   const box = useRef<HTMLDivElement>(null);
   // `n` counts measurements: until the box has been measured once, the camera does not animate
   const [size, setSize] = useState({ w: 390, h: 440, n: 0 });
@@ -292,9 +294,11 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
   const p = drive ? (run.key === drive ? run.p : 0) : 1;
   const driving = !!drive && p < 1;
   const calls = useRef({ onPass, onDone, paused: !!paused });
+  const briskRef = useRef(!!brisk);
   const end = useRef<null | (() => void)>(null);
   useEffect(() => {
     calls.current = { onPass, onDone, paused: !!paused };
+    briskRef.current = !!brisk;
   });
   useEffect(() => {
     if (!drive) return;
@@ -303,7 +307,7 @@ export default function LifeMap({ from, to, pad = {}, onPick, detail, controls, 
     const len = Math.abs(along(stop(to).at) - a0) || 1;
     const stops = [stop(from), ...r.between, stop(to)];
     const fr = stops.map((s) => Math.abs(along(s.at) - a0) / len);
-    const ms = reducedMotion ? 0 : Math.max(5000, Math.min(16000, stops.length * 1100));
+    const ms = reducedMotion ? 0 : Math.max(5000, Math.min(briskRef.current ? 6000 : 16000, stops.length * 1100));
     let last = -1;
     const mark = (at: number) => {
       let i = -1;
