@@ -112,28 +112,3 @@ export function TripMeter({ step }: { step: number }) {
     </dl>
   );
 }
-
-/** Where one survey fee goes. */
-export function FeeSplit() {
-  const share = (IDEA.driver / IDEA.fee) * 100;
-  return (
-    <div className="fs">
-      <p className="fs-top">
-        <b>{rupees(IDEA.fee)}</b>
-        <span>{IDEA.notes.fee}</span>
-      </p>
-      <span className="fs-bar" aria-hidden="true">
-        <i style={{ width: `${share}%` }} />
-      </span>
-      <p className="fs-legend">
-        <span>
-          <b>{rupees(IDEA.driver)}</b> to the driver
-        </span>
-        <span>
-          <b>{rupees(IDEA.fee - IDEA.driver)}</b> stays with the platform
-        </span>
-      </p>
-      <p className="fs-note">{IDEA.notes.driver}.</p>
-    </div>
-  );
-}

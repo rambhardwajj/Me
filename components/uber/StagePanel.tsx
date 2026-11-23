@@ -11,7 +11,6 @@ import {
   HERO_FACTS,
   IDEA,
   LOGO,
-  TEARDOWN,
   INBOX,
   PERSONAS,
   REROUTES,
@@ -36,7 +35,7 @@ import { PORTRAIT, stopPhoto, stopStory, tripPhotos, type Photo } from '@/lib/ub
 import LifeMap, { routeBetween } from './LifeMap';
 import { Icon } from './icons';
 import Mark from './Mark';
-import { FeeSplit, TabletDemo, TripMeter } from './TabletDemo';
+import { IdeaGraphic } from './IdeaGraphics';
 import type { Ride } from './useRide';
 
 /** The reroute note shown above the first stop after a turn in the road. */
@@ -393,48 +392,50 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
       </div>
     );
   } else if (where === 'idea') {
-    /* ---------------------------------------------------------------- the idea for Uber: a tablet to try, and what it does to one trip */
-    const photo = tripPhotos('idle-minutes')[0];
-    const part = (h: string) => TEARDOWN.parts.find((x) => x.heading === h)?.text;
+    /* ---------------------------------------------------------------- the idea for Uber: one chapter at a time, one graphic each */
+    const scenes = IDEA.scenes;
+    const at = Math.max(0, Math.min(scenes.length - 1, app.ideaStep));
+    const sc = scenes[at];
+    const last = at === scenes.length - 1;
     body = (
       <div className="ub-idea">
-        <div className="ub-idea-try">
-          <p className="ub-kicker">The rider’s tablet. Try it</p>
-          <TabletDemo step={app.survey} onStep={app.setSurvey} />
-          <p className="ub-kicker">
-            The driver’s trip <span className="ub-idea-tag">{IDEA.notes.label}</span>
-          </p>
-          <TripMeter step={app.survey} />
-          <p className="ub-idea-note">
-            {IDEA.notes.fare}. {IDEA.notes.driver}.
-          </p>
+        <div className="ub-idea-tabs" role="tablist" aria-label="Chapters of the idea">
+          {scenes.map((x, i) => (
+            <button key={x.id} type="button" role="tab" aria-selected={i === at} className={i === at ? 'on' : i < at ? 'seen' : ''} onClick={() => app.setIdeaStep(i)}>
+              <i aria-hidden="true">{i + 1}</i>
+              {x.tab}
+            </button>
+          ))}
         </div>
-        <div className="ub-idea-say">
-          <p className="ub-kicker">{IDEA.kicker}</p>
-          <h3>{IDEA.line}</h3>
-          <p className="ub-idea-p">{part('The problem')}</p>
-          <p className="ub-idea-p">{part('The insight')}</p>
-          <FeeSplit />
-          {IDEA.research.length > 0 && (
-            <dl className="ub-idea-res">
-              {IDEA.research.map((r) => (
-                <div key={r.label}>
-                  <dd>{r.value}</dd>
-                  <dt>
-                    {r.label} <small>{r.source}</small>
-                  </dt>
-                </div>
-              ))}
-            </dl>
-          )}
-          {photo && (
-            <figure className="ub-idea-fig">
-              <span>
-                <Shot photo={photo} eager />
-              </span>
-              <figcaption>{IDEA.evidence.caption}</figcaption>
-            </figure>
-          )}
+        <div className="ub-idea-stage" key={sc.id} role="tabpanel" aria-label={sc.tab}>
+          <IdeaGraphic id={sc.id} survey={app.survey} onSurvey={app.setSurvey} />
+        </div>
+        <div className="ub-idea-foot" key={`t-${sc.id}`}>
+          <div>
+            <p className="ub-kicker">
+              {at + 1} of {scenes.length} · {IDEA.kicker}
+            </p>
+            <h3>{sc.title}</h3>
+            <p className="ub-idea-p">{sc.text}</p>
+            {sc.note && <p className="ub-idea-note">{sc.note}</p>}
+          </div>
+          <div className="ub-idea-nav">
+            {at > 0 && (
+              <button type="button" className="ub-link" onClick={() => app.setIdeaStep(at - 1)}>
+                Back
+              </button>
+            )}
+            {last ? (
+              <button type="button" className="ub-btn solid" onClick={reserve}>
+                Reserve Ram
+              </button>
+            ) : (
+              <button type="button" className="ub-btn solid" onClick={() => app.setIdeaStep(at + 1)}>
+                {scenes[at + 1].tab}
+                <Icon name="arrow" size={16} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );

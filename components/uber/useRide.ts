@@ -45,6 +45,8 @@ export function useRide() {
   const [project, setProject] = useState<TripId | null>(null);
   /** Where the visitor is in the sample survey on the idea page: 0 the ask, 1 to 3 the questions, 4 done, -1 declined. */
   const [survey, setSurvey] = useState(0);
+  /** The chapter of the idea page on show beside the phone. */
+  const [ideaStep, setIdeaStep] = useState(0);
   /** A ride started from a Home tile: when the car gets there, that place's details open by themselves. */
   const [arrive, setArrive] = useState<TripId | null>(null);
   /** Counts those rides, so the same place can be driven to twice. */
@@ -121,6 +123,7 @@ export function useRide() {
       if (id === 'idle-minutes') {
         setLookState(null);
         setSurvey(0);
+        setIdeaStep(0);
         setStack((st) => [...st.filter((sc) => sc.s === 'tab' || sc.s === 'search').slice(0, 2), { s: 'idea' }]);
         return;
       }
@@ -175,7 +178,7 @@ export function useRide() {
   const tripMode: Mode = screen.s === 'finding' || screen.s === 'details' ? screen.mode : mode;
 
   return {
-    stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, swapEnds, hot, setHot, look, setLook, peek, setPeek, project, setProject, survey, setSurvey, facet, setFacet, moves, step,
+    stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, swapEnds, hot, setHot, look, setLook, peek, setPeek, project, setProject, survey, setSurvey, ideaStep, setIdeaStep, facet, setFacet, moves, step,
     push, back, goTab, openSheet, closeSheet, ride, driveTo, landed, arrive, driveNo,
     where, onTrip, onJourney, journeyTrip, route, tripMode,
   };

@@ -479,7 +479,9 @@ export const TEARDOWN: { title: string; parts: { heading: string; text: string; 
  * The page for "The 20 idle minutes": a back-seat tablet the visitor can try, and what it does to one trip.
  * Every number is from the interview with Ram (ux-brief.md). The split and the trip are his illustration, and say so.
  * The survey questions are samples written for the demo: no real brand, no real data.
- * OWED: Ram's research on what brands pay (ad revenue by brand and format). Until he sends it, `research` stays empty and its section is not shown.
+ * The chapters (`scenes`) come from Ram's fifteen answers of 23 Nov 2026; his own labels (estimate, draft, illustration) are kept.
+ * OWED: TruCost revenue and response rates, the market-sizing sheet with its sources, and photos of the tablet in a cab.
+ * NOT SHOWN until Ram confirms: the "Uber policy" risk, since this page pitches the idea to Uber.
  */
 export const IDEA = {
   kicker: 'A concept by Ram. Not an Uber programme.',
@@ -512,9 +514,83 @@ export const IDEA = {
     ],
   },
   evidence: { caption: 'TruCost, where I ran in-cab tablet advertising. Drivers there got a share of the ad money.' },
+  /** Who is testing it today. Ram's answers of 23 Nov 2026: Paradox onboards drivers directly, and Uber is not part of that model. */
+  venture: 'Paradox',
+  testing: 'I am testing it independently as Paradox, my venture in the Venture Initiation Program at Masters’ Union.',
+  /**
+   * The assumptions behind the driver's month and the 1,000 cabs. All from Ram's answers; none is a measured result.
+   * The sums are done in IdeaGraphics.tsx from these, with one day count for both, so the page cannot disagree with itself.
+   */
+  model: { rides: 20, answerOneIn: 3, days: 26, cabs: 1000 },
+  /** The chapters of the page, one graphic each. `id` picks the graphic in IdeaGraphics.tsx. */
+  scenes: [
+    {
+      id: 'idle',
+      tab: 'Idle time',
+      title: 'A rider sits idle for about 20 minutes.',
+      text: 'Drivers cancel or ask for extra cash when the fare does not justify the distance. On the same trip, the rider in the back seat has about 20 free minutes, and brands pay for that attention.',
+      note: 'Survey length and the limit of two a ride are my estimates.',
+    },
+    {
+      id: 'tablet',
+      tab: 'The tablet',
+      title: 'A tablet in the back seat. Try it.',
+      text: 'It greets the rider by name, shows the trip, and offers a paid brand survey or an ad. The rider can mute it or switch it off. Answer the survey and watch the driver’s trip change.',
+      note: 'Sample questions, no real brand. The TruCost app already greets riders by name and shows ads.',
+    },
+    {
+      id: 'split',
+      tab: 'The money',
+      title: 'One survey pays ₹25. The driver gets ₹15.',
+      text: 'The brand pays for each completed survey. ₹15 goes to that driver, on that trip, and ₹10 stays with Paradox. On an 8 km trip that is 12% more for the driver, and the rider pays nothing extra.',
+      note: '₹25 was quoted to me by advertisers during TruCost deals. The split is my assumption. A driver I interviewed was keen even at ₹10.',
+    },
+    {
+      id: 'month',
+      tab: 'A driver’s month',
+      title: 'About ₹2,340 more a month for one driver.',
+      text: '20 rides a day. One rider in three answers, so 6 surveys a day at ₹15, over 26 working days. The driver pays a one-time setup fee of ₹500 to ₹1,000, and we install the tablet.',
+      note: 'My assumptions, not measured results. The setup fee range comes from driver interviews. A tablet costs about ₹6,000 to ₹8,000 (estimate).',
+    },
+    {
+      id: 'scale',
+      tab: '1,000 cabs',
+      title: 'At 1,000 cabs: 6,000 surveys a day.',
+      text: 'The same assumptions across 1,000 cabs. Drivers share ₹90,000 a day, and Paradox keeps ₹60,000, about ₹15.6L a month from surveys alone. Ads are on top: my target is ₹5,000 to ₹5,500 per cab per month.',
+      note: 'Illustration, not data. The ad figure is a target from my Phase 1 research, not revenue.',
+    },
+    {
+      id: 'pilot',
+      tab: 'The pilot',
+      title: 'First, 20 to 30 cabs in Gurugram.',
+      text: 'Four to six weeks with the most active drivers in TruCost’s network: 15 or more trips a day, rated 4.7 or higher. It has worked if 30% of riders answer, one brand orders again, and the drivers stay on.',
+      note: 'A draft plan.',
+    },
+    {
+      id: 'risks',
+      tab: 'Risks',
+      title: 'What could go wrong, and my answer.',
+      text: 'Four risks to design for from the first day.',
+      note: '',
+    },
+  ] as { id: IdeaSceneId; tab: string; title: string; text: string; note: string }[],
+  /** What the tablet shows. Games and offers come later, so they are not listed. */
+  onTablet: ['Greets the rider by name', 'Shows the trip', 'Paid brand surveys', 'Brand ads'],
+  optOut: 'Mute or switch off, any time',
+  /** Product proof only. Ram has not supplied revenue or response rates, so none are shown. */
+  proof: ['100 drivers onboarded at TruCost', 'Rider app live on the Play Store', 'Tablet app tied to each driver’s ID'],
+  firstDrivers: ['15+ trips a day', 'Rated 4.7+', 'TruCost’s network'],
+  success: ['30%+ of riders answer', 'One brand orders again', 'Drivers stay on'],
+  risks: [
+    { icon: 'bell', solid: false, risk: 'Riders find it annoying', answer: 'They can mute the screen or switch it off.' },
+    { icon: 'car', solid: true, risk: 'It distracts the driver', answer: 'The screen faces the rider only. The driver never touches it while driving.' },
+    { icon: 'person', solid: false, risk: 'Privacy', answer: 'Survey answers are anonymised.' },
+    { icon: 'box', solid: true, risk: 'A tablet is stolen or damaged', answer: 'The setup fee covers part of the cost.' },
+  ],
   /** Filled from Ram's research when he sends it. */
   research: [] as { value: string; label: string; source: string }[],
 };
+export type IdeaSceneId = 'idle' | 'tablet' | 'split' | 'month' | 'scale' | 'pilot' | 'risks';
 
 /* ------------------------------------------------------------------ the page around the phone */
 

@@ -1100,32 +1100,7 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
 .tm-total span { margin-left: 8px; padding: 3px 8px; border-radius: 6px; background: var(--u-positive); color: #ffffff; font-family: var(--u-ui); font-size: 12.5px; font-weight: 700; letter-spacing: 0; font-stretch: 100%; vertical-align: 8px; }
 .ub[data-theme='dark'] .tm.done .tm-bonus dd { color: #4ad98a; }
 
-.fs { display: flex; flex-direction: column; gap: 8px; }
-.fs-top { display: flex; align-items: baseline; gap: 10px; }
-.fs-top b { font-family: var(--u-display); font-size: 44px; line-height: 1; font-weight: 900; letter-spacing: -0.03em; font-stretch: 75%; }
-.fs-top span { font-size: 13px; line-height: 17px; color: var(--u-body); }
-.fs-bar { display: block; height: 12px; border-radius: 6px; background: var(--u-track); overflow: hidden; }
-.fs-bar i { display: block; height: 100%; background: var(--u-positive); }
-.fs-legend { display: flex; justify-content: space-between; gap: 12px; font-size: 13.5px; color: var(--u-body); }
-.fs-legend b { color: var(--u-text); font-weight: 700; }
-.fs-note { font-size: 12.5px; color: var(--u-text-2); }
 
-.ub-idea { flex: 1; min-height: 0; display: grid; grid-template-columns: 500px minmax(0, 1fr); gap: 44px; }
-.ub-idea-try { display: flex; flex-direction: column; gap: 12px; }
-.ub-idea-try .td { margin-bottom: 6px; }
-.ub-idea-tag { margin-left: 8px; padding: 2px 7px; border-radius: 5px; background: var(--u-surface); font-size: 11px; letter-spacing: 0.02em; text-transform: none; }
-.ub-idea-note { font-size: 12.5px; line-height: 18px; color: var(--u-text-2); }
-.ub-idea-say { display: flex; flex-direction: column; gap: 14px; min-height: 0; }
-.ub-idea-say h3 { font-family: var(--u-display); font-size: 44px; line-height: 0.96; font-weight: 900; letter-spacing: -0.035em; font-stretch: 75%; }
-.ub-idea-p { font-size: 15px; line-height: 22px; color: var(--u-body); }
-.ub-idea-say .fs { margin-top: 4px; padding-top: 14px; border-top: 1px solid var(--u-line); }
-.ub-idea-res { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding-top: 14px; border-top: 1px solid var(--u-line); }
-.ub-idea-res dd { font-family: var(--u-display); font-size: 30px; font-weight: 900; font-stretch: 75%; }
-.ub-idea-res dt { font-size: 13px; color: var(--u-body); }
-.ub-idea-res small { display: block; color: var(--u-text-2); }
-.ub-idea-fig { display: flex; gap: 12px; align-items: center; margin-top: auto; }
-.ub-idea-fig > span { position: relative; flex: none; width: 116px; height: 78px; border-radius: 10px; overflow: hidden; background: var(--u-surface); }
-.ub-idea-fig figcaption { font-size: 12.5px; line-height: 17px; color: var(--u-text-2); }
 
 /* the same page in the phone */
 .rp-prog { padding-top: 14px; display: flex; flex-direction: column; }
@@ -1154,4 +1129,194 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
 /* beside the panel the tablet is on the right, at full size */
 @media (min-width: 1024px) and (min-height: 560px) {
   .rp-prog-tab { display: none; }
+}
+
+/* ------------------------------------------------------------------ The 20 idle minutes: chapters, one graphic each */
+
+/* the panel: chapter tabs, a stage for the graphic, the words under it */
+.ub-idea { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 14px; }
+.ub-idea-tabs { flex: none; display: flex; gap: 6px; }
+.ub-idea-tabs button { flex: 1 1 auto; height: 40px; padding: 0 12px 0 6px; border-radius: 99px; background: var(--u-surface); display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 13px; font-weight: 600; color: var(--u-body); white-space: nowrap; transition: background 0.2s, color 0.2s; }
+.ub-idea-tabs button i { flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--u-bg); color: var(--u-text-2); display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 12px; font-weight: 700; }
+.ub-idea-tabs button:hover { color: var(--u-text); }
+.ub-idea-tabs button.seen i { background: var(--u-positive); color: #ffffff; }
+.ub-idea-tabs button.on { background: var(--u-primary); color: var(--u-on-primary); }
+.ub-idea-tabs button.on i { background: var(--u-accent); color: #ffffff; }
+.ub-idea-stage { flex: 1; min-height: 0; padding: 22px 30px; border-radius: 22px; background: var(--u-surface); display: flex; align-items: center; justify-content: center; overflow: hidden; animation: ub-rise 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+.ub-idea-stage .ig { max-width: 800px; }
+.ub-idea-stage .ig-idle, .ub-idea-stage .ig-month { gap: 30px; }
+.ub-idea-stage .ig-track { height: 120px; }
+.ub-idea-stage .ig-car { width: 58px; height: 58px; margin: -29px 0 0 -29px; }
+.ub-idea-stage .ig-slot { font-size: 14px; }
+.ub-idea-stage .ig-month .ig-chips { justify-content: center; }
+.ub-idea-stage .ig-flow { max-width: 560px; }
+.ub-idea-stage .ig-rlist { gap: 16px; }
+.ub-idea-stage .ig-rlist li { padding: 24px 22px; gap: 16px; }
+.ub-idea-stage .ig-rlist p { font-size: 15.5px; line-height: 22px; gap: 5px; }
+.ub-idea-stage .ig-rlist b { font-size: 20px; line-height: 24px; }
+.ub-idea-stage .ig-risk-ico { width: 52px; height: 52px; }
+.ub-idea-foot { flex: none; min-height: 168px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px; align-items: end; animation: ub-rise 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+.ub-idea-foot h3 { margin: 6px 0 8px; font-family: var(--u-display); font-size: 38px; line-height: 0.98; font-weight: 900; letter-spacing: -0.035em; font-stretch: 75%; }
+.ub-idea-p { max-width: 620px; font-size: 15px; line-height: 22px; color: var(--u-body); }
+.ub-idea-note { max-width: 620px; margin-top: 6px; font-size: 12.5px; line-height: 18px; color: var(--u-text-2); }
+.ub-idea-nav { display: flex; align-items: center; gap: 18px; padding-bottom: 2px; }
+
+/* the phone: the chapters as a list. Beside the panel they are its remote control; alone, each one carries its graphic */
+.rp-chaps { margin-top: 18px; padding: 0; list-style: none; display: flex; flex-direction: column; }
+.rp-chaps > li { padding: 14px 0; border-top: 1px solid var(--u-line); }
+.rp-chap { width: 100%; display: flex; align-items: flex-start; gap: 12px; text-align: left; }
+.rp-chap i { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--u-surface); display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 13px; font-weight: 700; color: var(--u-text-2); }
+.rp-chap span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.rp-chap small { font-size: 12.5px; font-weight: 600; color: var(--u-text-2); }
+.rp-chap b { font-size: 17px; line-height: 22px; font-weight: 700; letter-spacing: -0.01em; }
+.rp-chap-g { margin-top: 14px; padding: 16px 14px; border-radius: 16px; background: var(--u-surface); }
+.rp-chap-p { margin-top: 12px; font-size: 15px; line-height: 22px; color: var(--u-body); }
+.rp-chap-n { margin-top: 6px; font-size: 12.5px; line-height: 18px; color: var(--u-text-2); }
+@media (min-width: 1024px) and (min-height: 560px) {
+  .rp-chap-g, .rp-chap-p, .rp-chap-n { display: none; }
+  .rp-chaps > li { padding: 4px 0; }
+  .rp-chap { padding: 8px; border-radius: 12px; }
+  .rp-chap:hover { background: var(--u-surface); }
+  .rp-chap b { font-size: 15px; line-height: 20px; }
+  .rp-chaps > li.on .rp-chap { background: var(--u-surface); }
+  .rp-chaps > li.on .rp-chap i { background: var(--u-accent); color: #ffffff; }
+}
+
+/* the graphics. Each is drawn finished and animates in from hidden, so with no motion it is simply there */
+.ig { container-type: inline-size; width: 100%; display: flex; flex-direction: column; gap: 18px; --ig-good: var(--u-positive); --ig-card: var(--u-bg); }
+.ub[data-theme='dark'] .ig { --ig-good: #4ad98a; }
+@keyframes ig-pop { from { opacity: 0; transform: scale(0.5); } }
+@keyframes ig-up { from { opacity: 0; transform: translateY(8px); } }
+@keyframes ig-grow { from { transform: scaleX(0); } }
+.ig-cap { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--u-text-2); }
+
+.ig-nums { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 0 20px; }
+.ig-nums > div { display: flex; flex-direction: column; gap: 3px; padding-top: 10px; border-top: 2px solid var(--u-text); animation: ig-up 0.45s both; animation-delay: calc(var(--i) * 110ms + 250ms); }
+.ig-nums dd { font-family: var(--u-display); font-size: 38px; line-height: 1; font-weight: 900; letter-spacing: -0.03em; font-stretch: 75%; white-space: nowrap; }
+.ig-nums dt { font-size: 13px; line-height: 17px; color: var(--u-text-2); }
+.ig-nums .good dd { color: var(--ig-good); }
+
+.ig-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.ig-chips li { display: flex; align-items: center; gap: 6px; min-height: 32px; padding: 5px 12px; border-radius: 99px; background: var(--ig-card); font-size: 13px; font-weight: 600; color: var(--u-body); animation: ig-up 0.4s both; animation-delay: calc(var(--i) * 90ms + 350ms); }
+.ig-chips li svg { flex: none; color: var(--ig-good); }
+
+/* 1. the ride as a strip of time */
+.ig-trip-ends { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 13px; color: var(--u-text-2); }
+.ig-trip-ends b { font-size: 15px; font-weight: 700; color: var(--u-text); text-align: center; }
+.ig-track { position: relative; height: 76px; margin: 10px 0 6px; border-radius: 16px; background: repeating-linear-gradient(90deg, var(--u-tint) 0 24px, color-mix(in srgb, var(--u-tint) 70%, var(--ig-card)) 24px 48px); overflow: hidden; }
+.ig-track::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; border-top: 2px dashed var(--u-dash); }
+.ig-slot { position: absolute; z-index: 1; top: 10px; bottom: 10px; width: 12.5%; min-width: 62px; border-radius: 10px; background: var(--u-accent); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 700; transform-origin: left; animation: ig-grow 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.ig-slot.a { left: 20%; animation-delay: 0.5s; }
+.ig-slot.b { left: 55%; animation-delay: 0.9s; }
+.ig-car { position: absolute; z-index: 2; left: 78%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; background: var(--u-primary); color: var(--u-on-primary); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); animation: ig-drive 9s linear infinite; }
+@keyframes ig-drive { from { left: 4%; } to { left: 96%; } }
+.ig-ticks { display: flex; justify-content: space-between; font-size: 12px; color: var(--u-text-2); }
+
+/* 2. the tablet */
+.ig-tab { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 28px; align-items: center; }
+.ig-tab-side { display: flex; flex-direction: column; gap: 10px; }
+.ig-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 6px; }
+.ig-list li { display: flex; align-items: center; gap: 9px; font-size: 14.5px; font-weight: 600; color: var(--u-text); animation: ig-up 0.4s both; animation-delay: calc(var(--i) * 90ms + 200ms); }
+.ig-list li svg { flex: none; color: var(--ig-good); }
+.ig-list li.off { font-weight: 500; color: var(--u-body); }
+.ig-list li.off svg { color: var(--u-text-2); }
+.ig-tab .tm { grid-template-columns: minmax(0, 1fr); border-top: 1px solid var(--u-line); }
+.ig-tab .tm > div { flex-direction: row; justify-content: space-between; align-items: baseline; padding: 7px 0 0; }
+.ig-tab .tm dt { font-size: 13.5px; color: var(--u-body); }
+.ig-tab .tm dd, .ig-tab .tm-bonus dd, .ig-tab .tm.done .tm-bonus dd { font-family: var(--u-ui); font-size: 15px; line-height: 21px; font-weight: 700; letter-spacing: 0; font-stretch: 100%; }
+.ig-tab .tm-total dd { font-size: 19px; }
+.ig-tab .tm-total span { vertical-align: 2px; }
+
+/* 3. where the fee goes */
+.ig-flow { display: block; width: 100%; max-width: 620px; height: auto; margin: 0 auto; overflow: visible; }
+.ig-pipe { fill: none; stroke-linecap: round; opacity: 0.28; }
+.ig-pipe.driver { stroke: var(--ig-good); stroke-width: 22; }
+.ig-pipe.keep { stroke: var(--u-accent); stroke-width: 14; }
+.ig-coin { offset-rotate: 0deg; offset-distance: 100%; opacity: 0; animation: ig-coin 2.4s linear infinite; }
+.ig-coin.driver { fill: var(--ig-good); }
+.ig-coin.keep { fill: var(--u-accent); }
+@keyframes ig-coin { 0% { offset-distance: 0%; opacity: 0; } 8%, 88% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }
+.ig-node rect { fill: var(--ig-card); stroke: var(--u-line); stroke-width: 2; }
+.ig-node.driver rect { stroke: var(--ig-good); }
+.ig-node.keep rect { stroke: var(--u-accent); }
+.ig-node text { fill: var(--u-text-2); font-family: var(--u-ui); font-size: 20px; font-weight: 600; text-anchor: middle; }
+.ig-node text.big { fill: var(--u-text); font-family: var(--u-display); font-size: 40px; font-weight: 900; font-stretch: 75%; letter-spacing: -0.03em; }
+.ig-node.driver text.big { fill: var(--ig-good); }
+.ig-flow-cap { fill: var(--u-text-2); font-family: var(--u-ui); font-size: 17px; font-weight: 600; text-anchor: middle; }
+
+/* 4. a driver's month */
+.ig-sum { display: grid; grid-template-columns: minmax(0, 1.25fr) auto minmax(0, 0.9fr) auto minmax(0, 1.15fr) auto; gap: 14px; align-items: center; }
+.ig-sum-step { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.ig-sum-step p { display: flex; flex-direction: column; font-size: 13px; line-height: 17px; color: var(--u-text-2); }
+.ig-sum-step p b { font-size: 15px; line-height: 20px; font-weight: 700; color: var(--u-text); }
+.ig-sum-step .ig-eq { flex-direction: row; align-items: baseline; gap: 6px; font-size: 20px; line-height: 1; color: var(--u-text-2); }
+.ig-sum-step .ig-eq b { font-family: var(--u-display); font-size: 40px; line-height: 1; font-weight: 900; font-stretch: 75%; letter-spacing: -0.03em; }
+.ig-sum-op { color: var(--u-text-2); display: flex; }
+.ig-dots { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 5px; }
+.ig-dots i { aspect-ratio: 1; border-radius: 50%; background: var(--u-track); animation: ig-pop 0.35s both; animation-delay: calc(var(--i) * 45ms); }
+.ig-dots i.on { background: var(--ig-good); }
+.ig-cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.ig-cal i { aspect-ratio: 1.25; border-radius: 4px; background: color-mix(in srgb, var(--ig-good) 55%, var(--ig-card)); animation: ig-pop 0.3s both; animation-delay: calc(var(--i) * 45ms + 900ms); }
+.ig-sum-total { display: flex; flex-direction: column; align-items: flex-start; padding: 14px 18px; border-radius: 16px; background: var(--ig-good); color: #ffffff; animation: ig-pop 0.5s cubic-bezier(0.22, 1.4, 0.36, 1) both; animation-delay: 2.2s; }
+.ub[data-theme='dark'] .ig-sum-total { color: #06210f; }
+.ig-sum-total b { font-family: var(--u-display); font-size: 46px; line-height: 1; font-weight: 900; font-stretch: 75%; letter-spacing: -0.03em; white-space: nowrap; }
+.ig-sum-total span { font-size: 13.5px; font-weight: 600; }
+
+/* 5. 1,000 cabs */
+.ig-fleet { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 34px; align-items: center; }
+.ig-fleet-map { display: flex; flex-direction: column; gap: 10px; }
+.ig-field { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; }
+.ig-field i { aspect-ratio: 1; border-radius: 50%; background: var(--u-accent); animation: ig-pop 0.35s both; animation-delay: calc(var(--i) * 14ms); }
+.ig-fleet-side { display: flex; flex-direction: column; gap: 16px; }
+.ig-fleet .ig-nums { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; }
+.ig-plus { display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; border-radius: 12px; border: 1px dashed var(--u-dash); font-size: 13.5px; line-height: 19px; color: var(--u-body); }
+.ig-plus svg { flex: none; margin-top: 2px; color: var(--u-accent); }
+.ig-plus b { color: var(--u-text); }
+
+/* 6. the pilot */
+.ig-plan { display: flex; flex-direction: column; gap: 16px; }
+.ig-pilot-row { display: flex; flex-direction: column; gap: 8px; }
+.ig-cabs { display: grid; grid-template-columns: repeat(15, minmax(0, 1fr)); gap: 6px; }
+.ig-cabs i { aspect-ratio: 1; max-height: 40px; border-radius: 10px; background: var(--u-primary); color: var(--u-on-primary); display: flex; align-items: center; justify-content: center; animation: ig-pop 0.35s both; animation-delay: calc(var(--i) * 35ms); }
+.ig-cabs i svg { width: 62%; height: 62%; }
+.ig-cabs i.maybe { background: none; color: var(--u-text-2); box-shadow: inset 0 0 0 1.5px var(--u-dash); }
+.ig-weeks { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+.ig-weeks span { height: 34px; border-radius: 8px; background: var(--u-accent); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 700; transform-origin: left; animation: ig-grow 0.4s both; animation-delay: calc(var(--i) * 60ms + 500ms); }
+.ig-weeks span.maybe { background: none; color: var(--u-text-2); box-shadow: inset 0 0 0 1.5px var(--u-dash); }
+.ig-pilot-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.ig-pilot-cols > div { display: flex; flex-direction: column; gap: 8px; }
+
+/* 7. risks */
+.ig-rlist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.ig-rlist li { display: flex; gap: 12px; padding: 16px; border-radius: 16px; background: var(--ig-card); animation: ig-up 0.45s both; animation-delay: calc(var(--i) * 40ms); }
+.ig-risk-ico { flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--u-tint); color: var(--u-tint-ink); display: flex; align-items: center; justify-content: center; }
+.ig-rlist p { display: flex; flex-direction: column; gap: 3px; font-size: 14px; line-height: 20px; color: var(--u-body); }
+.ig-rlist b { font-size: 15.5px; font-weight: 700; color: var(--u-text); }
+
+/* the same graphics in a narrow column: the phone on its own */
+@container (max-width: 520px) {
+  .ig-nums { grid-auto-flow: row; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .ig-nums > div { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 12px; padding-top: 8px; border-top-width: 1px; border-top-color: var(--u-line); }
+  .ig-nums dd { font-size: 26px; order: 2; }
+  .ig-nums dt { font-size: 14px; }
+  .ig-trip-ends b { font-size: 13.5px; }
+  .ig-slot { font-size: 0; min-width: 0; }
+  .ig-tab { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .ig-sum { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .ig-sum-op { transform: rotate(90deg); justify-content: center; }
+  .ig-dots { gap: 6px; max-width: 280px; }
+  .ig-cal { max-width: 220px; }
+  .ig-sum-total { align-items: center; flex-direction: row; gap: 10px; align-items: baseline; }
+  .ig-sum-total b { font-size: 36px; }
+  .ig-fleet { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .ig-field { max-width: 240px; gap: 5px; }
+  .ig-fleet .ig-nums { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .ig-cabs { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+  .ig-weeks span { font-size: 0; }
+  .ig-weeks span::after { content: ''; }
+  .ig-pilot-cols { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .ig-rlist { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ig *, .ub-idea-stage, .ub-idea-foot { animation: none !important; }
 }

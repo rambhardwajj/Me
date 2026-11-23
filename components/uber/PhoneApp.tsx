@@ -41,7 +41,10 @@ import {
 import LifeMap, { routeBetween } from './LifeMap';
 import { Icon, Pict, Solid } from './icons';
 import Mark from './Mark';
-import { SURVEY_DONE, TabletDemo, TripMeter } from './TabletDemo';
+import { IdeaGraphic } from './IdeaGraphics';
+
+/** The parts of the written teardown that the chapters do not already cover. */
+const IDEA_MORE = ['What I saw', 'Why me', 'What exists already'];
 import type { HomeTab, Mode, Ride, Sheet, Tab } from './useRide';
 import { PORTRAIT, stopPhoto, tripPhotos, type Photo } from '@/lib/uber-photos';
 
@@ -942,37 +945,35 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
         <p className="rp-kicker">{IDEA.kicker}</p>
         <h2>{IDEA.line}</h2>
         <p className="rp-prog-p">{IDEA.pitch}</p>
+        <p className="rp-prog-hint">{IDEA.testing}</p>
 
-        <div className="rp-prog-tab">
-          <h3 className="rp-h3">The rider’s tablet. Try it</h3>
-          <TabletDemo step={app.survey} onStep={app.setSurvey} />
-        </div>
+        <ol className="rp-chaps">
+          {IDEA.scenes.map((sc, i) => (
+            <li key={sc.id} className={i === app.ideaStep ? 'on' : ''}>
+              <button type="button" className="rp-chap" aria-current={i === app.ideaStep ? 'step' : undefined} onClick={() => app.setIdeaStep(i)}>
+                <i aria-hidden="true">{i + 1}</i>
+                <span>
+                  <small>{sc.tab}</small>
+                  <b>{sc.title}</b>
+                </span>
+              </button>
+              <div className="rp-chap-g">
+                <IdeaGraphic id={sc.id} survey={app.survey} onSurvey={app.setSurvey} />
+              </div>
+              <p className="rp-chap-p">{sc.text}</p>
+              {sc.note && <p className="rp-chap-n">{sc.note}</p>}
+            </li>
+          ))}
+        </ol>
 
-        <h3 className="rp-h3">
-          The driver’s phone
-          <span className="rp-tag grey">{IDEA.notes.label}</span>
-        </h3>
-        <div className={`rp-drv ${app.survey === SURVEY_DONE ? 'done' : ''}`}>
-          <p className="rp-drv-top">
-            <Solid name="car" />
-            <span>
-              <b>{app.survey === SURVEY_DONE ? 'Bonus added to this trip' : 'Trip in progress'}</b>
-              <small>{app.survey === SURVEY_DONE ? 'Your rider answered the survey' : app.survey === -1 ? 'Your rider skipped the survey' : app.survey > 0 ? 'Your rider is answering the survey' : 'A survey is waiting on the back-seat tablet'}</small>
-            </span>
-          </p>
-          <TripMeter step={app.survey} />
-        </div>
-        <p className="rp-prog-hint">{IDEA.notes.fare}. {IDEA.notes.driver}.</p>
-
-        {TEARDOWN.parts.map((p) => (
-          <section key={p.heading} className="rp-prog-part">
-            <h3>
-              {p.heading}
-              {p.label && <span className="rp-tag grey">{p.label}</span>}
-            </h3>
-            <p>{p.text}</p>
-          </section>
-        ))}
+        {TEARDOWN.parts
+          .filter((p) => IDEA_MORE.includes(p.heading))
+          .map((p) => (
+            <section key={p.heading} className="rp-prog-part">
+              <h3>{p.heading}</h3>
+              <p>{p.text}</p>
+            </section>
+          ))}
 
         {ideaPhoto && (
           <figure className="rp-prog-fig">
