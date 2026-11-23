@@ -10,9 +10,12 @@ import type { Trip, TripId } from './uber';
  * - Newral: Sector 62, Noida. An area, not a building, so it is marked `area`.
  * - St. Dominic's School: Basantar Marg, Mathura Cantt (CBSE record). Placed at the city, marked `area`.
  *
+ * From Ram, 23 Nov 2026:
+ * - Ciena: its India office is Tower 04, India Intellion Park, near Sector 59, Gurugram (he worked remotely). Placed at Sector 59, marked `area`.
+ * - TruCost: based in Delhi. No address, so it is placed at the city, marked `area`.
+ * - Super 30 Hacker House (100xSchool): a residential campus in Noida. No address, so it is placed at the city, marked `area`.
+ *
  * Not here, so these rides stay on the drawn road:
- * - Ciena: no Gurugram office address confirmed from Ciena itself.
- * - TruCost and Super 30 Hacker House: Ram has not said where they were.
  * - Masters' Union as a destination: the ride would start and end at the same place.
  * - Anything that is not a place (LeetCase, unBothrrd, dance) and any ride that tells stops on the way (Ram's story, Full story).
  */
@@ -26,6 +29,9 @@ const GEO: Partial<Record<TripId, GeoPlace>> = {
   amity: { lng: 77.3327, lat: 28.5432, city: 'Noida' },
   newral: { lng: 77.3643, lat: 28.6211, city: 'Noida', area: true },
   'st-dominics': { lng: 77.6856, lat: 27.4956, city: 'Mathura', area: true },
+  ciena: { lng: 77.1067, lat: 28.403, city: 'Gurugram', area: true },
+  trucost: { lng: 77.209, lat: 28.6139, city: 'Delhi', area: true },
+  'super-30': { lng: 77.3272, lat: 28.5706, city: 'Noida', area: true },
 };
 
 /** The real place a ride ends at, when the whole ride is one leg from "Ram, today" to a place with a known address. */
