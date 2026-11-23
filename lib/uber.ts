@@ -481,13 +481,13 @@ export const TEARDOWN: { title: string; parts: { heading: string; text: string; 
  * The survey questions are samples written for the demo: no real brand, no real data.
  * The chapters (`scenes`) come from Ram's fifteen answers of 23 Nov 2026; his own labels (estimate, draft, illustration) are kept.
  * OWED: TruCost revenue and response rates, the market-sizing sheet with its sources, and photos of the tablet in a cab.
- * NOT SHOWN until Ram confirms: the "Uber policy" risk, since this page pitches the idea to Uber.
+ * NOT SHOWN: the "Uber policy" risk from his answers. It belonged to the independent version, and Uber runs this one.
  */
 export const IDEA = {
   kicker: 'A concept by Ram. Not an Uber programme.',
   title: 'The 20 idle minutes',
   line: 'Let riders top up their driver’s earnings.',
-  pitch: 'A back-seat tablet shows a short brand survey. When the rider completes it, most of the fee goes to that driver, on that trip.',
+  pitch: 'A driver programme I would build at Uber. A back-seat tablet from Uber shows a short brand survey. When the rider completes it, most of the fee goes to that driver, on that trip.',
   /** Rupees. The fee is what advertisers quoted Ram at TruCost. The driver's share and the trip are his illustration. */
   fee: 25,
   driver: 15,
@@ -514,9 +514,11 @@ export const IDEA = {
     ],
   },
   evidence: { caption: 'TruCost, where I ran in-cab tablet advertising. Drivers there got a share of the ad money.' },
-  /** Who is testing it today. Ram's answers of 23 Nov 2026: Paradox onboards drivers directly, and Uber is not part of that model. */
-  venture: 'Paradox',
-  testing: 'I am testing it independently as Paradox, my venture in the Venture Initiation Program at Masters’ Union.',
+  /**
+   * Who runs it and keeps the rest of the fee. Ram, 23 Nov 2026: this is a programme Uber should run for its drivers, not an independent venture.
+   * His fifteen answers were written for Paradox (his venture); the numbers are kept, with Uber in Paradox's place.
+   */
+  venture: 'Uber',
   /**
    * The assumptions behind the driver's month and the 1,000 cabs. All from Ram's answers; none is a measured result.
    * The sums are done in IdeaGraphics.tsx from these, with one day count for both, so the page cannot disagree with itself.
@@ -542,28 +544,28 @@ export const IDEA = {
       id: 'split',
       tab: 'The money',
       title: 'One survey pays ₹25. The driver gets ₹15.',
-      text: 'The brand pays for each completed survey. ₹15 goes to that driver, on that trip, and ₹10 stays with Paradox. On an 8 km trip that is 12% more for the driver, and the rider pays nothing extra.',
+      text: 'The brand pays for each completed survey. ₹15 goes to that driver, on that trip, and ₹10 stays with Uber. On an 8 km trip that is 12% more for the driver, and the rider pays nothing extra.',
       note: '₹25 was quoted to me by advertisers during TruCost deals. The split is my assumption. A driver I interviewed was keen even at ₹10.',
     },
     {
       id: 'month',
       tab: 'A driver’s month',
       title: 'About ₹2,340 more a month for one driver.',
-      text: '20 rides a day. One rider in three answers, so 6 surveys a day at ₹15, over 26 working days. The driver pays a one-time setup fee of ₹500 to ₹1,000, and we install the tablet.',
+      text: '20 rides a day. One rider in three answers, so 6 surveys a day at ₹15, over 26 working days. The driver pays a one-time setup fee of ₹500 to ₹1,000, and Uber installs the tablet.',
       note: 'My assumptions, not measured results. The setup fee range comes from driver interviews. A tablet costs about ₹6,000 to ₹8,000 (estimate).',
     },
     {
       id: 'scale',
       tab: '1,000 cabs',
       title: 'At 1,000 cabs: 6,000 surveys a day.',
-      text: 'The same assumptions across 1,000 cabs. Drivers share ₹90,000 a day, and Paradox keeps ₹60,000, about ₹15.6L a month from surveys alone. Ads are on top: my target is ₹5,000 to ₹5,500 per cab per month.',
+      text: 'The same assumptions across 1,000 cabs. Drivers share ₹90,000 a day, and Uber keeps ₹60,000, about ₹15.6L a month from surveys alone. Ads are on top: my target is ₹5,000 to ₹5,500 per cab per month.',
       note: 'Illustration, not data. The ad figure is a target from my Phase 1 research, not revenue.',
     },
     {
       id: 'pilot',
       tab: 'The pilot',
       title: 'First, 20 to 30 cabs in Gurugram.',
-      text: 'Four to six weeks with the most active drivers in TruCost’s network: 15 or more trips a day, rated 4.7 or higher. It has worked if 30% of riders answer, one brand orders again, and the drivers stay on.',
+      text: 'Four to six weeks with the most active drivers: 15 or more trips a day, rated 4.7 or higher. It has worked if 30% of riders answer, one brand orders again, and the drivers stay on.',
       note: 'A draft plan.',
     },
     {
@@ -579,7 +581,7 @@ export const IDEA = {
   optOut: 'Mute or switch off, any time',
   /** Product proof only. Ram has not supplied revenue or response rates, so none are shown. */
   proof: ['100 drivers onboarded at TruCost', 'Rider app live on the Play Store', 'Tablet app tied to each driver’s ID'],
-  firstDrivers: ['15+ trips a day', 'Rated 4.7+', 'TruCost’s network'],
+  firstDrivers: ['15+ trips a day', 'Rated 4.7+', 'The most active first'],
   success: ['30%+ of riders answer', 'One brand orders again', 'Drivers stay on'],
   risks: [
     { icon: 'bell', solid: false, risk: 'Riders find it annoying', answer: 'They can mute the screen or switch it off.' },

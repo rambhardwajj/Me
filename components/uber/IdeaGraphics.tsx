@@ -211,7 +211,7 @@ function Month() {
           <span>more a month</span>
         </div>
       </div>
-      <Chips items={['Setup fee: ₹500 to ₹1,000, once', 'We install the tablet', 'The rider pays nothing']} />
+      <Chips items={['Setup fee: ₹500 to ₹1,000, once', 'Uber installs the tablet', 'The rider pays nothing']} />
     </>
   );
 }

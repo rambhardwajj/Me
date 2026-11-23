@@ -945,7 +945,6 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
         <p className="rp-kicker">{IDEA.kicker}</p>
         <h2>{IDEA.line}</h2>
         <p className="rp-prog-p">{IDEA.pitch}</p>
-        <p className="rp-prog-hint">{IDEA.testing}</p>
 
         <ol className="rp-chaps">
           {IDEA.scenes.map((sc, i) => (
