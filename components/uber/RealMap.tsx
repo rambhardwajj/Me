@@ -12,7 +12,9 @@ import { useDriveClock } from './useDriveClock';
  * The streets are OpenStreetMap data, drawn by MapLibre from OpenFreeMap's tiles (free, no key; their attribution stays on the map).
  * The camera, the route, the pins and the car are worked out here in plain Web Mercator, and the street map is only told where to look.
  * So if the tiles or the library never load, the ride still runs on a plain background, and the car always arrives.
- * The route is an arc, not a road route: no distance or driving time is claimed.
+ * The route is a real road route when one is given (see realRoute in lib/uber-geo.ts), and a plain arc otherwise.
+ * The events of the place are spaced along it in the order they happened, so the car passes them on the way:
+ * their spots on the road are a timeline, not locations. No distance or driving time is shown.
  */
 
 const STYLE = { light: 'https://tiles.openfreemap.org/styles/positron', dark: 'https://tiles.openfreemap.org/styles/dark' };
@@ -51,6 +53,12 @@ function useTheme(el: React.RefObject<HTMLElement | null>): 'light' | 'dark' {
 type Props = {
   to: GeoPlace;
   name: string;
+  /** The road to follow, as [lng, lat] points. Without it the route is an arc. */
+  route?: [number, number][] | null;
+  /** What happened at this place, in order. Each is a dot on the way; the car passes them one by one. */
+  events?: { id: string; name: string }[];
+  /** The car has just passed the event at this index. */
+  onPass?: (i: number) => void;
   /** The logo or pictogram on the destination pin. */
   mark?: ReactNode;
   /** Space covered by other things (a sheet, a dock), kept clear of the route. */
@@ -63,14 +71,15 @@ type Props = {
   reducedMotion?: boolean;
 };
 
-export default function RealMap({ to, name, mark, pad = {}, drive = null, paused, skip, onDone, dock, reducedMotion }: Props) {
+export default function RealMap({ to, name, route, events = [], onPass, mark, pad = {}, drive = null, paused, skip, onDone, dock, reducedMotion }: Props) {
   const box = useRef<HTMLDivElement>(null);
   const glBox = useRef<HTMLDivElement>(null);
   const map = useRef<GlMap | null>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [ready, setReady] = useState(false);
   const theme = useTheme(box);
-  const p = useDriveClock(drive, reducedMotion ? 0 : 6000, { paused, skip, onDone });
+  // long enough to read each event as it goes by
+  const p = useDriveClock(drive, reducedMotion ? 0 : Math.min(13000, Math.max(6000, (events.length + 1) * 1900)), { paused, skip, onDone });
 
   useLayoutEffect(() => {
     const el = box.current;
@@ -84,7 +93,7 @@ export default function RealMap({ to, name, mark, pad = {}, drive = null, paused
   }, []);
 
   // the camera: both ends and the arc between them, inside the space that nothing covers
-  const pts = arc(GEO_HOME, to);
+  const pts = route && route.length > 1 ? route.map(([lng, lat]) => merc({ lng, lat })) : arc(GEO_HOME, to);
   const xs = pts.map((q) => q.x);
   const ys = pts.map((q) => q.y);
   const bx = { lo: Math.min(...xs), hi: Math.max(...xs) };
@@ -144,17 +153,39 @@ export default function RealMap({ to, name, mark, pad = {}, drive = null, paused
     styled.current = theme;
   }, [theme, ready]);
 
-  // the route and the car
-  const line = (upTo: number) => {
-    const last = Math.max(1, Math.round(upTo * (pts.length - 1)));
-    return pts.slice(0, last + 1).map((q, i) => `${i ? 'L' : 'M'}${sx(q).toFixed(1)} ${sy(q).toFixed(1)}`).join('');
+  // the route and the car: positions are measured by distance along the road, so the car keeps one speed
+  const run: number[] = [0];
+  for (let i = 1; i < pts.length; i++) run.push(run[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y));
+  const total = run[run.length - 1] || 1;
+  const spot = (frac: number) => {
+    const d = Math.max(0, Math.min(1, frac)) * total;
+    let i = 1;
+    while (i < pts.length - 1 && run[i] < d) i++;
+    const t = (d - run[i - 1]) / (run[i] - run[i - 1] || 1);
+    return { i, x: pts[i - 1].x + (pts[i].x - pts[i - 1].x) * t, y: pts[i - 1].y + (pts[i].y - pts[i - 1].y) * t };
   };
-  const f = p * (pts.length - 1);
-  const i0 = Math.max(0, Math.min(pts.length - 2, Math.floor(f)));
-  const a = pts[i0];
-  const b = pts[i0 + 1];
-  const car = { x: sx(a) + (sx(b) - sx(a)) * (f - i0), y: sy(a) + (sy(b) - sy(a)) * (f - i0) };
-  const turn = (Math.atan2(sy(b) - sy(a), sx(b) - sx(a)) * 180) / Math.PI;
+  const line = (upTo: number) => {
+    const end = spot(upTo);
+    return [...pts.slice(0, end.i), end].map((q, i) => `${i ? 'L' : 'M'}${sx(q).toFixed(1)} ${sy(q).toFixed(1)}`).join('');
+  };
+  const here = spot(p);
+  const car = { x: sx(here), y: sy(here) };
+  // the heading looks a little ahead, so the car turns smoothly through a bend
+  const ahead = spot(Math.min(1, p + 0.012));
+  const behind = spot(Math.max(0, p - 0.012));
+  const turn = (Math.atan2(sy(ahead) - sy(behind), sx(ahead) - sx(behind)) * 180) / Math.PI;
+  // the events, evenly spaced on the way, with the place itself at the end
+  const marks = events.map((e, i) => ({ ...e, at: (i + 1) / (events.length + 1) }));
+  const passed = drive ? marks.filter((m) => m.at <= p + 0.0005).length : marks.length;
+  const told = useRef(0);
+  const tell = useRef(onPass);
+  useEffect(() => {
+    tell.current = onPass;
+  });
+  useEffect(() => {
+    if (drive && passed > 0 && passed !== told.current) tell.current?.(passed - 1);
+    told.current = passed;
+  }, [passed, drive]);
   const driving = !!drive && p < 1;
   const A = pts[0];
   const B = pts[pts.length - 1];
@@ -173,6 +204,15 @@ export default function RealMap({ to, name, mark, pad = {}, drive = null, paused
             <circle className="lm-you-halo" cx={sx(A)} cy={sy(A)} r={20} />
             <circle className="lm-you" cx={sx(A)} cy={sy(A)} r={8} />
             {to.area && <circle className="rm-area" cx={sx(B)} cy={sy(B)} r={30} />}
+            {marks.map((m, i) => {
+              const q = spot(m.at);
+              return (
+                <g key={m.id} className={`rm-ev ${i < passed ? 'on' : ''}`} transform={`translate(${sx(q)} ${sy(q)})`}>
+                  <circle r={11} />
+                  <text y={4}>{i + 1}</text>
+                </g>
+              );
+            })}
             {driving && (
               <g className="lm-carbox" transform={`translate(${car.x} ${car.y})`}>
                 <circle className="lm-car-glow" r={26} />
@@ -195,6 +235,11 @@ export default function RealMap({ to, name, mark, pad = {}, drive = null, paused
           <span className="rm-here" style={{ left: sx(A), top: sy(A) }} aria-hidden="true">
             Ram, today · {GEO_HOME.city}
           </span>
+          {driving && passed > 0 && (
+            <span className="rm-ev-tag" style={{ left: sx(spot(marks[passed - 1].at)), top: sy(spot(marks[passed - 1].at)) }} aria-hidden="true">
+              {marks[passed - 1].name}
+            </span>
+          )}
           <span className={`rm-pin ${tagLeft ? 'left' : ''}`} style={{ left: sx(B), top: sy(B) }} aria-hidden="true">
             <i>{mark}</i>
             <span>

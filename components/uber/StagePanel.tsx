@@ -37,7 +37,7 @@ import { Icon } from './icons';
 import Mark from './Mark';
 import { IdeaGraphic } from './IdeaGraphics';
 import RealMap from './RealMap';
-import { GEO_HOME, realLeg } from '@/lib/uber-geo';
+import { GEO_HOME, realLeg, realRoute } from '@/lib/uber-geo';
 import type { Ride } from './useRide';
 
 /** The reroute note shown above the first stop after a turn in the road. */
@@ -235,7 +235,22 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
     let pop: ReactNode = null;
     // one leg to a place with a real address is drawn on a real street map; a ride that tells stops on the way keeps the drawn road
     const leg = onTrip && !(inDetails && tripMode === 'full') ? realLeg(onTrip) : null;
-    if (leg && quick && !arrived) {
+    const legEvents = leg && onTrip ? ownStops(onTrip) : [];
+    if (leg && quick && !arrived && passing) {
+      // on a real road, driving: the event the car has just passed
+      const n = legEvents.findIndex((x) => x.id === passing.id) + 1;
+      const tell = stopStory(passing.id);
+      side = (
+        <Brief label={`Now passing · ${n} of ${legEvents.length}`} bar={n / (legEvents.length + 1)} photo={stopPhoto(passing.id)} meta={when(passing)} name={tell.title} text={tell.body ? firstSentence(tell.body) : undefined}>
+          <button type="button" className="ub-link" onClick={() => setPausedKey(paused ? '' : (driveKey ?? ''))} aria-pressed={paused}>
+            {paused ? 'Resume' : 'Pause'}
+          </button>
+          <button type="button" className="ub-link" onClick={() => driveKey && setSkip(driveKey)}>
+            Skip to the end
+          </button>
+        </Brief>
+      );
+    } else if (leg && quick && !arrived) {
       side = (
         <Brief label="On the way" photo={tripPhotos(onTrip!.id)[0]} meta={`${GEO_HOME.city} to ${leg.city}`} name={onTrip!.name} text={onTrip!.blurb}>
           <button type="button" className="ub-link" onClick={() => setPausedKey(paused ? '' : (driveKey ?? ''))} aria-pressed={paused}>
@@ -332,7 +347,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
       <div className="ub-three">
         <div className="ub-mapbox">
           {leg && onTrip ? (
-            <RealMap to={leg} name={onTrip.name} mark={<Mark id={onTrip.id} size={30} />} dock={side} pad={side ? { left: 300 } : undefined} drive={driveKey} paused={paused} skip={skip} onDone={landed} reducedMotion={reducedMotion} />
+            <RealMap to={leg} name={onTrip.name} route={realRoute(onTrip)} events={legEvents.map((e) => ({ id: e.id, name: stopStory(e.id).title }))} onPass={(i) => driveKey && legEvents[i] && setPass({ key: driveKey, stop: legEvents[i].id })} mark={<Mark id={onTrip.id} size={30} />} dock={side} pad={side ? { left: 300 } : undefined} drive={driveKey} paused={paused} skip={skip} onDone={landed} reducedMotion={reducedMotion} />
           ) : (
             <LifeMap
               from={mapFrom}

@@ -43,7 +43,7 @@ import { Icon, Pict, Solid } from './icons';
 import Mark from './Mark';
 import { IdeaGraphic } from './IdeaGraphics';
 import RealMap from './RealMap';
-import { realLeg } from '@/lib/uber-geo';
+import { realLeg, realRoute } from '@/lib/uber-geo';
 
 /** The parts of the written teardown that the chapters do not already cover. */
 const IDEA_MORE = ['What I saw', 'Why me', 'What exists already'];
@@ -609,7 +609,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
     return (
       <div className="rp-map">
         {leg ? (
-          <RealMap to={leg} name={t.name} mark={<Mark id={t.id} size={26} />} pad={{ top, bottom: covered }} reducedMotion={reducedMotion} />
+          <RealMap to={leg} name={t.name} route={realRoute(t)} events={STOPS.filter((x) => x.type !== 'you' && x.trip === t.id)} mark={<Mark id={t.id} size={26} />} pad={{ top, bottom: covered }} reducedMotion={reducedMotion} />
         ) : (
           <LifeMap from={t.from} to={t.to} pad={{ top, bottom: covered }} hot={app.hot} searching={screen.s === 'finding'} reducedMotion={reducedMotion} />
         )}

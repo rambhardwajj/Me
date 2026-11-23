@@ -1,4 +1,5 @@
 import type { Trip, TripId } from './uber';
+import ROUTES from './uber-routes.json';
 
 /**
  * Real places, for the rides that are drawn on a real street map.
@@ -37,4 +38,13 @@ const GEO: Partial<Record<TripId, GeoPlace>> = {
 /** The real place a ride ends at, when the whole ride is one leg from "Ram, today" to a place with a known address. */
 export function realLeg(t: Trip): GeoPlace | null {
   return t.from === 'you' ? (GEO[t.id] ?? null) : null;
+}
+
+/**
+ * The road from Masters' Union to each place, as [lng, lat] points: real driving routes over OpenStreetMap roads,
+ * worked out once with OSRM (router.project-osrm.org) on 23 Nov 2026, thinned, and saved in uber-routes.json.
+ * Nothing is asked of a routing service when the page runs. A new place needs its route added to that file.
+ */
+export function realRoute(t: Trip): [number, number][] | null {
+  return (ROUTES as unknown as Record<string, [number, number][]>)[t.id] ?? null;
 }
