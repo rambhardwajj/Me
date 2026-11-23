@@ -36,6 +36,8 @@ import LifeMap, { routeBetween } from './LifeMap';
 import { Icon } from './icons';
 import Mark from './Mark';
 import { IdeaGraphic } from './IdeaGraphics';
+import RealMap from './RealMap';
+import { GEO_HOME, realLeg } from '@/lib/uber-geo';
 import type { Ride } from './useRide';
 
 /** The reroute note shown above the first stop after a turn in the road. */
@@ -231,7 +233,20 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
     // what is docked on the map (a ride or a story in progress), and what opens beside a place being pointed at
     let side: ReactNode = null;
     let pop: ReactNode = null;
-    if (quick && !arrived) {
+    // one leg to a place with a real address is drawn on a real street map; a ride that tells stops on the way keeps the drawn road
+    const leg = onTrip && !(inDetails && tripMode === 'full') ? realLeg(onTrip) : null;
+    if (leg && quick && !arrived) {
+      side = (
+        <Brief label="On the way" photo={tripPhotos(onTrip!.id)[0]} meta={`${GEO_HOME.city} to ${leg.city}`} name={onTrip!.name} text={onTrip!.blurb}>
+          <button type="button" className="ub-link" onClick={() => setPausedKey(paused ? '' : (driveKey ?? ''))} aria-pressed={paused}>
+            {paused ? 'Resume' : 'Pause'}
+          </button>
+          <button type="button" className="ub-link" onClick={() => driveKey && setSkip(driveKey)}>
+            Skip to the end
+          </button>
+        </Brief>
+      );
+    } else if (quick && !arrived) {
       // Quick ride, driving: the stop the car is passing
       const s = passing ?? stops[0];
       const n = stops.findIndex((x) => x.id === s.id) + 1;
@@ -307,41 +322,51 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
       pop = <PlaceCard s={ps} onDetails={setProject} onRide={onTrip?.id !== ps.trip ? ride : undefined} />;
     }
 
+    const landed = () => {
+      if (!driveKey) return;
+      setDone(driveKey);
+      // a ride started from a tile ends with what Ram did there, opened at full size
+      if (onTrip && app.arrive === onTrip.id) app.landed(onTrip.id);
+    };
     body = (
       <div className="ub-three">
         <div className="ub-mapbox">
-          <LifeMap
-            from={mapFrom}
-            to={mapTo}
-            carAt={carAt}
-            hoverCard={pop}
-            dock={side}
-            pad={side ? { left: 300 } : undefined}
-            detail
-            controls
-            fit="all"
-            noBadge={browsing}
-            hot={hot}
-            onHot={setHot}
-            onPick={(id) => setProject(stop(id).trip)}
-            drive={driveKey}
-            paused={paused}
-            skip={skip}
-            brisk={!!onTrip && app.arrive === onTrip.id}
-            onPass={(id) => driveKey && setPass({ key: driveKey, stop: id })}
-            onDone={() => {
-              if (!driveKey) return;
-              setDone(driveKey);
-              // a ride started from a Home tile ends with what Ram did there, opened at full size
-              if (onTrip && app.arrive === onTrip.id) app.landed(onTrip.id);
-            }}
-            searching={screen.s === 'finding'}
-            reducedMotion={reducedMotion}
-          />
+          {leg && onTrip ? (
+            <RealMap to={leg} name={onTrip.name} mark={<Mark id={onTrip.id} size={30} />} dock={side} pad={side ? { left: 300 } : undefined} drive={driveKey} paused={paused} skip={skip} onDone={landed} reducedMotion={reducedMotion} />
+          ) : (
+            <LifeMap
+              from={mapFrom}
+              to={mapTo}
+              carAt={carAt}
+              hoverCard={pop}
+              dock={side}
+              pad={side ? { left: 300 } : undefined}
+              detail
+              controls
+              fit="all"
+              noBadge={browsing}
+              hot={hot}
+              onHot={setHot}
+              onPick={(id) => setProject(stop(id).trip)}
+              drive={driveKey}
+              paused={paused}
+              skip={skip}
+              brisk={!!onTrip && app.arrive === onTrip.id}
+              onPass={(id) => driveKey && setPass({ key: driveKey, stop: id })}
+              onDone={landed}
+              searching={screen.s === 'finding'}
+              reducedMotion={reducedMotion}
+            />
+          )}
           {!tale && (
             <p className="ub-mapbox-sum">
               {browsing ? (
                 'Point at any place to see what it was. Click it to read what Ram did there.'
+              ) : leg ? (
+                <>
+                  <b>Real streets</b>
+                  {GEO_HOME.city} to {leg.city}
+                </>
               ) : (
                 <>
                   <b>{minLabel(minutes)}</b>

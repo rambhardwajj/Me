@@ -1320,3 +1320,30 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
 @media (prefers-reduced-motion: reduce) {
   .ig *, .ub-idea-stage, .ub-idea-foot { animation: none !important; }
 }
+
+/* ------------------------------------------------------------------ a ride on a real street map (RealMap) */
+.rm { position: absolute; inset: 0; overflow: hidden; overflow: clip; background: var(--u-map-land); }
+/* MapLibre's own stylesheet makes its container position: relative, which would collapse it to no height here */
+.rm .rm-gl { position: absolute; inset: 0; opacity: 0; transition: opacity 0.5s; }
+.rm.ready .rm-gl { opacity: 1; }
+.rm-over { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.rm-route-case { fill: none; stroke: var(--u-bg); stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; opacity: 0.85; }
+.rm-route { fill: none; stroke: var(--u-text); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+.rm-driven { fill: none; stroke: var(--u-accent); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+.ub[data-theme='dark'] .rm-route { stroke: #ffffff; filter: drop-shadow(0 0 5px rgba(59, 130, 255, 0.9)); }
+.ub[data-theme='dark'] .rm-driven { stroke: #6aa2ff; }
+.ub[data-theme='dark'] .rm-route-case { stroke: #0a0b0f; }
+.rm-area { fill: color-mix(in srgb, var(--u-accent) 14%, transparent); stroke: var(--u-accent); stroke-width: 1.5; stroke-dasharray: 5 5; }
+.rm-here { position: absolute; z-index: 2; transform: translate(-50%, 18px); padding: 3px 8px; border-radius: 6px; background: var(--u-bg); color: var(--u-text); font-size: 12px; font-weight: 700; white-space: nowrap; box-shadow: var(--u-map-btn); pointer-events: none; }
+.rm-pin { position: absolute; z-index: 3; display: flex; align-items: center; gap: 8px; transform: translate(-22px, -22px); pointer-events: none; }
+.rm-pin.left { flex-direction: row-reverse; transform: translate(calc(-100% + 22px), -22px); }
+.rm-pin i { flex: none; width: 44px; height: 44px; border-radius: 12px; background: #ffffff; color: #000000; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28), 0 0 0 2px var(--u-text); overflow: hidden; }
+.rm-pin i svg { width: 28px; height: 28px; }
+.rm-pin > span { display: flex; flex-direction: column; padding: 5px 10px; border-radius: 8px; background: #101010; color: #ffffff; white-space: nowrap; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3); }
+.rm-pin b { font-size: 13.5px; line-height: 17px; font-weight: 700; }
+.rm-pin small { font-size: 11.5px; line-height: 14px; color: #c9c9c9; }
+.ub[data-theme='dark'] .rm-pin > span { background: #ffffff; color: #0a0b0f; }
+.ub[data-theme='dark'] .rm-pin small { color: #5e5e5e; }
+/* the tile host's credit stays readable above anything that covers the bottom of the map */
+.rm .maplibregl-ctl-bottom-left { bottom: var(--rm-b, 0px); }
+.rm .maplibregl-ctl-attrib { font-size: 10.5px; }
