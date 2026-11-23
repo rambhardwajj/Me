@@ -381,7 +381,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           {HERO_FACTS.map((f) => (
             <div key={f.trip}>
               <dt>
-                <button type="button" onClick={() => ride(f.trip)}>
+                <button type="button" onClick={() => app.driveTo(f.trip)}>
                   {f.label}
                   <Icon name="arrow" size={15} />
                 </button>
@@ -494,7 +494,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           <div>
             <h4>{f.title}</h4>
             <p>{f.text}</p>
-            <button type="button" className="ub-btn solid" onClick={() => ride(f.trip)}>
+            <button type="button" className="ub-btn solid" onClick={() => app.driveTo(f.trip)}>
               Ride to {getTrip(f.trip).name}
               <Icon name="arrow" size={16} />
             </button>
@@ -540,7 +540,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
         )}
         <div className="ub-grid">
           {ids.map((id, i) => (
-            <Tile key={id} t={getTrip(id)} onOpen={ride} onInfo={where === 'shipped' ? setProject : undefined} i={i} />
+            <Tile key={id} t={getTrip(id)} onOpen={app.driveTo} onInfo={where === 'shipped' ? setProject : undefined} i={i} />
           ))}
         </div>
       </>

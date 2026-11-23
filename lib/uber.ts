@@ -753,7 +753,7 @@ export const AREA_NAMES: { name: string; x: number; y: number }[] = [
 export type ScreenKey = 'home' | 'shipped' | 'journey' | 'search' | 'choose' | 'finding' | 'details' | 'services' | 'activity' | 'account' | 'inbox' | 'switch' | 'reserve' | 'lost' | 'idea';
 export const EXPLAIN: Record<ScreenKey, { title: string; uber: string; here: string }> = {
   home: { title: 'Home', uber: '“Where to?” and your recent places', here: 'Where do you want to take Ram? The tiles are the places he has already been.' },
-  shipped: { title: 'Shipped', uber: 'The second tab of the home screen', here: 'Products Ram built or led. Tap one to ride there.' },
+  shipped: { title: 'Shipped', uber: 'The second tab of the home screen', here: 'Products Ram built or led. Tap one: the car drives there, then shows what he did.' },
   journey: { title: 'Journey', uber: 'The map, with pickup and drop-off', here: 'One road from Mathura to today. Pick two places and the stops between them appear.' },
   search: { title: 'Plan your ride', uber: 'Search, with saved and recent places', here: 'Every place on Ram’s map, nearest first. One minute away is one month ago.' },
   choose: { title: 'Choose a trip', uber: 'Choose a ride', here: 'Same destination, two ways to get there: the headline numbers, or the full story.' },

@@ -398,7 +398,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
           const t = getTrip(id);
           return (
             <div key={id} className="rp-prodrow">
-              <button type="button" className="rp-prod" onClick={() => ride(id)} {...peeks(id)}>
+              <button type="button" className="rp-prod" onClick={() => app.driveTo(id)} {...peeks(id)}>
                 <span className="rp-prod-art">
                   <Mark id={id} size={40} />
                 </span>
@@ -581,7 +581,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
       <div className="rp-scroll list">
         {rows.length === 0 && <p className="rp-empty">{SEARCH.empty}</p>}
         {rows.map((r) => (
-          <button key={r.key} type="button" className="rp-place" onClick={() => ride(r.trip)} {...peeks(r.trip)}>
+          <button key={r.key} type="button" className="rp-place" onClick={() => app.driveTo(r.trip)} {...peeks(r.trip)}>
             <span className={`rp-place-when ${LOGO[r.trip] ? 'logo' : ''}`}>
               {LOGO[r.trip] ? <Mark id={r.trip} size={34} /> : <Icon name="clock" w={1.8} />}
               {r.min && <small>{r.min}</small>}
@@ -836,7 +836,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
         <h2 className="rp-h2 sm first">{SERVICES.book}</h2>
         <div className="rp-services">
           {SERVICES.main.map((s) => (
-            <button key={s.name} type="button" onClick={() => ride(s.trip)}>
+            <button key={s.name} type="button" onClick={() => app.driveTo(s.trip)}>
               <Pict name={s.icon} />
               <span>
                 <b>{s.name}</b>
@@ -848,7 +848,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
         <h2 className="rp-h2 sm">{SERVICES.also}</h2>
         <div className="rp-more-services">
           {SERVICES.more.map((s) => (
-            <button key={s.name} type="button" onClick={() => ride(s.trip)}>
+            <button key={s.name} type="button" onClick={() => app.driveTo(s.trip)}>
               <span className="art">
                 <Pict name={s.icon} />
               </span>
@@ -871,7 +871,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
       </h1>
       <div className="rp-scroll activity">
         <h2 className="rp-h2 sm first">{ACTIVITY.upcoming}</h2>
-        <button type="button" className="rp-upcoming" onClick={() => ride(up.id)}>
+        <button type="button" className="rp-upcoming" onClick={() => app.driveTo(up.id)}>
           <span className="art">
             <Icon name="bulb" size={26} w={1.8} />
           </span>
@@ -912,7 +912,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
                 </ul>
                 {j.result && <span className="rp-tag green">{j.result}</span>}
                 {j.trip && (
-                  <button type="button" className="rp-again" onClick={() => ride(j.trip!)} aria-label={`Ride to ${j.company}`} {...peeks(j.trip)}>
+                  <button type="button" className="rp-again" onClick={() => app.driveTo(j.trip!)} aria-label={`Ride to ${j.company}`} {...peeks(j.trip)}>
                     <Icon name="again" size={16} />
                     Ride there
                   </button>
@@ -1068,7 +1068,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
             <div className="rp-facet" role="tabpanel" key={f.id}>
               <b>{f.title}</b>
               <p>{f.text}</p>
-              <button type="button" className="rp-again" onClick={() => ride(f.trip)}>
+              <button type="button" className="rp-again" onClick={() => app.driveTo(f.trip)}>
                 <Icon name="again" size={16} />
                 Ride to {getTrip(f.trip).name}
               </button>
@@ -1108,7 +1108,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
             </text>
           </svg>
         </button>
-        <button type="button" className="rp-acard" onClick={() => ride(ACCOUNT.dance.trip)}>
+        <button type="button" className="rp-acard" onClick={() => app.driveTo(ACCOUNT.dance.trip)}>
           <span>
             <b>{ACCOUNT.dance.title}</b>
             <small>{ACCOUNT.dance.line}</small>

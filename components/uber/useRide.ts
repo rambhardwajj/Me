@@ -130,9 +130,11 @@ export function useRide() {
     [step],
   );
 
-  /** A Home tile: no choosing. The car drives straight there, and the place's details open when it arrives. */
+  /** A tile or a row for one place: no choosing. The car drives straight there, and the place's details open when it arrives. */
   const driveTo = useCallback(
     (id: TripId) => {
+      // the whole road and the idea for Uber are not single places: they keep their own way in
+      if (id === 'story' || id === 'idle-minutes') return ride(id);
       step();
       setMode('quick');
       setSheet(null);
@@ -144,7 +146,7 @@ export function useRide() {
       setDriveNo((n) => n + 1);
       setStack((st) => [...st.filter((sc) => sc.s === 'tab' || sc.s === 'search').slice(0, 2), { s: 'details', trip: id, mode: 'quick' }]);
     },
-    [step],
+    [step, ride],
   );
   /** The car has arrived: open what Ram did there. */
   const landed = useCallback((id: TripId) => {
