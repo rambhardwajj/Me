@@ -2,7 +2,7 @@ import { BILLBOARD } from '@/lib/uber';
 import { OG_SIZE, ogImage } from '@/lib/uber-og';
 
 /** The picture a link to /uber unfurls with: the first screen's own words and its one number. */
-export const alt = 'Ram Bhardwaj, product manager. I built and sold a ride-hailing app. 100 drivers onboarded at TruCost.';
+export const alt = 'Ram Bhardwaj: your product manager is 2 min away. 100 drivers onboarded at TruCost.';
 export const size = OG_SIZE;
 export const contentType = 'image/png';
 

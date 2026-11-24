@@ -670,9 +670,9 @@ export const TRIBUTE_LONG = 'A fan-made portfolio by Ram Bhardwaj. Not affiliate
 export const BILLBOARD = {
   wordmark: 'Ram',
   statuses: ['Ram accepted your request'],
-  /** Who, what and one proof number, readable in a glance. Only facts Ram has confirmed. */
-  headline: { before: 'I built and sold a', badge: 'ride-hailing', after: 'app.' },
-  pitch: `I’m Ram Bhardwaj, a product manager. At TruCost I onboarded ${FIG.drivers} drivers. Before that I was a PM at Newral.`,
+  /** Ram's own line, back at his request on 24 Nov 2026. Who, what and the proof number follow in the lines under it. */
+  headline: { before: 'Your product manager is', badge: '2 min', after: 'away.' },
+  pitch: `I’m Ram Bhardwaj. I built and sold a ride-hailing app, onboarded ${FIG.drivers} drivers at TruCost, and before that I was a PM at Newral.`,
   proof: { value: FIG.drivers, label: 'drivers onboarded at TruCost' },
   /** The four things a visitor can reach in one tap, with no ride in between. */
   caseStudy: 'See the TruCost case study',
