@@ -1454,3 +1454,8 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
 .ub-pre-drv b { font-size: 15.5px; font-weight: 700; }
 .ub-pre-drv small { font-size: 13px; color: var(--u-text-2); }
 .ub-pre.ok .ub-kicker { color: var(--u-positive); }
+/* a way back and a way home on every screen that is not a tab */
+.rp-home { position: absolute; right: 8px; top: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+.rp-home:hover, .rp-back:hover { background: var(--u-surface); }
+.rp-float.home { top: 58px; right: 16px; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.rp-float.share { right: 70px; }

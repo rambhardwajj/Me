@@ -548,6 +548,9 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
         <button type="button" className="rp-back" aria-label="Back" onClick={back}>
           <Icon name="back" size={24} w={2.2} />
         </button>
+        <button type="button" className="rp-home" aria-label="Home" onClick={() => goTab('home', 'ram')}>
+          <Solid name="home" size={20} />
+        </button>
         <h1>{SEARCH.title}</h1>
       </header>
       <div className="rp-chips">
@@ -613,6 +616,9 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
       <button type="button" className="rp-float back" aria-label="Back" onClick={back}>
         <Icon name="back" size={22} w={2.2} />
       </button>
+      <button type="button" className="rp-float home" aria-label="Home" onClick={() => goTab('home', 'ram')}>
+        <Solid name="home" size={20} />
+      </button>
       <div className="rp-float route">
         <span>
           <i aria-hidden="true" />
@@ -662,6 +668,9 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
       <button type="button" className="rp-float back" aria-label="Cancel and go back" data-first onClick={back}>
         <Icon name="chevDown" size={22} w={2.2} />
       </button>
+      <button type="button" className="rp-float home" aria-label="Home" onClick={() => goTab('home', 'ram')}>
+        <Solid name="home" size={20} />
+      </button>
       <button type="button" className="rp-float share" onClick={share}>
         <Icon name="pin" size={18} />
         Share
@@ -702,6 +711,12 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
     return (
       <>
         {rideMap(t, 592, 0, full)}
+        <button type="button" className="rp-float back" aria-label="Back" onClick={back}>
+          <Icon name="back" size={22} w={2.2} />
+        </button>
+        <button type="button" className="rp-float home" aria-label="Home" onClick={() => goTab('home', 'ram')}>
+          <Solid name="home" size={20} />
+        </button>
         <section className="rp-sheet details" aria-labelledby="rp-details-h">
           <div className="rp-details-top">
             <h1 id="rp-details-h" className="rp-details-h" tabIndex={-1} data-first>
@@ -945,6 +960,9 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
         <button type="button" className="rp-back" aria-label="Back" data-first onClick={back}>
           <Icon name="back" size={24} w={2.2} />
         </button>
+        <button type="button" className="rp-home" aria-label="Home" onClick={() => goTab('home', 'ram')}>
+          <Solid name="home" size={20} />
+        </button>
         <h1>{IDEA.title}</h1>
       </header>
       <div className="rp-scroll rp-prog">
@@ -1001,6 +1019,9 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
       <header className="rp-bar">
         <button type="button" className="rp-back" aria-label="Back" data-first onClick={back}>
           <Icon name="back" size={24} w={2.2} />
+        </button>
+        <button type="button" className="rp-home" aria-label="Home" onClick={() => goTab('home', 'ram')}>
+          <Solid name="home" size={20} />
         </button>
         <h1>Inbox</h1>
       </header>
