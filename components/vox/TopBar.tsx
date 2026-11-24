@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 const LINKS = [
@@ -12,7 +11,7 @@ const LINKS = [
   { id: 'contact', label: 'Contact' },
 ];
 
-/** Minimal paper bar: name, chapter jumps, the dream company portfolio, and a button that opens Mini Ram. */
+/** Minimal paper bar: name, chapter jumps, and a button that opens Mini Ram. The dream company portfolio (/uber) is not linked from here: Ram asked for its button to be hidden on 24 Nov 2026. */
 export default function TopBar() {
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -37,9 +36,6 @@ export default function TopBar() {
             {l.label}
           </a>
         ))}
-        <Link href="/uber" className="vx-bar-old">
-          Dream company portfolio
-        </Link>
       </nav>
       <button className="vx-bar-ask" onClick={ask}>
         Ask Mini Ram
