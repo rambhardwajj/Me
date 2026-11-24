@@ -1711,3 +1711,4 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
 /* while the toast is up, the fade under the tab bar reaches above it, so the toast never sits on top of readable content */
 .rp-screen:has(.rp-strip) .rp-tabbar::before { top: -92px; background: linear-gradient(to bottom, transparent, var(--u-bg) 38%); }
 .rp-strip { z-index: 3; }
+.ub-acts { margin-top: 26px; }

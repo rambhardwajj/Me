@@ -209,11 +209,7 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
                 <h1 className="ub-h1">
                   {BILLBOARD.headline.before} <span className="ub-2min">{BILLBOARD.headline.badge}</span> {BILLBOARD.headline.after}
                 </h1>
-                <p className="ub-sub">{BILLBOARD.pitch}</p>
-                <p className="ub-proof1">
-                  <b>{BILLBOARD.proof.value}</b>
-                  <span>{BILLBOARD.proof.label}</span>
-                </p>
+                {/* the sentence and the "100 drivers" line were here; Ram asked for them to go on 24 Nov 2026. They still feed the page's description and its share image */}
                 <div className="ub-acts">
                   <Link className="ub-btn solid" href={caseHref('trucost')}>
                     {BILLBOARD.caseStudy}
