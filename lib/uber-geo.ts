@@ -8,6 +8,7 @@ import ROUTES from './uber-routes.json';
  * the locality or the city is known:
  * - St. Dominic's School: Basantar Marg, Mathura Cantt (CBSE record). Placed at the city.
  * - Ramjas College and Amity University, Noida: coordinates from OpenStreetMap.
+ * - Ingenious Research Solutions: its own site says only "Noida, Uttar Pradesh". Placed at the city.
  * - Ciena: Tower 04, India Intellion Park, near Sector 59, Gurugram (from Ram; he worked remotely). Placed at Sector 59.
  * - Super 30 Hacker House (100xSchool): a residential campus in Noida (from Ram). Placed at the city.
  * - Newral: Sector 62, Noida.
@@ -30,12 +31,13 @@ export type GeoPoint = { lng: number; lat: number };
 export type GeoPlace = GeoPoint & { city: string; area?: boolean };
 export type XY = { x: number; y: number };
 
-type PlaceId = 'st-dominics' | 'ramjas' | 'amity' | 'ciena' | 'super-30' | 'newral' | 'trucost' | 'masters-union' | 'you';
+type PlaceId = 'st-dominics' | 'ramjas' | 'amity' | 'ingenious' | 'ciena' | 'super-30' | 'newral' | 'trucost' | 'masters-union' | 'you';
 
 export const PLACE_GEO: Record<PlaceId, GeoPlace> = {
   'st-dominics': { lng: 77.6856, lat: 27.4956, city: 'Mathura', area: true },
   ramjas: { lng: 77.2066, lat: 28.6855, city: 'Delhi' },
   amity: { lng: 77.3327, lat: 28.5432, city: 'Noida' },
+  ingenious: { lng: 77.391, lat: 28.5355, city: 'Noida', area: true },
   ciena: { lng: 77.1067, lat: 28.403, city: 'Gurugram', area: true },
   'super-30': { lng: 77.3272, lat: 28.5706, city: 'Noida', area: true },
   newral: { lng: 77.3643, lat: 28.6211, city: 'Noida', area: true },
@@ -48,7 +50,7 @@ export const GEO_HOME = PLACE_GEO.you;
 export const FAR = { stop: 'wingathon' as StopId, lng: 77.59, lat: 12.9768, city: 'Bangalore' };
 
 /** The order Ram lived the places in. The road runs through them in this order and ends at "Ram, today". */
-const ORDER: PlaceId[] = ['st-dominics', 'ramjas', 'amity', 'ciena', 'super-30', 'newral', 'trucost', 'masters-union', 'you'];
+const ORDER: PlaceId[] = ['st-dominics', 'ramjas', 'amity', 'ingenious', 'ciena', 'super-30', 'newral', 'trucost', 'masters-union', 'you'];
 
 /** The institute a ride ends at. A project rides to the institute it came out of. */
 const INSTITUTE: Partial<Record<TripId, PlaceId>> = {
@@ -56,6 +58,7 @@ const INSTITUTE: Partial<Record<TripId, PlaceId>> = {
   ramjas: 'ramjas',
   dance: 'ramjas',
   amity: 'amity',
+  ingenious: 'ingenious',
   ciena: 'ciena',
   'super-30': 'super-30',
   newral: 'newral',

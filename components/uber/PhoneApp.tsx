@@ -43,6 +43,7 @@ import { Icon, Pict, Solid } from './icons';
 import Mark from './Mark';
 import { IdeaGraphic } from './IdeaGraphics';
 import StreetMap from './StreetMap';
+import { requestMs, useRideStep } from './useRideStep';
 
 /** The parts of the written teardown that the chapters do not already cover. */
 const IDEA_MORE = ['What I saw', 'Why me', 'What exists already'];
@@ -185,7 +186,6 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
   const [toast, setToast] = useState('');
   const [copied, setCopied] = useState(false);
   /** True once "Finding your experience" has played in full; later rides find faster. */
-  const [found, setFound] = useState(false);
 
   const root = useRef<HTMLDivElement>(null);
 
@@ -203,23 +203,20 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
   const confirm = (id: TripId) => {
     step();
     setSeen((v) => (v.includes(id) ? v : [...v, id]));
-    setStack((st) => [...st.slice(0, -1), reducedMotion ? { s: 'details', trip: id, mode } : { s: 'finding', trip: id, mode }]);
+    setStack((st) => [...st.slice(0, -1), { s: 'finding', trip: id, mode }]);
   };
 
   useImperativeHandle(ref, () => ({ focus: () => root.current?.querySelector<HTMLElement>('[data-first]')?.focus({ preventScroll: true }) }), []);
 
-  // "Finding your experience…": about a second the first time, shorter after that
+  // the request: finding a driver, connecting, confirmed. Then the trip opens and the car sets off
+  const rideStep = useRideStep(screen.s === 'finding' ? `${screen.trip}:${app.driveNo}` : null, reducedMotion);
   useEffect(() => {
     if (screen.s !== 'finding') return;
     const { trip, mode: m } = screen;
-    const t = setTimeout(
-      () => {
-        setFound(true);
-        step();
-        setStack((st) => [...st.slice(0, -1), { s: 'details', trip, mode: m }]);
-      },
-      found ? RIDE.findingMs.later : RIDE.findingMs.first,
-    );
+    const t = setTimeout(() => {
+      step();
+      setStack((st) => [...st.slice(0, -1), { s: 'details', trip, mode: m }]);
+    }, requestMs(reducedMotion));
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen]);
@@ -311,7 +308,8 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
 
   /* ---------------------------------------------------------------- Home */
 
-  const tiles = [...TILES].sort((a, b) => Number(who.first.includes(b.trip)) - Number(who.first.includes(a.trip)));
+  // Ram's own order: where he worked on the first row, where he studied on the second
+  const tiles = TILES;
   const lead = getTrip(who.lead);
 
   const homeRam = (
@@ -605,7 +603,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
   /** A ride from "Ram, today" to one place takes the real road straight there; the full story is told along Ram's whole road. */
   const rideMap = (t: Trip, covered: number, top = 76, full = false) => (
     <div className="rp-map">
-      <StreetMap ride={full ? null : t} from={t.from} to={t.to} pad={{ top, bottom: covered }} hot={app.hot} reducedMotion={reducedMotion} />
+      <StreetMap ride={full ? null : t} from={t.from} to={t.to} pad={{ top, bottom: covered }} hot={app.hot} searching={screen.s === 'finding' && rideStep === 0} zoomOnCar={screen.s === 'finding' && rideStep === 2} reducedMotion={reducedMotion} />
     </div>
   );
 
@@ -670,15 +668,21 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
       </button>
       <section className="rp-sheet finding" aria-labelledby="rp-finding-h">
         <span className="rp-grab" aria-hidden="true" />
-        <h1 id="rp-finding-h" className="rp-sheet-h big">
-          {RIDE.requested}
+        <h1 id="rp-finding-h" className="rp-sheet-h big" key={rideStep} aria-live="polite">
+          {RIDE.steps[rideStep].title}
         </h1>
-        <p className="rp-finding-line">
-          {RIDE.finding} at {t.name}
-        </p>
-        <div className="rp-progress" role="progressbar" aria-label={RIDE.finding}>
-          <span style={{ animationDuration: `${found ? RIDE.findingMs.later : RIDE.findingMs.first}ms` }} />
+        <p className="rp-finding-line">{RIDE.steps[rideStep].line.replace('{name}', t.name)}</p>
+        <div className="rp-progress" role="progressbar" aria-label={RIDE.requested}>
+          <span style={{ animationDuration: `${requestMs(reducedMotion)}ms` }} />
         </div>
+        <ol className="rp-steps">
+          {RIDE.steps.map((x, i) => (
+            <li key={x.short} className={i < rideStep || (i === rideStep && i === RIDE.steps.length - 1) ? 'done' : i === rideStep ? 'now' : ''}>
+              <i aria-hidden="true">{i < rideStep || (i === rideStep && i === RIDE.steps.length - 1) ? <Icon name="check" size={13} w={3.2} /> : i + 1}</i>
+              {x.short}
+            </li>
+          ))}
+        </ol>
         <div className="rp-pickup">
           <small>{RIDE[m].name} details</small>
           <b>Meet Ram at the pickup point: {t.pickup}</b>

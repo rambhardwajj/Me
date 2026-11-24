@@ -37,6 +37,7 @@ import { Icon } from './icons';
 import Mark from './Mark';
 import { IdeaGraphic } from './IdeaGraphics';
 import StreetMap from './StreetMap';
+import { useRideStep } from './useRideStep';
 import { GEO_HOME, PLACE_GEO, rideTo } from '@/lib/uber-geo';
 import type { Ride } from './useRide';
 
@@ -101,6 +102,43 @@ function Brief({ label, bar, photo, meta, name, text, big, rows = [], children }
 }
 
 /** The stops a full story visits: the trip's own, in the order they happened. */
+/** A ride being requested, the way a ride app plays it: finding a driver, connecting, confirmed. */
+function PreRide({ step, name }: { step: number; name: string }) {
+  const s = RIDE.steps[step];
+  const last = RIDE.steps.length - 1;
+  return (
+    <div className={`ub-pre ${step === last ? 'ok' : ''}`} aria-live="polite">
+      <p className="ub-kicker">{step === last ? 'Ride confirmed' : 'Requesting your ride'}</p>
+      <h3 key={step}>{s.title}</h3>
+      <p className="ub-pre-line">{s.line.replace('{name}', name)}</p>
+      <span className="ub-bar" aria-hidden="true">
+        <i style={{ width: `${Math.round(((step + 1) / RIDE.steps.length) * 100)}%` }} />
+      </span>
+      <ol className="ub-pre-steps">
+        {RIDE.steps.map((x, i) => {
+          const done = i < step || (i === step && i === last);
+          return (
+            <li key={x.short} className={done ? 'done' : i === step ? 'now' : ''}>
+              <i aria-hidden="true">{done ? <Icon name="check" size={13} w={3.2} /> : i + 1}</i>
+              {x.short}
+            </li>
+          );
+        })}
+      </ol>
+      {step >= 1 && (
+        <p className="ub-pre-drv">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={PORTRAIT.src} alt="" />
+          <span>
+            <b>Ram Bhardwaj</b>
+            <small>Your driver. Product Manager</small>
+          </span>
+        </p>
+      )}
+    </div>
+  );
+}
+
 const ownStops = (t: Trip): Stop[] => (t.id === 'idle-minutes' ? [] : STOPS.filter((x) => x.type !== 'you' && (t.id === 'story' || x.trip === t.id)));
 
 /** One trip as a tile in a grid: its photo, name and one line. */
@@ -203,6 +241,8 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
   const [story, setStory] = useState<{ trip: string; i: number }>({ trip: '', i: 0 });
   const [copied, setCopied] = useState(false);
   const ex = EXPLAIN[where];
+  // a ride being requested: the same three steps the phone is showing
+  const rideStep = useRideStep(screen.s === 'finding' ? `${screen.trip}:${app.driveNo}` : null, reducedMotion);
   const reserve = () => openSheet('reserve');
 
   let body;
@@ -237,10 +277,13 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
     const rideId = onTrip && !(inDetails && tripMode === 'full') ? rideTo(onTrip) : null;
     const leg = rideId ? PLACE_GEO[rideId] : null;
     // where the ride ends, in words: a project ends at the institute it came out of
-    const legTo = rideId && leg && onTrip ? (stop(rideId).name === onTrip.name ? `${GEO_HOME.city} to ${leg.city}` : `To ${stop(rideId).name}, ${leg.city}`) : '';
+    const legTo = rideId && leg && onTrip ? (stop(rideId).name !== onTrip.name ? `To ${stop(rideId).name}, ${leg.city}` : leg.city === GEO_HOME.city ? `Across ${leg.city}` : `${GEO_HOME.city} to ${leg.city}`) : '';
     // what happened there, in order: the dots on the road to it
+    const requesting = screen.s === 'finding' && !!onTrip;
     const legEvents = leg && onTrip ? STOPS.filter((x) => x.type === 'dot' && x.trip === onTrip.id) : [];
-    if (leg && quick && !arrived && passing && legEvents.some((x) => x.id === passing.id)) {
+    if (requesting) {
+      side = <PreRide step={rideStep} name={onTrip!.name} />;
+    } else if (leg && quick && !arrived && passing && legEvents.some((x) => x.id === passing.id)) {
       // on a real road, driving: the event the car has just passed
       const n = legEvents.findIndex((x) => x.id === passing.id) + 1;
       const tell = stopStory(passing.id);
@@ -369,6 +412,8 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
             skip={skip}
             onPass={(id) => driveKey && setPass({ key: driveKey, stop: id })}
             onDone={landed}
+            searching={requesting && rideStep === 0}
+            zoomOnCar={(requesting && rideStep === RIDE.steps.length - 1) || (quick && !arrived)}
             reducedMotion={reducedMotion}
           />
           {!tale && (

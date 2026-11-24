@@ -70,7 +70,7 @@ export const ROAD: Pt[] = [
 export type StopId =
   | 'st-dominics' | 'ramjas' | 'amity' | 'ciena' | 'newral' | 'trucost' | 'masters-union' | 'you'
   | 'dance-wins' | 'world-battle' | 'choreography' | 'rank-1' | 'full-time' | 'edst' | 'cienagpt'
-  | 'super-30' | 'tech-lead' | 'wingathon' | 'product-manager' | 'leetcase';
+  | 'super-30' | 'tech-lead' | 'wingathon' | 'product-manager' | 'leetcase' | 'ingenious';
 
 export type Stop = {
   id: StopId;
@@ -101,6 +101,7 @@ export const STOPS: Stop[] = [
   { id: 'choreography', type: 'dot', name: 'Choreography Head', when: '2021-09', monthAssumed: true, at: { x: 330, y: 696 }, trip: 'dance' },
   { id: 'amity', type: 'place', name: 'Amity University', note: 'Noida. MCA', when: '2022-08', at: { x: 855, y: 700 }, tag: { x: 737, y: 776 }, trip: 'amity' },
   { id: 'rank-1', type: 'dot', name: 'Rank 1 coder of 400+', when: '2023-05', monthAssumed: true, at: { x: 918, y: 330 }, trip: 'amity', win: true },
+  { id: 'ingenious', type: 'place', name: 'Ingenious Research Solutions', note: 'Noida. Research intern', when: '2023-06', at: { x: 1100, y: 330 }, tag: { x: 1000, y: 400 }, trip: 'ingenious' },
   { id: 'ciena', type: 'place', name: 'Ciena', note: 'Gurugram. Intern, then engineer', when: '2024-01', at: { x: 1300, y: 334 }, tag: { x: 1326, y: 258 }, trip: 'ciena' },
   { id: 'full-time', type: 'dot', name: 'Full-time engineer', when: '2024-07', at: { x: 1302, y: 620 }, trip: 'ciena' },
   { id: 'edst', type: 'dot', name: 'EDST award, 4 of 14,000', when: '2024-10', monthAssumed: true, at: { x: 1447, y: 620 }, trip: 'ciena', win: true },
@@ -124,7 +125,7 @@ export const PLACES = STOPS.filter((s) => s.type !== 'dot');
 
 export type TripId =
   | 'trucost' | 'newral' | 'ciena' | 'leetcase' | 'unbothrrd' | 'synappses' | 'super-30' | 'dance'
-  | 'st-dominics' | 'ramjas' | 'amity' | 'masters-union'
+  | 'st-dominics' | 'ramjas' | 'amity' | 'masters-union' | 'ingenious'
   | 'idle-minutes' | 'story';
 
 export type Pictogram = 'car' | 'chart' | 'building' | 'doc' | 'bag' | 'cap' | 'code' | 'music' | 'bulb' | 'route' | 'pin';
@@ -232,6 +233,24 @@ export const TRIPS: Trip[] = [
     ],
     activity: { role: 'Solutions Engineer', when: '2024-01', line: '4 of 14,000 won the annual award' },
     chapter: true,
+  },
+  {
+    // From the site's own experience list (lib/data.ts): a two-month research internship. Nothing else is known, so nothing else is said.
+    id: 'ingenious',
+    name: 'Ingenious Research Solutions',
+    sub: 'Research intern on an ISRO project',
+    icon: 'doc',
+    from: 'you',
+    to: 'ingenious',
+    pickup: 'Research Intern, 2023',
+    blurb: 'A research firm in Noida. Ram interned on an ISRO project on blockchain-based data security for distributed systems.',
+    leg: [
+      { title: 'Joined as a Research Intern', when: 'June 2023' },
+      { title: 'Internship completed', when: 'July 2023' },
+    ],
+    result: { sub: 'Blockchain research project', value: 'ISRO' },
+    did: ['Supported ISRO’s project introducing a blockchain-based prototype to improve data security in distributed systems'],
+    receipt: [{ label: 'Internship', value: '2 months' }],
   },
   {
     id: 'leetcase',
@@ -643,20 +662,22 @@ export const PERSONAS: Persona[] = [
 /* ------------------------------------------------------------------ Home */
 
 /** "Projects and experience": seven tiles. `badge` is the red result badge. */
+/** Ram's order, 24 Nov 2026: where he worked on the first row, where he studied on the second. Projects live under Shipped. */
 export const TILES: { trip: TripId; badge?: string }[] = [
   { trip: 'trucost', badge: 'Sold ₹2.5L' },
   { trip: 'newral', badge: '$0 to $6K' },
-  { trip: 'super-30', badge: '1 of 30' },
   { trip: 'ciena' },
-  { trip: 'leetcase' },
-  { trip: 'unbothrrd', badge: '₹7.2L' },
-  { trip: 'dance' },
+  { trip: 'ingenious' },
+  { trip: 'masters-union' },
+  { trip: 'amity' },
+  { trip: 'ramjas' },
+  { trip: 'st-dominics' },
 ];
 
 export const HOME = {
   where: 'Where to?',
   reserve: 'Reserve',
-  forYou: 'Projects and experience',
+  forYou: 'Experience and Institutes',
   elevate: 'Elevate your team',
   cards: ['idle-minutes', 'story'] as TripId[],
   availability: 'Open to PM roles',
@@ -698,6 +719,12 @@ export const RIDE = {
   reserve: 'Reserve Ram',
   /** Milliseconds on the "Finding your experience" screen: the first time, and after that. Skipped for reduced motion. */
   findingMs: { first: 1000, later: 450 },
+  /** A ride request, the way a ride app plays it before the car moves. `{name}` is the destination. */
+  steps: [
+    { short: 'Finding your driver', title: 'Finding your driver', line: 'Looking for a product manager near you', ms: 1500 },
+    { short: 'Connecting you to Ram', title: 'Connecting you to Ram', line: 'Ram is the closest match', ms: 1300 },
+    { short: 'Ride confirmed', title: 'Your ride is confirmed', line: 'Ram is on the way to {name}', ms: 1400 },
+  ],
 };
 
 /* ------------------------------------------------------------------ Services */
@@ -790,6 +817,7 @@ export const RESERVE = {
 
 /** One colour per trip, taken from the pictogram colours on the artboards. Used beside the phone, never inside it. */
 export const ACCENT: Record<TripId, string> = {
+  ingenious: '#14B8A6',
   trucost: '#FFC043',
   newral: '#276EF1',
   ciena: '#7DE2A0',
@@ -903,6 +931,7 @@ export const EXPERIENCE: Job[] = [
     ],
     result: '4 of 14,000 won the annual award',
   },
+  { company: 'Ingenious Research Solutions', what: 'Research firm, Noida', icon: 'doc', logo: '/images/logos/ingenious.png', trip: 'ingenious', roles: [{ title: 'Research Intern', when: 'Jun 2023 to Jul 2023' }] },
   { company: 'Ingenious Research Solutions', what: 'Research internship, Noida', icon: 'doc', logo: '/images/logos/ingenious.png', roles: [{ title: 'Research Intern, on an ISRO blockchain project', when: 'Jun 2023 to Jul 2023' }] },
 ];
 
@@ -970,6 +999,7 @@ export const ABOUT = {
  * The files were taken from each organisation's own website on 21 Nov 2026, with Ram's yes.
  */
 export const LOGO: Partial<Record<TripId, string>> = {
+  ingenious: '/images/logos/ingenious.png',
   trucost: '/images/logos/trucost.png',
   newral: '/images/logos/newral.png',
   ciena: '/images/logos/ciena.png',

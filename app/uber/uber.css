@@ -1432,3 +1432,25 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
   .ub-dialog-foot.arr { flex-wrap: wrap; }
   .ub-rate { flex: 1 1 100%; justify-content: space-between; }
 }
+/* a ride being requested: rings pulse out from the pickup point */
+.rm-radar { fill: var(--u-accent); fill-opacity: 0.16; stroke: var(--u-accent); stroke-opacity: 0.5; stroke-width: 1.5; transform-box: fill-box; transform-origin: center; opacity: 0; animation: rm-radar 1.5s ease-out infinite; }
+@keyframes rm-radar { 0% { transform: scale(0.15); opacity: 0.9; } 100% { transform: scale(1); opacity: 0; } }
+/* the request, step by step: in the phone's sheet and docked on the big map */
+.rp-steps { margin: 2px 0 14px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.rp-steps li, .ub-pre-steps li { display: flex; align-items: center; gap: 10px; font-size: 14.5px; font-weight: 500; color: var(--u-text-2); transition: color 0.25s; }
+.rp-steps li i, .ub-pre-steps li i { flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--u-surface); color: var(--u-text-2); display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 11.5px; font-weight: 700; transition: background 0.25s, color 0.25s; }
+.rp-steps li.now, .ub-pre-steps li.now { color: var(--u-text); font-weight: 600; }
+.rp-steps li.now i, .ub-pre-steps li.now i { background: var(--u-accent); color: #ffffff; animation: ub-pre-beat 0.9s ease-in-out infinite; }
+.rp-steps li.done, .ub-pre-steps li.done { color: var(--u-text); }
+.rp-steps li.done i, .ub-pre-steps li.done i { background: var(--u-positive); color: #ffffff; }
+@keyframes ub-pre-beat { 50% { transform: scale(1.18); } }
+.ub-pre { display: flex; flex-direction: column; gap: 10px; }
+.ub-pre h3 { font-family: var(--u-display); font-size: 30px; line-height: 1; font-weight: 900; letter-spacing: -0.035em; font-stretch: 75%; animation: ub-rise 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+.ub-pre-line { font-size: 15px; line-height: 21px; color: var(--u-body); }
+.ub-pre-steps { margin: 4px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.ub-pre-drv { display: flex; align-items: center; gap: 12px; margin-top: 4px; padding-top: 12px; border-top: 1px solid var(--u-line); animation: ub-rise 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+.ub-pre-drv img { flex: none; width: 46px; height: 46px; border-radius: 50%; object-fit: cover; object-position: top; background: var(--u-photo); }
+.ub-pre-drv span { display: flex; flex-direction: column; }
+.ub-pre-drv b { font-size: 15.5px; font-weight: 700; }
+.ub-pre-drv small { font-size: 13px; color: var(--u-text-2); }
+.ub-pre.ok .ub-kicker { color: var(--u-positive); }

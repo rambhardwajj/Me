@@ -139,7 +139,7 @@ export function useRide() {
     [step, setProject],
   );
 
-  /** A tile or a row for one place: no choosing. The car drives straight there, and the place's details open when it arrives. */
+  /** A tile or a row for one place: no choosing. The ride is requested, the car drives straight there, and the place's details open when it arrives. */
   const driveTo = useCallback(
     (id: TripId) => {
       // the whole road and the idea for Uber are not single places: they keep their own way in
@@ -153,7 +153,7 @@ export function useRide() {
       setLookState({ trip: id });
       setArrive(id);
       setDriveNo((n) => n + 1);
-      setStack((st) => [...st.filter((sc) => sc.s === 'tab' || sc.s === 'search').slice(0, 2), { s: 'details', trip: id, mode: 'quick' }]);
+      setStack((st) => [...st.filter((sc) => sc.s === 'tab' || sc.s === 'search').slice(0, 2), { s: 'finding', trip: id, mode: 'quick' }]);
     },
     [step, ride, setProject],
   );

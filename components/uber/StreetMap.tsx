@@ -112,10 +112,14 @@ type Props = {
   onDone?: () => void;
   /** The stop-by-stop story: park the car at this stop. */
   carAt?: StopId | null;
+  /** A ride is being requested: rings pulse out from the pickup point. */
+  searching?: boolean;
+  /** Close in on the car: from the moment the ride is confirmed, and all through the drive. */
+  zoomOnCar?: boolean;
   reducedMotion?: boolean;
 };
 
-export default function StreetMap({ ride = null, from, to, pad = {}, detail, controls, browse, hot = null, onHot, onPick, hoverCard, dock, drive = null, paused, skip, onPass, onDone, carAt = null, reducedMotion }: Props) {
+export default function StreetMap({ ride = null, from, to, pad = {}, detail, controls, browse, hot = null, onHot, onPick, hoverCard, dock, drive = null, paused, skip, onPass, onDone, carAt = null, searching, zoomOnCar, reducedMotion }: Props) {
   const box = useRef<HTMLDivElement>(null);
   const glBox = useRef<HTMLDivElement>(null);
   const map = useRef<GlMap | null>(null);
@@ -150,15 +154,21 @@ export default function StreetMap({ ride = null, from, to, pad = {}, detail, con
   };
 
   const posIsNear = (frac: number) => spot(frac).y < DELHI_SOUTH;
-  // the events on the way, for the drive: long enough to read each one
+  // the drive: the car travels from one stop to the next, easing away and easing in, and waits at every stop on the way
+  // long enough to be read. Each stretch takes the same time however long the road is, so the run up from Mathura is
+  // one stop's worth of the drive, not half of it.
   const stopsOnWay = marks.filter((m) => m.at > 0.0005);
-  const clock = useDriveClock(drive, reducedMotion ? 0 : Math.min(16000, Math.max(6000, (stopsOnWay.length + 1) * 1500)), { paused, skip, onDone });
-  // the clock gives every stretch between two stops the same time, however long the road is: the long run up from
-  // Mathura is one stop's worth of the drive, not half of it
   const knots = [0, ...stopsOnWay.map((m) => m.at)];
   if (knots[knots.length - 1] < 1) knots.push(1);
-  const seg = Math.min(knots.length - 2, Math.floor(clock * (knots.length - 1)));
-  const p = clock >= 1 ? 1 : lerp(knots[seg], knots[seg + 1], clock * (knots.length - 1) - seg);
+  const legs = knots.length - 1;
+  const TRAVEL = path.ride ? 1700 : legs > 8 ? 850 : 1200;
+  const WAIT = 1100;
+  const driveMs = legs * TRAVEL + (legs - 1) * WAIT;
+  const clock = useDriveClock(drive, reducedMotion ? 0 : driveMs, { paused, skip, onDone });
+  const tNow = clock * driveMs;
+  const leg = Math.min(legs - 1, Math.floor(tNow / (TRAVEL + WAIT)));
+  const inLeg = tNow - leg * (TRAVEL + WAIT);
+  const p = clock >= 1 ? 1 : lerp(knots[leg], knots[leg + 1], ease(inLeg / TRAVEL));
   const driving = !!drive && clock < 1;
   const passed = drive ? stopsOnWay.filter((m) => m.at <= p + 0.0005).length : stopsOnWay.length;
   const told = useRef(0);
@@ -175,7 +185,9 @@ export default function StreetMap({ ride = null, from, to, pad = {}, detail, con
   // the parked car of the stop-by-stop story
   const parkAt = carAt ? (marks.find((m) => m.stop.id === carAt)?.at ?? null) : null;
   const park = useGlide(parkAt, reducedMotion ? 0 : 1100);
-  const carFrac = driving ? p : !drive && park !== null ? park : null;
+  // closing in on the car before it sets off: it waits at the pickup point
+  const zoomed = useGlide(zoomOnCar ? 1 : 0, reducedMotion ? 0 : 900) ?? 0;
+  const carFrac = driving ? p : !drive && park !== null ? park : !drive && zoomOnCar ? 0 : null;
 
   /* ------------------------------------------------------------ the camera */
   const viewKey = `${ride?.id ?? ''}:${from}:${to}:${browse ? 'b' : ''}`;
@@ -200,13 +212,15 @@ export default function StreetMap({ ride = null, from, to, pad = {}, detail, con
   const off = { x: free.l + fw / 2 - size.w / 2, y: free.t + fh / 2 - size.h / 2 };
   let zoom = fitZoom + own.z;
   let mid = { x: (bx.lo + bx.hi) / 2, y: (by.lo + by.hi) / 2 };
-  // a long drive is followed from closer in, the way a ride app follows the car, and eased in and out at the ends
-  const followZoom = Math.max(fitZoom, Math.min(10.4, fitZoom + 2.6));
-  if (driving && !own.far && (clipped || followZoom > fitZoom + 0.3)) {
-    const b = Math.min(ease(p / 0.1), ease((1 - p) / 0.1));
-    const c = spot(p);
-    zoom = lerp(zoom, followZoom + own.z, b);
-    mid = { x: lerp(mid.x, c.x, b), y: lerp(mid.y, c.y, b) };
+  // the drive is followed from close in, the way a ride app follows the car: the view closes in when the ride is
+  // confirmed, stays on the car, and eases back out to the whole route as it arrives
+  const followZoom = path.ride ? Math.max(fitZoom, Math.min(13.2, Math.max(10.6, fitZoom + 1.5))) : Math.max(fitZoom, Math.min(10.4, fitZoom + 2.6));
+  const canFollow = !own.far && (clipped || followZoom > fitZoom + 0.3);
+  const near = !canFollow ? 0 : driving ? Math.min(Math.max(ease(p / 0.1), zoomed), ease((1 - p) / 0.1)) : drive ? 0 : zoomed;
+  if (near > 0) {
+    const c = spot(driving ? p : 0);
+    zoom = lerp(zoom, followZoom + own.z, near);
+    mid = { x: lerp(mid.x, c.x, near), y: lerp(mid.y, c.y, near) };
   }
   const world = TILE * 2 ** zoom;
   const cx = mid.x - off.x / world;
@@ -354,6 +368,7 @@ export default function StreetMap({ ride = null, from, to, pad = {}, detail, con
               const q = own.far ? merc(GEO_HOME) : posOf(stop('you'));
               return (
                 <>
+                  {searching && [0, 1, 2].map((i) => <circle key={i} className="rm-radar" cx={sx(q)} cy={sy(q)} r={64} style={{ animationDelay: `${i * 0.5}s` }} />)}
                   <circle className="lm-you-halo" cx={sx(q)} cy={sy(q)} r={20} />
                   <circle className="lm-you" cx={sx(q)} cy={sy(q)} r={8} />
                 </>

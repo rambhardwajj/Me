@@ -59,6 +59,7 @@ export function stopPhoto(id: StopId): Photo | null {
 
 /** The gallery for each trip: Ram's own photos first. Entries starting with "shot:" are product screenshots. */
 const TRIP_SOURCES: Record<TripId, string[]> = {
+  ingenious: [],
   trucost: ['trucost', 'shot:trucost'],
   newral: ['newral-pm', 'best-employee', 'wingathon', 'newral-tpl'],
   ciena: ['ciena-award', 'cienagpt', 'ciena-fte'],
