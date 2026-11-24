@@ -23,6 +23,8 @@
  * 10. TruCost: the resume says Jun to Sep 2026. The months it went live and was sold are not known.
  */
 
+import { FIG } from './figures';
+
 /** Where the page remembers the chosen theme (the main site uses its own key). */
 export const THEME_KEY = 'uber-theme';
 
@@ -179,21 +181,21 @@ export const TRIPS: Trip[] = [
       { title: 'Took the contract as Product Manager', when: 'June 2026' },
       { title: 'Both apps live on the App Store and Play Store', when: 'By September 2026' }, // the contract's last month on the resume
     ],
-    result: { sub: 'Sold to the founder', value: '₹2.5L' },
-    proof: { title: '100 drivers onboarded', badge: 'Live on both app stores', note: 'Hired and led the development team' },
+    result: { sub: 'Sold to the founder', value: `${FIG.sold}` },
+    proof: { title: `${FIG.drivers} drivers onboarded`, badge: 'Live on both app stores', note: 'Hired and led the development team' },
     problem: 'Ride margins are thin, and the rider’s attention during a ride goes unused.',
     did: ['Built the app for iOS and Android', 'Ran advertiser outreach and deals', 'Designed rider fares and offers'],
     receipt: [
-      { label: 'Drivers onboarded', value: '100' },
-      { label: 'Sold to the founder for', value: '₹2.5L' },
+      { label: 'Drivers onboarded', value: FIG.drivers },
+      { label: 'Sold to the founder for', value: `${FIG.sold}` },
     ],
-    activity: { role: 'Built and sold', when: '2026-06', line: '100 drivers, sold for ₹2.5L' },
+    activity: { role: 'Built and sold', when: '2026-06', line: `${FIG.drivers} drivers, sold for ${FIG.sold}` },
     chapter: true,
   },
   {
     id: 'newral',
     name: 'Newral',
-    sub: 'Synappses: $3K to $10K MRR in 4 months',
+    sub: `Synappses: ${FIG.mrr} MRR in 4 months`,
     icon: 'chart',
     from: 'you',
     to: 'newral',
@@ -203,14 +205,14 @@ export const TRIPS: Trip[] = [
       { title: 'Joined as a software engineer', when: 'October 2025' },
       { title: 'Product Manager, Synappses', when: 'May 2026' },
     ],
-    result: { sub: 'MRR, up from $3K in 4 months', value: '$10K' },
-    proof: { title: 'Scaled Synappses from 5K to 70K users', badge: 'Doubled DAU', note: 'Retention up 18%, cloud costs down 30%' },
+    result: { sub: `MRR, up from ${FIG.mrrFrom} in 4 months`, value: `${FIG.mrrTo}` },
+    proof: { title: `Scaled Synappses from ${FIG.users} users`, badge: 'Doubled DAU', note: 'Retention up 18%, cloud costs down 30%' },
     did: ['Owned positioning, pricing and segments for Synappses', 'Doubled DAU with A/B-tested feature launches, and raised retention 18%', 'Cut cloud costs 30% by moving AWS and GCP to ACE Cloud with zero downtime'],
     receipt: [
-      { label: 'MRR, in 4 months', value: '$3K to $10K' },
-      { label: 'Users', value: '5K to 70K' },
+      { label: 'MRR, in 4 months', value: `${FIG.mrr}` },
+      { label: 'Users', value: `${FIG.users}` },
     ],
-    activity: { role: 'Product Manager', when: '2026-05', line: '5K to 70K users, $3K to $10K MRR' },
+    activity: { role: 'Product Manager', when: '2026-05', line: `${FIG.users} users, ${FIG.mrr} MRR` },
     chapter: true,
   },
   {
@@ -265,41 +267,41 @@ export const TRIPS: Trip[] = [
     blurb: 'An AI-graded practice platform for consulting cases and guesstimates, taken from a PRD to a live product.',
     leg: [
       { title: 'Started, from a PRD to an MVP', when: 'August 2026' },
-      { title: '150+ users across Masters’ Union communities', when: 'September 2026' },
+      { title: `${FIG.leetUsers} users across Masters’ Union communities`, when: 'September 2026' },
     ],
-    result: { sub: 'Users, across Masters’ Union communities', value: '150+' },
+    result: { sub: 'Users, across Masters’ Union communities', value: `${FIG.leetUsers}` },
     proof: { title: 'Owned the product from PRD to MVP', badge: 'AI Interviews, Flow Chart', note: 'Grown with feedback loops and A/B tests' },
     problem: 'Case and guesstimate prep is scattered across PDFs and group chats, with no structured way to practise, get hints or track progress.',
     did: ['Ran research with MBA aspirants to define the vision and roadmap', 'Shipped AI Interviews and Flow Chart, tracking activation, retention and DAU', 'Led go-to-market and growth with user feedback loops and A/B tests'],
     receipt: [
-      { label: 'Users', value: '150+' },
+      { label: 'Users', value: `${FIG.leetUsers}` },
       { label: 'Built', value: 'Aug to Sep 2026' },
     ],
-    activity: { role: 'Founder', when: '2026-08', line: '150+ users across Masters’ Union' },
+    activity: { role: 'Founder', when: '2026-08', line: `${FIG.leetUsers} users across Masters’ Union` },
     chapter: true,
   },
   {
     id: 'unbothrrd',
     name: 'unBothrrd',
-    sub: 'D2C lifestyle brand, ₹7.2L in sales',
+    sub: `D2C lifestyle brand, ${FIG.sales} in sales`,
     icon: 'bag',
     from: 'you',
     to: 'masters-union', // it has no stop of its own: it is a Masters' Union venture
     noMinutes: true,
     pickup: 'Co-Founder, 2026',
     blurb: 'A D2C lifestyle brand with daily drops in apparel and decor, run from October to November 2026.',
-    result: { sub: 'Sales in 2 months', value: '₹7.2L' },
+    result: { sub: 'Sales in 2 months', value: `${FIG.sales}` },
     proof: { title: 'Stalls at 6 community events', note: 'With a 9-member team' },
     did: ['Ran dropshipping campaigns, and managed sourcing, suppliers and pricing', 'Set up stalls at 6 community events with a 9-member team, to test products and pricing', 'Tracked campaign ROI and ad spend on Meta ads, with Excel models to monitor sales'],
     receipt: [
-      { label: 'Sales, in 2 months', value: '₹7.2L' },
+      { label: 'Sales, in 2 months', value: `${FIG.sales}` },
       { label: 'Community events', value: '6' },
     ],
   },
   {
     id: 'synappses',
     name: 'Synappses',
-    sub: 'Newral’s AI LMS: 5K to 70K users',
+    sub: `Newral’s AI LMS: ${FIG.users} users`,
     icon: 'cap',
     from: 'you',
     to: 'newral', // it has no stop of its own on the map: it was built inside Newral
@@ -310,12 +312,12 @@ export const TRIPS: Trip[] = [
       { title: 'Joined Newral', when: 'October 2025' },
       { title: 'Product Manager, Synappses', when: 'May 2026' },
     ],
-    result: { sub: 'Users, up from 5K', value: '70K' },
-    proof: { title: '$3K to $10K MRR in 4 months', badge: 'Doubled DAU', note: 'Led a 20-member cross-functional team' },
+    result: { sub: 'Users, up from 5K', value: `${FIG.usersTo}` },
+    proof: { title: `${FIG.mrr} MRR in 4 months`, badge: 'Doubled DAU', note: 'Led a 20-member cross-functional team' },
     did: ['Owned positioning, pricing and segments', 'Raised retention 18% with gamification and daily engagement', 'Improved CSAT by 21% with an automated customer feedback system'],
     receipt: [
-      { label: 'Users', value: '5K to 70K' },
-      { label: 'MRR, in 4 months', value: '$3K to $10K' },
+      { label: 'Users', value: `${FIG.users}` },
+      { label: 'MRR, in 4 months', value: `${FIG.mrr}` },
     ],
   },
   {
@@ -427,10 +429,10 @@ export const TRIPS: Trip[] = [
       { title: 'Joined the PGP', when: 'July 2026' },
       { title: 'Building LeetCase and unBothrrd', when: 'Now' },
     ],
-    result: { sub: 'Sales from unBothrrd, in 2 months', value: '₹7.2L' },
+    result: { sub: 'Sales from unBothrrd, in 2 months', value: `${FIG.sales}` },
     proof: { title: 'First core member, Netflix Fraternity', badge: '4 of 430', note: 'Rank 3 in dropshipping' },
     receipt: [
-      { label: 'D2C sales, in 2 months', value: '₹7.2L' },
+      { label: 'D2C sales, in 2 months', value: `${FIG.sales}` },
       { label: 'Netflix Fraternity', value: '4 of 430' },
     ],
   },
@@ -646,7 +648,7 @@ export const IDEA = {
   onTablet: ['Greets the rider by name', 'Shows the trip', 'Paid brand surveys', 'Brand ads'],
   optOut: 'The rider can mute it or switch it off, any time',
   /** Product proof only. Ram has not supplied revenue or response rates, so none are shown. */
-  proof: ['100 drivers onboarded at TruCost', 'Rider app live on the Play Store', 'Tablet app tied to each driver’s ID'],
+  proof: [`${FIG.drivers} drivers onboarded at TruCost`, 'Rider app live on the Play Store', 'Tablet app tied to each driver’s ID'],
   firstDrivers: ['15+ trips a day', 'Rated 4.7+', 'The most active first'],
   success: ['30%+ of riders answer', 'One brand orders again', 'Drivers stay on'],
   risks: [
@@ -670,8 +672,8 @@ export const BILLBOARD = {
   statuses: ['Ram accepted your request'],
   /** Who, what and one proof number, readable in a glance. Only facts Ram has confirmed. */
   headline: { before: 'I built and sold a', badge: 'ride-hailing', after: 'app.' },
-  pitch: 'I’m Ram Bhardwaj, a product manager. At TruCost I onboarded 100 drivers. Before that I was a PM at Newral.',
-  proof: { value: '100', label: 'drivers onboarded at TruCost' },
+  pitch: `I’m Ram Bhardwaj, a product manager. At TruCost I onboarded ${FIG.drivers} drivers. Before that I was a PM at Newral.`,
+  proof: { value: FIG.drivers, label: 'drivers onboarded at TruCost' },
   /** The four things a visitor can reach in one tap, with no ride in between. */
   caseStudy: 'See the TruCost case study',
   proposal: 'My Uber proposal',
@@ -709,9 +711,9 @@ export type Persona = {
 };
 
 export const PERSONAS: Persona[] = [
-  { id: 'pm', label: 'Ram, Product Manager', proof: 'Newral, TruCost, LeetCase', icon: 'chart', card: { name: 'Ram PM', time: '2 min', line: 'Scaled Synappses from 5K to 70K users' }, lead: 'ciena', first: [] },
-  { id: 'engineer', label: 'Ram, Engineer', proof: 'Ciena, Super 30, rank 1 coder', icon: 'code', card: { name: 'Ram Engineer', time: '2 min', line: 'Built TruCost for iOS and Android; 100 drivers onboarded' }, lead: 'ciena', first: ['ciena', 'super-30'] },
-  { id: 'founder', label: 'Ram, Founder', proof: 'unBothrrd, LeetCase', icon: 'bag', card: { name: 'Ram Growth', time: '2 min', line: 'Built a D2C brand to ₹7.2L in sales' }, lead: 'unbothrrd', first: ['unbothrrd', 'leetcase'] },
+  { id: 'pm', label: 'Ram, Product Manager', proof: 'Newral, TruCost, LeetCase', icon: 'chart', card: { name: 'Ram PM', time: '2 min', line: `Scaled Synappses from ${FIG.users} users` }, lead: 'ciena', first: [] },
+  { id: 'engineer', label: 'Ram, Engineer', proof: 'Ciena, Super 30, rank 1 coder', icon: 'code', card: { name: 'Ram Engineer', time: '2 min', line: `Built TruCost for iOS and Android; ${FIG.drivers} drivers onboarded` }, lead: 'ciena', first: ['ciena', 'super-30'] },
+  { id: 'founder', label: 'Ram, Founder', proof: 'unBothrrd, LeetCase', icon: 'bag', card: { name: 'Ram Growth', time: '2 min', line: `Built a D2C brand to ${FIG.sales} in sales` }, lead: 'unbothrrd', first: ['unbothrrd', 'leetcase'] },
   { id: 'dancer', label: 'Ram, Dancer', proof: 'India at a world final', icon: 'music', card: { name: 'Ram Performer', time: '2 min', line: 'Represented India at a world dance battle' }, lead: 'dance', first: ['dance'] },
 ];
 
@@ -720,8 +722,8 @@ export const PERSONAS: Persona[] = [
 /** "Projects and experience": seven tiles. `badge` is the red result badge. */
 /** Ram's order, 24 Nov 2026: where he worked on the first row, where he studied on the second. Projects live under Shipped. */
 export const TILES: { trip: TripId; badge?: string; label?: string }[] = [
-  { trip: 'trucost', badge: 'Sold ₹2.5L' },
-  { trip: 'newral', badge: '$3K to $10K' },
+  { trip: 'trucost', badge: `Sold ${FIG.sold}` },
+  { trip: 'newral', badge: `${FIG.mrr}` },
   { trip: 'ciena' },
   // the full name is three lines under a tile: Ram asked for the first word only
   { trip: 'ingenious', label: 'Ingenious' },
@@ -793,9 +795,9 @@ export const SERVICES = {
   book: 'Book Ram for',
   main: [
     { name: '0 to 1 launches', line: 'TruCost, LeetCase', icon: 'car', trip: 'trucost' },
-    { name: 'Go to market', line: 'Synappses, $3K to $10K MRR', icon: 'chart', trip: 'newral' },
+    { name: 'Go to market', line: `Synappses, ${FIG.mrr} MRR`, icon: 'chart', trip: 'newral' },
     { name: 'Pricing', line: 'Fares and offers at TruCost', icon: 'bag', trip: 'trucost' },
-    { name: 'Growth', line: '5K to 70K users at Synappses', icon: 'doc', trip: 'newral' },
+    { name: 'Growth', line: `${FIG.users} users at Synappses`, icon: 'doc', trip: 'newral' },
   ] as { name: string; line: string; icon: Pictogram; trip: TripId }[],
   also: 'Also on board',
   more: [
@@ -954,8 +956,8 @@ export const EXPLAIN: Record<ScreenKey, { title: string; uber: string; here: str
 
 /** Three proofs on the panel before anything is tapped. Each opens its trip. */
 export const HERO_FACTS: { trip: TripId; value: string; label: string }[] = [
-  { trip: 'trucost', value: '₹2.5L', label: 'TruCost, built and sold' },
-  { trip: 'newral', value: '$10K', label: 'Synappses MRR, up from $3K' },
+  { trip: 'trucost', value: `${FIG.sold}`, label: 'TruCost, built and sold' },
+  { trip: 'newral', value: `${FIG.mrrTo}`, label: `Synappses MRR, up from ${FIG.mrrFrom}` },
   { trip: 'ciena', value: '4 of 14,000', label: 'Ciena, annual award' },
 ];
 
@@ -981,7 +983,7 @@ export type Job = {
  * Synappses is not listed here: it was a product inside Newral, and Ram wants it shown under Shipped only.
  */
 export const EXPERIENCE: Job[] = [
-  { company: 'TruCost', what: 'Ride-hailing app with an in-cab tablet', icon: 'car', logo: '/images/logos/trucost.webp', trip: 'trucost', roles: [{ title: 'Product Manager, on contract', when: 'Jun 2026 to Sep 2026' }], result: '100 drivers onboarded, sold for ₹2.5L' },
+  { company: 'TruCost', what: 'Ride-hailing app with an in-cab tablet', icon: 'car', logo: '/images/logos/trucost.webp', trip: 'trucost', roles: [{ title: 'Product Manager, on contract', when: 'Jun 2026 to Sep 2026' }], result: `${FIG.drivers} drivers onboarded, sold for ${FIG.sold}` },
   {
     company: 'Newral',
     what: 'Product studio behind Synappses, Noida',
@@ -992,7 +994,7 @@ export const EXPERIENCE: Job[] = [
       // the resume gives one span for Newral, not a date for each role
       { title: 'Software Engineer, then Product Manager for Synappses', when: 'Oct 2025 to May 2026' },
     ],
-    result: '5K to 70K users, $3K to $10K MRR',
+    result: `${FIG.users} users, ${FIG.mrr} MRR`,
   },
   { company: '100xSchool, Super 30', what: 'Hacker House funded by YC', icon: 'code', logo: '/images/logos/100xschool.webp', trip: 'super-30', roles: [{ title: 'Students Affairs Head', when: '2026' }, { title: 'Hacker House builder', when: 'Jul 2025 to Feb 2026' }], result: '1 of 30 builders nationwide' },
   {

@@ -6,5 +6,5 @@ export default function Mark({ id, size = 48 }: { id: TripId; size?: number }) {
   const src = LOGO[id];
   if (!src) return <Pict name={getTrip(id).icon} size={size} />;
   // eslint-disable-next-line @next/next/no-img-element
-  return <img className="ub-logo" src={src} alt="" width={size} height={size} />;
+  return <img className="ub-logo" src={src} alt="" width={size} height={size} loading="lazy" decoding="async" />;
 }

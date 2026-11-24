@@ -238,6 +238,11 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
                     {BILLBOARD.ride}
                   </button>
                 </nav>
+                {/* phone widths: the app is the next screen down, and this says so */}
+                <a className="ub-hint" href="#app">
+                  The app is just below
+                  <Icon name="chevDown" size={16} w={2.4} />
+                </a>
               </div>
             </section>
 
@@ -249,7 +254,7 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
             {/* the cloud is for screens without the map; on the map, the place's own card opens instead */}
             {desk && arrived && ride.peek && !ride.sheet && !ride.route && ride.where !== 'search' && <ThoughtCloud trip={ride.peek.trip} x={ride.peek.x} y={ride.peek.y} />}
 
-            <div className="ub-phone" ref={app}>
+            <div className="ub-phone" id="app" ref={app}>
               {/* phone widths: the app starts here, and the way past it is said first */}
               <div className="ub-frame">
                 <div className="ub-glass" inert={desk && !arrived ? true : undefined}>

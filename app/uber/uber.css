@@ -1681,3 +1681,33 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
   /* the phone on the first screen: a little smaller and lower, so its bottom edge and its float stay inside short laptop windows */
   .ub-phone { transform: translate(calc(972px - 916px * var(--p)), calc(26px - 10px * var(--p))) rotate(calc(3deg - 3deg * var(--p))) scale(calc(0.9 + 0.1 * var(--p))); }
 }
+
+/* ==========================================================================
+   24 Nov 2026, fourth review: phone widths, 360 to 390px.
+   ========================================================================== */
+/* the three home tabs share the width, so the last one is never clipped */
+.rp-toptabs { padding: 0 12px; gap: 0; }
+.rp-toptabs button { flex: 1 1 0; min-width: 0; justify-content: center; gap: 6px; padding: 0 2px; font-size: 18px; }
+/* the recent place: its line may take two rows instead of being cut */
+.rp-recent { height: auto; min-height: 64px; padding-top: 10px; padding-bottom: 10px; }
+.rp-recent-text small { white-space: normal; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+/* "Open to PM roles": it leaves after five seconds, and its close button is a full 44px */
+.rp-strip { left: 64px; right: 64px; height: 44px; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
+.rp-strip button { flex: none; margin: 0; }
+/* nothing under 12px */
+.rp-tribute, .rp-tabbar button, .rp-place-when small, .rm-pin small, .ub-arr-end small, .ub-arr-line small, .ub-drv p small, .rp-steps li i, .ub-pre-steps li i { font-size: 12px; }
+.rm-ev text { font-size: 12px; }
+.rm .maplibregl-ctl-attrib { font-size: 12px; }
+.ig-nums dd.ig-why, .ig-nums .good dd.ig-why { font-size: 12px; line-height: 16px; }
+.td-top { font-size: max(12px, 2.6cqw); }
+.ub-hint { display: none; }
+@media (max-width: 1023.98px), (max-height: 559.98px) {
+  /* the first screen ends where its content ends: no empty band before the app */
+  .ub-bill { min-height: 0; justify-content: flex-start; padding-bottom: 12px; }
+  .ub-hint { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-top: 4px; font-family: var(--u-ui); font-size: 14px; font-weight: 600; color: var(--u-text-2); }
+  .ub-hint svg { animation: ub-nudge 1.6s ease-in-out infinite; }
+}
+@keyframes ub-nudge { 50% { transform: translateY(4px); } }
+/* while the toast is up, the fade under the tab bar reaches above it, so the toast never sits on top of readable content */
+.rp-screen:has(.rp-strip) .rp-tabbar::before { top: -92px; background: linear-gradient(to bottom, transparent, var(--u-bg) 38%); }
+.rp-strip { z-index: 3; }

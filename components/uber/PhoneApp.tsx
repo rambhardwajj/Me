@@ -99,7 +99,7 @@ function Tribute({ className = 'rp-tribute', onReserve }: { className?: string; 
 /** A photo that steps aside if it cannot load. */
 function Thumb({ photo, className = 'rp-thumb' }: { photo: Photo; className?: string }) {
   // eslint-disable-next-line @next/next/no-img-element
-  return <img className={`${className} ${photo.contain ? 'contain' : ''}`} src={photo.src} alt={photo.alt} loading="lazy" onError={(e) => (e.currentTarget.style.display = 'none')} />;
+  return <img className={`${className} ${photo.contain ? 'contain' : ''}`} src={photo.src} alt={photo.alt} width={336} height={216} loading="lazy" decoding="async" onError={(e) => (e.currentTarget.style.display = 'none')} />;
 }
 
 /** The photos of a trip, as a strip to swipe through. */
@@ -236,6 +236,13 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
   useEffect(() => {
     if (sheet) root.current?.querySelector<HTMLElement>('.rp-sheet.modal [data-first]')?.focus({ preventScroll: true });
   }, [sheet]);
+
+  // "Open to PM roles" says its piece and leaves, so it never sits over the tiles
+  useEffect(() => {
+    if (!strip) return;
+    const t = setTimeout(() => setStrip(false), 5000);
+    return () => clearTimeout(t);
+  }, [strip]);
 
   useEffect(() => {
     if (!toast) return;
@@ -478,7 +485,8 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
 
   const home = (
     <>
-      <Tribute onReserve={reserveHere} />
+      {/* Home has its own Reserve button beside "Where to?", so the line above it does not repeat one */}
+      <Tribute />
       <div className="rp-top">
         <button type="button" className="rp-switch" data-first onClick={() => openSheet('switch')} aria-haspopup="dialog">
           <i className="rp-loc" aria-hidden="true" />
@@ -932,7 +940,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
                 <div className="rp-past-top">
                   {j.logo ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img className="rp-job-logo" src={j.logo} alt={`${j.company} logo`} width={52} height={52} />
+                    <img className="rp-job-logo" src={j.logo} alt={`${j.company} logo`} width={52} height={52} loading="lazy" decoding="async" />
                   ) : (
                     <span className="art">
                       <Pict name={j.icon} />

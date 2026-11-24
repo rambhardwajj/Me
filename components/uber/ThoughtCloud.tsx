@@ -36,7 +36,7 @@ export default function ThoughtCloud({ trip, x, y }: { trip: TripId; x: number; 
           <div className={`ub-cloud-photos n${photos.length}`}>
             {photos.map((p, i) => (
               // eslint-disable-next-line @next/next/no-img-element
-              <img key={p.src} className={p.contain ? 'contain' : ''} src={p.src} alt="" style={{ ['--i' as string]: i }} />
+              <img key={p.src} className={p.contain ? 'contain' : ''} src={p.src} alt="" width={300} height={208} loading="lazy" decoding="async" style={{ ['--i' as string]: i }} />
             ))}
           </div>
           <b>{t.name}</b>

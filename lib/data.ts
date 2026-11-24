@@ -4,6 +4,8 @@
  * note or brief disagrees, the résumé wins. Lines marked TODO need a check.
  */
 
+import { FIG } from './figures';
+
 export const PROFILE = {
   name: 'Ram Bhardwaj',
   firstName: 'Ram',
@@ -13,7 +15,7 @@ export const PROFILE = {
   portrait: 'https://res.cloudinary.com/ewpg7mfj/image/upload/c_fill,g_face,ar_4:5,w_900,z_0.7/f_auto,q_auto/v1792300638/P1182901_nwx7t6.jpg',
   availability: 'Open to Product Manager roles',
   pitch:
-    'I’m Ram, a Product Manager and former software engineer. I’ve scaled an AI SaaS LMS from 5K to 70K users and from $3K to $10K MRR, shipped iOS and Android ride-hailing apps with 100 drivers onboarded, and built a D2C brand to ₹7.2L in sales.',
+    `I’m Ram, a Product Manager and former software engineer. I’ve scaled an AI SaaS LMS from ${FIG.users} users and from ${FIG.mrr} MRR, shipped iOS and Android ride-hailing apps with ${FIG.drivers} drivers onboarded, and built a D2C brand to ${FIG.sales} in sales.`,
   location: 'Gurugram, India',
   timezone: 'Asia/Kolkata',
   status: 'Open to product leadership, founder’s office & strategy roles', // TODO: confirm target roles
@@ -31,7 +33,7 @@ export const PROFILE = {
 export type Metric = { prefix?: string; value: number; suffix?: string; decimals?: number; label: string; note: string };
 
 export const METRICS: Metric[] = [
-  { prefix: '$', value: 10, suffix: 'K', label: 'MRR, up from $3K', note: 'Synappses, in 4 months' },
+  { prefix: '$', value: 10, suffix: 'K', label: `MRR, up from ${FIG.mrrFrom}`, note: 'Synappses, in 4 months' },
   { value: 70, suffix: 'K', label: 'Users, up from 5K', note: 'Synappses AI SaaS LMS' },
   { prefix: '₹', value: 7.2, suffix: 'L', decimals: 1, label: 'D2C sales in 2 months', note: 'unBothrrd' },
   { value: 4, suffix: '/14K', label: 'Global award winners', note: 'Ciena’s annual award' },
@@ -49,10 +51,10 @@ export type AchievementTag = 'Product' | 'Tech' | 'Leadership' | 'Stage' | 'Acad
 export const ACHIEVEMENTS: { year: string; title: string; context: string; metric: string; tag: AchievementTag; photo?: string }[] = [
   { year: '2026', title: 'Won the YC VibeCon Wingathon', context: 'National hackathon in Bangalore: built and pitched the best product in 24 hours', metric: 'Top 10 of 30,000', tag: 'Tech', photo: 'wingathon' },
   { year: '2026', title: 'First core member, Netflix Fraternity', context: 'Masters’ Union', metric: '4 of 430', tag: 'Leadership', photo: 'masters-union' },
-  { year: '2026', title: 'Built unBothrrd to ₹7.2L in sales', context: 'D2C lifestyle brand: dropshipping campaigns, sourcing, suppliers and pricing, in 2 months', metric: '₹7.2L in sales', tag: 'Product', photo: 'masters-union' },
-  { year: '2026', title: 'Scaled Synappses', context: 'AI-powered SaaS LMS, owning positioning, pricing and segments', metric: '5K → 70K users · $3K → $10K MRR', tag: 'Product' },
-  { year: '2026', title: 'Shipped TruCost to both app stores', context: 'Ride-hailing with an in-cab tablet, plus a contract closed', metric: '100 drivers onboarded', tag: 'Product', photo: 'trucost' },
-  { year: '2026', title: 'Launched LeetCase from PRD to MVP', context: 'Case and guesstimate practice for MBA aspirants', metric: '150+ users', tag: 'Product', photo: 'leetcase' },
+  { year: '2026', title: `Built unBothrrd to ${FIG.sales} in sales`, context: 'D2C lifestyle brand: dropshipping campaigns, sourcing, suppliers and pricing, in 2 months', metric: `${FIG.sales} in sales`, tag: 'Product', photo: 'masters-union' },
+  { year: '2026', title: 'Scaled Synappses', context: 'AI-powered SaaS LMS, owning positioning, pricing and segments', metric: `5K → ${FIG.usersTo} users · ${FIG.mrrFrom} → ${FIG.mrrTo} MRR`, tag: 'Product' },
+  { year: '2026', title: 'Shipped TruCost to both app stores', context: 'Ride-hailing with an in-cab tablet, plus a contract closed', metric: `${FIG.drivers} drivers onboarded`, tag: 'Product', photo: 'trucost' },
+  { year: '2026', title: 'Launched LeetCase from PRD to MVP', context: 'Case and guesstimate practice for MBA aspirants', metric: `${FIG.leetUsers} users`, tag: 'Product', photo: 'leetcase' },
   { year: '2026', title: 'Mentored students for Google Summer of Code', context: 'Students Affairs Head, 100xSchool Super 30', metric: '30+ students', tag: 'Leadership' },
   { year: '2025', title: 'Best Employee of the year', context: 'Newral, recognised within my first three months', metric: '#1 in the company', tag: 'Leadership', photo: 'best-employee' },
   { year: '2025', title: 'Cut Newral’s cloud bill and raised retention', context: 'AWS and GCP migration to ACE Cloud with zero downtime; gamification and daily engagement', metric: '−30% cloud cost · +18% retention', tag: 'Product', photo: 'newral-pm' },
@@ -150,7 +152,7 @@ export const EXPERIENCE: Job[] = [
     type: 'Contract',
     location: 'Remote',
     url: 'https://trucostrides.com/',
-    summary: 'Shipped Android and iOS ride-hailing apps with an in-cab tablet, onboarded 100 drivers and closed a contract.',
+    summary: `Shipped Android and iOS ride-hailing apps with an in-cab tablet, onboarded ${FIG.drivers} drivers and closed a contract.`,
     roles: [
       {
         title: 'Product Manager',
@@ -160,7 +162,7 @@ export const EXPERIENCE: Job[] = [
           {
             heading: 'Mobile apps & device connectivity',
             points: [
-              'Delivered an Uber-style ride-hailing app on Android and iOS, live on the Play Store and App Store, with 100 drivers onboarded',
+              `Delivered an Uber-style ride-hailing app on Android and iOS, live on the Play Store and App Store, with ${FIG.drivers} drivers onboarded`,
               'Designed the Bluetooth connectivity architecture pairing the driver’s phone with an in-cab tablet mounted on the seat headrest',
             ],
           },
@@ -180,7 +182,7 @@ export const EXPERIENCE: Job[] = [
     slug: 'newral',
     accent: '#3b82f6',
     metrics: [
-      { prefix: '$', value: 10, suffix: 'K', label: 'MRR, from $3K in 4 months' },
+      { prefix: '$', value: 10, suffix: 'K', label: `MRR, from ${FIG.mrrFrom} in 4 months` },
       { value: 70, suffix: 'K', label: 'users, from 5K' },
       { prefix: '−', value: 30, suffix: '%', label: 'cloud costs' },
     ],
@@ -188,7 +190,7 @@ export const EXPERIENCE: Job[] = [
     logo: { text: 'N', bg: 'linear-gradient(135deg, #2563eb, #1e3a8a)', src: '/images/logos/newral.png' },
     type: 'Full-time',
     location: 'Noida',
-    summary: 'Product studio behind Synappses, an AI-powered SaaS LMS: 5K to 70K users, $3K to $10K MRR in 4 months, 30% lower cloud costs.',
+    summary: `Product studio behind Synappses, an AI-powered SaaS LMS: ${FIG.users} users, ${FIG.mrr} MRR in 4 months, 30% lower cloud costs.`,
     highlights: ['Best Employee, 2025', 'Won the YC VibeCon Wingathon, representing Newral'],
     // The résumé gives one span for Newral (Oct 2025 to May 2026) and two titles. The month each role began is from Ram's own timeline.
     roles: [
@@ -200,7 +202,7 @@ export const EXPERIENCE: Job[] = [
           {
             heading: 'Product strategy & go-to-market',
             points: [
-              'Scaled Synappses from 5K to 70K users and from $3K to $10K MRR in 4 months by owning positioning, pricing and segments',
+              `Scaled Synappses from ${FIG.users} users and from ${FIG.mrr} MRR in 4 months by owning positioning, pricing and segments`,
               'Doubled DAU through A/B-tested feature launches, and raised retention 18% with gamification and daily engagement',
               'Improved CSAT by 21% by building an automated customer feedback system that sped up issue resolution and escalations',
             ],
@@ -546,7 +548,7 @@ export const JOURNEY: Moment[] = [
     title: 'Product Manager, Synappses',
     org: 'Newral · until May 2026',
     body: 'Owned positioning, pricing and segments for Synappses, Newral’s AI-powered SaaS LMS.',
-    points: ['Scaled it from 5K to 70K users and from $3K to $10K MRR in 4 months', 'Doubled DAU through A/B-tested feature launches', 'Raised retention 18% with gamification and daily engagement'],
+    points: [`Scaled it from ${FIG.users} users and from ${FIG.mrr} MRR in 4 months`, 'Doubled DAU through A/B-tested feature launches', 'Raised retention 18% with gamification and daily engagement'],
     image: 'https://res.cloudinary.com/ewpg7mfj/image/upload/c_fill,g_auto,ar_16:9,w_1200/f_auto,q_auto/v1792314872/Screenshot_2026-10-18_at_2.44.07_PM_bdyrtu.png',
     imageHint: 'You with the Newral team',
   },
@@ -558,7 +560,7 @@ export const JOURNEY: Moment[] = [
     title: 'Product Manager, TruCost',
     org: 'Contract · Skyex AI Mobility Technologies Pvt. Ltd.',
     body: 'An Uber-style ride-hailing service with a headrest tablet paired to the driver’s phone, running ads and surveys during the ride.',
-    points: ['Shipped Android and iOS apps, live on both stores, with 100 drivers onboarded', 'Negotiated and closed a contract', 'Hired and led the development team'],
+    points: [`Shipped Android and iOS apps, live on both stores, with ${FIG.drivers} drivers onboarded`, 'Negotiated and closed a contract', 'Hired and led the development team'],
     stat: 'Contract closed',
     image: 'https://res.cloudinary.com/ewpg7mfj/image/upload/f_auto,q_auto,w_1200/v1792316440/000_mv8c44.png',
     imageHint: 'In-cab tablet / app screens',
@@ -570,7 +572,7 @@ export const JOURNEY: Moment[] = [
     kind: 'Education',
     title: 'Joined Masters’ Union',
     org: 'PGP in Technology & Business Management, Gurugram',
-    body: 'Learning business by running one: unBothrrd, a D2C brand with ₹7.2L in sales in 2 months, first core member of the Netflix Fraternity, and rank 3 in dropshipping.',
+    body: `Learning business by running one: unBothrrd, a D2C brand with ${FIG.sales} in sales in 2 months, first core member of the Netflix Fraternity, and rank 3 in dropshipping.`,
     stat: 'Netflix Fraternity · 4 of 430',
     image: '/images/ram-photo.jpg',
     imageHint: 'Masters’ Union venture stall',
@@ -582,8 +584,8 @@ export const JOURNEY: Moment[] = [
     kind: 'Milestone',
     title: 'Launched LeetCase',
     org: 'For MBA aspirants · guesstimates & case prep',
-    body: 'Took it from PRD to MVP and scaled it to 150+ users across Masters’ Union communities.',
-    stat: '150+ users',
+    body: `Took it from PRD to MVP and scaled it to ${FIG.leetUsers} users across Masters’ Union communities.`,
+    stat: `${FIG.leetUsers} users`,
     image: '/images/leetcase.webp',
     imageHint: 'LeetCase product screenshot',
   },
@@ -627,7 +629,7 @@ export const PROJECTS: Project[] = [
     problem: 'Case and guesstimate prep is scattered across PDFs and group chats, with no structured way to practise, get hints or track progress.',
     did: ['Owned the product from PRD to MVP launch, defining the vision and roadmap from research with MBA aspirants', 'Drove product-market fit by shipping AI Interviews and Flow Chart, and tracking activation, retention and DAU', 'Led go-to-market and growth with user feedback loops and A/B tests'],
     metrics: [
-      { value: '150+', label: 'users across MU communities' },
+      { value: `${FIG.leetUsers}`, label: 'users across MU communities' },
       { value: 'PRD → MVP', label: 'owned end to end' },
       { value: 'AI-graded', label: 'cases and guesstimates' },
     ],
@@ -666,10 +668,10 @@ export const PROJECTS: Project[] = [
     period: 'Oct 2025 – May 2026',
     pitch: 'An AI-powered SaaS LMS.',
     problem: '',
-    did: ['Scaled it from 5K to 70K users and from $3K to $10K MRR in 4 months by owning positioning, pricing and segments', 'Doubled DAU through A/B-tested feature launches, and raised retention 18% with gamification and daily engagement', 'Led a 20-member cross-functional team, shipping 20% more story points per sprint'],
+    did: [`Scaled it from ${FIG.users} users and from ${FIG.mrr} MRR in 4 months by owning positioning, pricing and segments`, 'Doubled DAU through A/B-tested feature launches, and raised retention 18% with gamification and daily engagement', 'Led a 20-member cross-functional team, shipping 20% more story points per sprint'],
     metrics: [
-      { value: '5K → 70K', label: 'users' },
-      { value: '$3K → $10K', label: 'MRR in 4 months' },
+      { value: `5K → ${FIG.usersTo}`, label: 'users' },
+      { value: `${FIG.mrrFrom} → ${FIG.mrrTo}`, label: 'MRR in 4 months' },
       { value: '20', label: 'person team led' },
     ],
     stack: ['B2B SaaS', 'AI', 'EdTech', 'Pricing'],
@@ -686,9 +688,9 @@ export const PROJECTS: Project[] = [
     period: 'Oct – Nov 2026',
     pitch: 'A D2C lifestyle brand with daily drops in apparel and decor.',
     problem: '',
-    did: ['Generated ₹7.2L in sales in 2 months through dropshipping campaigns, managing sourcing, suppliers and pricing', 'Set up stalls at 6 community events with a 9-member team, testing products and pricing live', 'Tracked campaign ROI and ad spend on Meta ads, building Excel-based financial models to monitor sales'],
+    did: [`Generated ${FIG.sales} in sales in 2 months through dropshipping campaigns, managing sourcing, suppliers and pricing`, 'Set up stalls at 6 community events with a 9-member team, testing products and pricing live', 'Tracked campaign ROI and ad spend on Meta ads, building Excel-based financial models to monitor sales'],
     metrics: [
-      { value: '₹7.2L', label: 'sales in 2 months' },
+      { value: `${FIG.sales}`, label: 'sales in 2 months' },
       { value: '6', label: 'community events' },
       { value: '9', label: 'member team' },
     ],

@@ -50,7 +50,7 @@ const REROUTE: Partial<Record<StopId, string>> = Object.fromEntries(REROUTES.map
 /** A photo that quietly steps aside if it cannot load. */
 export function Shot({ photo, className = '', eager }: { photo: Photo; className?: string; eager?: boolean }) {
   // eslint-disable-next-line @next/next/no-img-element
-  return <img className={`ub-shot ${photo.contain ? 'contain' : ''} ${className}`} src={photo.src} alt={photo.alt} loading={eager ? 'eager' : 'lazy'} onError={(e) => (e.currentTarget.style.visibility = 'hidden')} />;
+  return <img className={`ub-shot ${photo.contain ? 'contain' : ''} ${className}`} src={photo.src} alt={photo.alt} width={640} height={400} decoding="async" loading={eager ? 'eager' : 'lazy'} onError={(e) => (e.currentTarget.style.visibility = 'hidden')} />;
 }
 
 const when = (s: Stop) => (s.type === 'you' ? 'Now' : s.monthAssumed ? s.when.slice(0, 4) : monthLabel(s.when, true));
@@ -131,7 +131,7 @@ function PreRide({ step, name, onSkip }: { step: number; name: string; onSkip: (
       {step >= 1 && (
         <p className="ub-pre-drv">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={PORTRAIT.src} alt="" />
+          <img src={PORTRAIT.src} alt="" width={46} height={46} loading="lazy" decoding="async" />
           <span>
             <b>Ram Bhardwaj</b>
             <small>Your driver. Product Manager</small>
@@ -654,7 +654,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
             <span className="ub-tl-node" aria-hidden="true">
               {j.logo ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={j.logo} alt="" />
+                <img src={j.logo} alt="" width={44} height={44} loading="lazy" decoding="async" />
               ) : (
                 <Pict name={j.icon} size={24} />
               )}

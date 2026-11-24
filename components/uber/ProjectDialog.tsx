@@ -158,7 +158,7 @@ export default function ProjectDialog({
             <div className="ub-drv">
               <span className="ub-drv-face">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={PORTRAIT.src} alt="" />
+                <img src={PORTRAIT.src} alt="" width={56} height={56} loading="lazy" decoding="async" />
               </span>
               <p>
                 <small>Your driver</small>
