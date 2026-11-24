@@ -42,7 +42,13 @@ export function useRide() {
   /** The destination being pointed at in the phone, and where its icon is (in phone pixels), for the thought cloud. */
   const [peek, setPeek] = useState<{ trip: TripId; x: number; y: number } | null>(null);
   /** The project whose details are open in the modal. */
-  const [project, setProject] = useState<TripId | null>(null);
+  const [project, setProjectOnly] = useState<TripId | null>(null);
+  /** The project the car has just driven to: its details open as "You have arrived", not as plain details. */
+  const [arrivedAt, setArrivedAt] = useState<TripId | null>(null);
+  const setProject = useCallback((id: TripId | null) => {
+    setArrivedAt(null);
+    setProjectOnly(id);
+  }, []);
   /** Where the visitor is in the sample survey on the idea page: 0 the ask, 1 to 3 the questions, 4 done, -1 declined. */
   const [survey, setSurvey] = useState(0);
   /** The chapter of the idea page on show beside the phone. */
@@ -130,7 +136,7 @@ export function useRide() {
       setLookState({ trip: id });
       setStack((st) => [...st.filter((sc) => sc.s === 'tab' || sc.s === 'search').slice(0, 2), { s: 'choose', trip: id }]);
     },
-    [step],
+    [step, setProject],
   );
 
   /** A tile or a row for one place: no choosing. The car drives straight there, and the place's details open when it arrives. */
@@ -149,12 +155,13 @@ export function useRide() {
       setDriveNo((n) => n + 1);
       setStack((st) => [...st.filter((sc) => sc.s === 'tab' || sc.s === 'search').slice(0, 2), { s: 'details', trip: id, mode: 'quick' }]);
     },
-    [step, ride],
+    [step, ride, setProject],
   );
   /** The car has arrived: open what Ram did there. */
   const landed = useCallback((id: TripId) => {
     setArrive(null);
-    setProject(id);
+    setProjectOnly(id);
+    setArrivedAt(id);
   }, []);
 
   /** Set one end of the Journey route. The two ends are then put in time order, or the reverse if the visitor swapped them. */
@@ -178,7 +185,7 @@ export function useRide() {
   const tripMode: Mode = screen.s === 'finding' || screen.s === 'details' ? screen.mode : mode;
 
   return {
-    stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, swapEnds, hot, setHot, look, setLook, peek, setPeek, project, setProject, survey, setSurvey, ideaStep, setIdeaStep, facet, setFacet, moves, step,
+    stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, swapEnds, hot, setHot, look, setLook, peek, setPeek, project, setProject, arrivedAt, survey, setSurvey, ideaStep, setIdeaStep, facet, setFacet, moves, step,
     push, back, goTab, openSheet, closeSheet, ride, driveTo, landed, arrive, driveNo,
     where, onTrip, onJourney, journeyTrip, route, tripMode,
   };

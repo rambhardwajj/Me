@@ -1376,3 +1376,59 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
 .rm-chip.on svg { transform: none; }
 .rm-chip:hover, .rm-chip.on { background: var(--u-primary); color: var(--u-on-primary); }
 .ub[data-theme='dark'] .rm-chip { border: 1px solid var(--u-edge); }
+
+/* ------------------------------------------------------------------ the end of a ride: "You have arrived" */
+.ub-arr { flex: none; padding: 22px 20px 20px 26px; background: #000000; color: #ffffff; }
+.ub-arr-top { display: flex; align-items: flex-start; gap: 16px; }
+.ub-arr-top > div { flex: 1; min-width: 0; }
+.ub-arr-tick { flex: none; width: 46px; height: 46px; margin-top: 2px; border-radius: 50%; background: var(--u-positive); color: #ffffff; display: flex; align-items: center; justify-content: center; animation: ub-arr-pop 0.5s 0.15s cubic-bezier(0.22, 1.5, 0.36, 1) both; }
+@keyframes ub-arr-pop { from { opacity: 0; transform: scale(0.3); } }
+.ub-arr-k { font-size: 12.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #4ad98a; }
+.ub-arr h2 { margin-top: 4px; font-family: var(--u-display); font-size: 40px; line-height: 0.98; font-weight: 900; letter-spacing: -0.04em; font-stretch: 75%; }
+.ub-arr-sub { margin-top: 8px; font-size: 15.5px; line-height: 22px; color: #c9c9c9; }
+.ub-arr .ub-dialog-x { background: #1f1f1f; color: #ffffff; }
+.ub-arr-trip { margin-top: 18px; display: grid; grid-template-columns: auto minmax(60px, 1fr) auto; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 16px; background: #141414; box-shadow: inset 0 0 0 1px #2a2a2a; }
+.ub-arr-end { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.ub-arr-end > span { display: flex; flex-direction: column; min-width: 0; }
+.ub-arr-end i { flex: none; width: 12px; height: 12px; background: #ffffff; }
+.ub-arr-end i.dot { border-radius: 50%; background: var(--u-accent); box-shadow: 0 0 0 4px rgba(59, 130, 255, 0.28); }
+.ub-arr-end small { font-size: 11.5px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #9a9a9a; }
+.ub-arr-end b { font-size: 16.5px; line-height: 21px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ub-arr-end em { font-style: normal; font-size: 13px; color: #b5b5b5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ub-arr-line { position: relative; height: 34px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+.ub-arr-line::before { content: ''; position: absolute; left: 0; right: 0; top: 11px; border-top: 2px dashed #4a4a4a; }
+.ub-arr-line i { position: absolute; top: -3px; left: 100%; width: 30px; height: 30px; margin-left: -30px; border-radius: 50%; background: #ffffff; color: #000000; display: flex; align-items: center; justify-content: center; animation: ub-arr-car 1.1s 0.2s cubic-bezier(0.3, 0, 0.2, 1) both; }
+@keyframes ub-arr-car { from { left: 30px; } }
+.ub-arr-line small { font-size: 11.5px; color: #9a9a9a; white-space: nowrap; }
+/* the driver, the way a ride app shows who drove you */
+.ub-drv { flex: none; display: flex; align-items: center; gap: 14px; padding: 12px 20px 12px 26px; border-bottom: 1px solid var(--u-line); }
+.ub-drv-face { flex: none; width: 52px; height: 52px; border-radius: 50%; overflow: hidden; background: var(--u-photo); }
+.ub-drv-face img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.ub-drv p { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.ub-drv p small { font-size: 11.5px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--u-text-2); }
+.ub-drv p b { font-size: 17px; line-height: 22px; font-weight: 700; }
+.ub-drv p span { font-size: 13.5px; color: var(--u-body); }
+.ub-drv-plate { flex: none; display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 12px 0 8px; border-radius: 8px; background: var(--u-surface); box-shadow: inset 0 0 0 1.5px var(--u-text); font-size: 13.5px; font-weight: 700; letter-spacing: 0.03em; white-space: nowrap; }
+.ub-drv-plate .ub-logo { border-radius: 5px; }
+.ub-rcpt-h { margin: 4px 0 -6px; font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--u-text-2); }
+/* stars, and what the rider can do next */
+.ub-dialog-foot.arr { align-items: center; }
+.ub-rate { flex: 1; min-width: 0; display: flex; align-items: center; gap: 14px; }
+.ub-rate b { font-size: 14.5px; font-weight: 600; color: var(--u-body); }
+.ub-rate > span { display: flex; }
+.ub-rate button { width: 36px; height: 40px; display: flex; align-items: center; justify-content: center; color: var(--u-track); transition: color 0.15s, transform 0.15s; }
+.ub-rate button:hover { transform: scale(1.15); }
+.ub-rate button.on { color: #f6b100; }
+.ub-rate button.on svg { fill: currentColor; }
+.ub[data-theme='dark'] .ub-arr { background: #000000; border-bottom: 1px solid var(--u-edge); }
+@media (max-width: 720px) {
+  .ub-arr { padding: 18px 14px 16px 16px; }
+  .ub-arr h2 { font-size: 28px; }
+  .ub-arr-tick { width: 38px; height: 38px; }
+  .ub-arr-trip { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .ub-arr-line { display: none; }
+  .ub-drv { padding: 10px 16px; }
+  .ub-drv-plate { display: none; }
+  .ub-dialog-foot.arr { flex-wrap: wrap; }
+  .ub-rate { flex: 1 1 100%; justify-content: space-between; }
+}

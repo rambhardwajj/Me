@@ -235,6 +235,7 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
       </div>
       <ProjectDialog
         id={ride.project}
+        arrived={!!ride.project && ride.arrivedAt === ride.project}
         onClose={() => ride.setProject(null)}
         onRide={(id) => {
           ride.setProject(null);
