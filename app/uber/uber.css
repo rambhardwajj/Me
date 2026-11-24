@@ -1321,7 +1321,7 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
   .ig *, .ub-idea-stage, .ub-idea-foot { animation: none !important; }
 }
 
-/* ------------------------------------------------------------------ a ride on a real street map (RealMap) */
+/* ------------------------------------------------------------------ Ram's road on a real street map (StreetMap) */
 .rm { position: absolute; inset: 0; overflow: hidden; overflow: clip; background: var(--u-map-land); }
 /* MapLibre's own stylesheet makes its container position: relative, which would collapse it to no height here */
 .rm .rm-gl { position: absolute; inset: 0; opacity: 0; transition: opacity 0.5s; }
@@ -1352,3 +1352,27 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
 .rm-ev.on circle { fill: var(--u-accent); stroke: #ffffff; }
 .rm-ev.on text { fill: #ffffff; }
 .rm-ev-tag { position: absolute; z-index: 2; transform: translate(-50%, -38px); padding: 4px 9px; border-radius: 7px; background: var(--u-accent); color: #ffffff; font-size: 12.5px; font-weight: 700; white-space: nowrap; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3); pointer-events: none; animation: ub-rise 0.3s both; }
+/* the places on the road: a small logo tile each, a name beside it where there is room */
+.rm-pl { position: absolute; z-index: 2; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 9px; background: #ffffff; color: #000000; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.28), 0 0 0 2px var(--u-text); overflow: hidden; pointer-events: none; transition: transform 0.15s, box-shadow 0.15s; }
+.rm-pl svg { width: 20px; height: 20px; }
+.rm-pl.off { box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2), 0 0 0 1.5px var(--u-map-idle); opacity: 0.92; }
+.rm-pl.hot { transform: scale(1.18); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35), 0 0 0 3px var(--u-accent); }
+.ub[data-theme='dark'] .rm-pl { box-shadow: 0 3px 12px rgba(0, 0, 0, 0.6), 0 0 0 2px #ffffff; }
+.ub[data-theme='dark'] .rm-pl.off { box-shadow: 0 0 0 1.5px #6b7280; }
+.rm-lab { position: absolute; z-index: 2; transform: translate(20px, -50%); height: 24px; line-height: 24px; padding: 0 9px; border-radius: 6px; background: #101010; color: #ffffff; font-size: 12.5px; font-weight: 600; white-space: nowrap; pointer-events: none; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22); }
+.rm-lab.left { transform: translate(calc(-100% - 20px), -50%); }
+.rm-lab.off { background: #ffffff; color: #4a4a4a; box-shadow: 0 0 0 1px #d6d6d6, 0 2px 6px rgba(0, 0, 0, 0.1); }
+.rm-lab.you { background: var(--u-accent); color: #ffffff; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22); }
+.rm-lab.hot { background: var(--u-accent); color: #ffffff; }
+.ub[data-theme='dark'] .rm-lab { background: #ffffff; color: #0a0b0f; }
+.ub[data-theme='dark'] .rm-lab.off { background: #272b36; color: #c3c8d4; box-shadow: none; }
+.ub[data-theme='dark'] .rm-lab.you, .ub[data-theme='dark'] .rm-lab.hot { background: var(--u-accent); color: #ffffff; }
+.rm-ev.small circle { stroke-width: 2; }
+.rm-ev.hot circle { fill: var(--u-accent); stroke: #ffffff; }
+/* places beyond the edge of the map, and the one event far to the south */
+.rm-chips { position: absolute; z-index: 4; left: 50%; bottom: calc(var(--rm-b, 0px) + 46px); transform: translateX(-50%); display: flex; gap: 8px; }
+.rm-chip { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 99px; background: var(--u-bg); color: var(--u-text); font-size: 12.5px; font-weight: 600; white-space: nowrap; box-shadow: var(--u-map-btn); }
+.rm-chip svg { transform: rotate(90deg); }
+.rm-chip.on svg { transform: none; }
+.rm-chip:hover, .rm-chip.on { background: var(--u-primary); color: var(--u-on-primary); }
+.ub[data-theme='dark'] .rm-chip { border: 1px solid var(--u-edge); }

@@ -38,12 +38,11 @@ import {
   type Trip,
   type TripId,
 } from '@/lib/uber';
-import LifeMap, { routeBetween } from './LifeMap';
+import { routeBetween } from './LifeMap';
 import { Icon, Pict, Solid } from './icons';
 import Mark from './Mark';
 import { IdeaGraphic } from './IdeaGraphics';
-import RealMap from './RealMap';
-import { realLeg, realRoute } from '@/lib/uber-geo';
+import StreetMap from './StreetMap';
 
 /** The parts of the written teardown that the chapters do not already cover. */
 const IDEA_MORE = ['What I saw', 'Why me', 'What exists already'];
@@ -429,7 +428,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
   const homeJourney = (
     <>
       <div className="rp-jmap">
-        <LifeMap from={journey.from} to={journey.to} onPick={(id) => setEnd('to', id)} controls hot={app.hot} reducedMotion={reducedMotion} />
+        <StreetMap from={journey.from} to={journey.to} onPick={(id) => setEnd('to', id)} controls hot={app.hot} reducedMotion={reducedMotion} />
       </div>
       <div className="rp-jcard">
         <p className="rp-kicker">Trip selected</p>
@@ -603,19 +602,12 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
 
   /* ---------------------------------------------------------------- the ride flow */
 
-  /** One leg to a place with a real address goes on a real street map; everything else keeps the drawn road. */
-  const rideMap = (t: Trip, covered: number, top = 76, full = false) => {
-    const leg = full ? null : realLeg(t);
-    return (
-      <div className="rp-map">
-        {leg ? (
-          <RealMap to={leg} name={t.name} route={realRoute(t)} events={STOPS.filter((x) => x.type !== 'you' && x.trip === t.id)} mark={<Mark id={t.id} size={26} />} pad={{ top, bottom: covered }} reducedMotion={reducedMotion} />
-        ) : (
-          <LifeMap from={t.from} to={t.to} pad={{ top, bottom: covered }} hot={app.hot} searching={screen.s === 'finding'} reducedMotion={reducedMotion} />
-        )}
-      </div>
-    );
-  };
+  /** A ride from "Ram, today" to one place takes the real road straight there; the full story is told along Ram's whole road. */
+  const rideMap = (t: Trip, covered: number, top = 76, full = false) => (
+    <div className="rp-map">
+      <StreetMap ride={full ? null : t} from={t.from} to={t.to} pad={{ top, bottom: covered }} hot={app.hot} reducedMotion={reducedMotion} />
+    </div>
+  );
 
   const choose = (t: Trip) => (
     <>

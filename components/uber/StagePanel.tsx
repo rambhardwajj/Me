@@ -32,12 +32,12 @@ import {
   type TripId,
 } from '@/lib/uber';
 import { PORTRAIT, stopPhoto, stopStory, tripPhotos, type Photo } from '@/lib/uber-photos';
-import LifeMap, { routeBetween } from './LifeMap';
+import { routeBetween } from './LifeMap';
 import { Icon } from './icons';
 import Mark from './Mark';
 import { IdeaGraphic } from './IdeaGraphics';
-import RealMap from './RealMap';
-import { GEO_HOME, realLeg, realRoute } from '@/lib/uber-geo';
+import StreetMap from './StreetMap';
+import { GEO_HOME, PLACE_GEO, rideTo } from '@/lib/uber-geo';
 import type { Ride } from './useRide';
 
 /** The reroute note shown above the first stop after a turn in the road. */
@@ -233,10 +233,14 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
     // what is docked on the map (a ride or a story in progress), and what opens beside a place being pointed at
     let side: ReactNode = null;
     let pop: ReactNode = null;
-    // one leg to a place with a real address is drawn on a real street map; a ride that tells stops on the way keeps the drawn road
-    const leg = onTrip && !(inDetails && tripMode === 'full') ? realLeg(onTrip) : null;
-    const legEvents = leg && onTrip ? ownStops(onTrip) : [];
-    if (leg && quick && !arrived && passing) {
+    // a ride from "Ram, today" to one place takes the real road straight there; anything else is a stretch of Ram's whole road
+    const rideId = onTrip && !(inDetails && tripMode === 'full') ? rideTo(onTrip) : null;
+    const leg = rideId ? PLACE_GEO[rideId] : null;
+    // where the ride ends, in words: a project ends at the institute it came out of
+    const legTo = rideId && leg && onTrip ? (stop(rideId).name === onTrip.name ? `${GEO_HOME.city} to ${leg.city}` : `To ${stop(rideId).name}, ${leg.city}`) : '';
+    // what happened there, in order: the dots on the road to it
+    const legEvents = leg && onTrip ? STOPS.filter((x) => x.type === 'dot' && x.trip === onTrip.id) : [];
+    if (leg && quick && !arrived && passing && legEvents.some((x) => x.id === passing.id)) {
       // on a real road, driving: the event the car has just passed
       const n = legEvents.findIndex((x) => x.id === passing.id) + 1;
       const tell = stopStory(passing.id);
@@ -252,7 +256,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
       );
     } else if (leg && quick && !arrived) {
       side = (
-        <Brief label="On the way" photo={tripPhotos(onTrip!.id)[0]} meta={`${GEO_HOME.city} to ${leg.city}`} name={onTrip!.name} text={onTrip!.blurb}>
+        <Brief label="On the way" photo={tripPhotos(onTrip!.id)[0]} meta={legTo} name={onTrip!.name} text={onTrip!.blurb}>
           <button type="button" className="ub-link" onClick={() => setPausedKey(paused ? '' : (driveKey ?? ''))} aria-pressed={paused}>
             {paused ? 'Resume' : 'Pause'}
           </button>
@@ -346,33 +350,27 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
     body = (
       <div className="ub-three">
         <div className="ub-mapbox">
-          {leg && onTrip ? (
-            <RealMap to={leg} name={onTrip.name} route={realRoute(onTrip)} events={legEvents.map((e) => ({ id: e.id, name: stopStory(e.id).title }))} onPass={(i) => driveKey && legEvents[i] && setPass({ key: driveKey, stop: legEvents[i].id })} mark={<Mark id={onTrip.id} size={30} />} dock={side} pad={side ? { left: 300 } : undefined} drive={driveKey} paused={paused} skip={skip} onDone={landed} reducedMotion={reducedMotion} />
-          ) : (
-            <LifeMap
-              from={mapFrom}
-              to={mapTo}
-              carAt={carAt}
-              hoverCard={pop}
-              dock={side}
-              pad={side ? { left: 300 } : undefined}
-              detail
-              controls
-              fit="all"
-              noBadge={browsing}
-              hot={hot}
-              onHot={setHot}
-              onPick={(id) => setProject(stop(id).trip)}
-              drive={driveKey}
-              paused={paused}
-              skip={skip}
-              brisk={!!onTrip && app.arrive === onTrip.id}
-              onPass={(id) => driveKey && setPass({ key: driveKey, stop: id })}
-              onDone={landed}
-              searching={screen.s === 'finding'}
-              reducedMotion={reducedMotion}
-            />
-          )}
+          <StreetMap
+            ride={leg ? onTrip : null}
+            from={mapFrom}
+            to={mapTo}
+            carAt={carAt}
+            hoverCard={pop}
+            dock={side}
+            pad={side ? { left: 300 } : undefined}
+            detail
+            controls
+            browse={browsing}
+            hot={hot}
+            onHot={setHot}
+            onPick={(id) => setProject(stop(id).trip)}
+            drive={driveKey}
+            paused={paused}
+            skip={skip}
+            onPass={(id) => driveKey && setPass({ key: driveKey, stop: id })}
+            onDone={landed}
+            reducedMotion={reducedMotion}
+          />
           {!tale && (
             <p className="ub-mapbox-sum">
               {browsing ? (
@@ -380,7 +378,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
               ) : leg ? (
                 <>
                   <b>Real streets</b>
-                  {GEO_HOME.city} to {leg.city}
+                  {legTo}
                 </>
               ) : (
                 <>
