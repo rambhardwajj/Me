@@ -5,7 +5,15 @@ import { localAnswer } from '@/lib/faq';
 const CLAUDE_MODEL = 'claude-haiku-5-5';
 /** Tried in order: on the free tier each model has its own daily quota, so one running dry isn't fatal. */
 const GEMINI_MODELS = [...new Set([process.env.GEMINI_MODEL, 'gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-flash-lite-latest'].filter(Boolean) as string[])];
-const ATTEMPT_MS = 12_000;
+/**
+ * The chat window gives up after 10 seconds of silence, so the server must answer well inside that:
+ * each model gets 3 seconds to start replying, and all of them together get 6. After that the local answer goes out.
+ * (Before, five models at 12 seconds each could keep a visitor on the typing dots for a minute.)
+ */
+const ATTEMPT_MS = 3_000;
+const BUDGET_MS = 6_000;
+/** A stream that goes quiet for this long is treated as finished. */
+const STALL_MS = 8_000;
 const MAX_TURNS = 12;
 const MAX_CHARS = 600;
 
@@ -58,14 +66,24 @@ export async function POST(req: Request) {
   const offline = () =>
     new Response(localAnswer(messages[messages.length - 1].content), { headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store', 'x-mini-ram': 'offline' } });
 
-  /** One attempt with a timeout; null when it failed and the next option should be tried. */
+  const deadline = Date.now() + BUDGET_MS;
+  /**
+   * One attempt; null when it failed and the next option should be tried.
+   * The timer covers only the wait for the reply to start: once it has, the stream is left to finish (see STALL_MS).
+   */
   const attempt = async (url: string, init: RequestInit, label: string) => {
+    const left = Math.min(ATTEMPT_MS, deadline - Date.now());
+    if (left < 500) return null;
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), left);
     try {
-      const res = await fetch(url, { ...init, signal: AbortSignal.timeout(ATTEMPT_MS) });
+      const res = await fetch(url, { ...init, signal: ctl.signal });
       if (res.ok && res.body) return res;
       console.error('chat upstream', label, res.status, (await res.text().catch(() => '')).slice(0, 200));
     } catch (e) {
       console.error('chat upstream', label, (e as Error).name);
+    } finally {
+      clearTimeout(timer);
     }
     return null;
   };
@@ -105,8 +123,15 @@ export async function POST(req: Request) {
         sent = false;
       try {
         while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+          // a stream that stops talking is cut off, so the visitor gets what was said, or the local answer
+          let timer: ReturnType<typeof setTimeout> | undefined;
+          const quiet = new Promise<{ done: true; value: undefined }>((ok) => (timer = setTimeout(() => ok({ done: true, value: undefined }), STALL_MS)));
+          const { done, value } = await Promise.race([reader.read(), quiet]);
+          clearTimeout(timer);
+          if (done) {
+            reader.cancel().catch(() => {});
+            break;
+          }
           buf += decoder.decode(value, { stream: true });
           const lines = buf.split('\n');
           buf = lines.pop() ?? '';

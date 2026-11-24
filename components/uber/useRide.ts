@@ -164,6 +164,15 @@ export function useRide() {
     setArrivedAt(id);
   }, []);
 
+  /** Skip a ride that is being requested: straight to the trip, and to what Ram did there if the ride was heading for a place. */
+  const skipRide = () => {
+    if (screen.s !== 'finding') return;
+    const { trip, mode: m } = screen;
+    step();
+    setStack((st) => [...st.slice(0, -1), { s: 'details', trip, mode: m }]);
+    if (arrive === trip) landed(trip);
+  };
+
   /** Set one end of the Journey route. The two ends are then put in time order, or the reverse if the visitor swapped them. */
   const setEnd = (end: 'from' | 'to', id: StopId) =>
     setJourneyRaw((j) => {
@@ -186,7 +195,7 @@ export function useRide() {
 
   return {
     stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, swapEnds, hot, setHot, look, setLook, peek, setPeek, project, setProject, arrivedAt, survey, setSurvey, ideaStep, setIdeaStep, facet, setFacet, moves, step,
-    push, back, goTab, openSheet, closeSheet, ride, driveTo, landed, arrive, driveNo,
+    push, back, goTab, openSheet, closeSheet, ride, driveTo, landed, skipRide, arrive, driveNo,
     where, onTrip, onJourney, journeyTrip, route, tripMode,
   };
 }

@@ -12,6 +12,8 @@ import {
   HOME,
   IDEA,
   INBOX,
+  LOST_PARTS,
+  LOST_READY,
   LOGO,
   NOW_LABEL,
   PERSONAS,
@@ -49,6 +51,7 @@ import { requestMs, useRideStep } from './useRideStep';
 const IDEA_MORE = ['What I saw', 'Why me', 'What exists already'];
 import type { HomeTab, Mode, Ride, Sheet, Tab } from './useRide';
 import { PORTRAIT, stopPhoto, tripPhotos, type Photo } from '@/lib/uber-photos';
+import { PROPOSAL_HREF, caseHref, hasCase } from '@/lib/uber-cases';
 
 
 export type PhoneHandle = {
@@ -458,7 +461,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
           }
         />
         <p className="rp-jsum" aria-live="polite">
-          {jr.minutes} minutes, {jr.between.length} {jr.between.length === 1 ? 'stop' : 'stops'} on the way. One minute on this map is one month of Ram’s life.
+          {jr.minutes} minutes, {jr.between.length + 2} stops from start to finish. One minute on this map is one month of Ram’s life.
         </p>
         <button type="button" className="rp-btn pill" onClick={() => ride(jTrip)}>
           Open {getTrip(jTrip).name}
@@ -692,6 +695,10 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
             </li>
           ))}
         </ol>
+        <button type="button" className="rp-skip" onClick={app.skipRide}>
+          {RIDE.skip}
+          <Icon name="arrow" size={16} w={2.4} />
+        </button>
         <div className="rp-pickup">
           <small>{RIDE[m].name} details</small>
           <b>Meet Ram at the pickup point: {t.pickup}</b>
@@ -823,6 +830,13 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
               </>
             )}
             <Photos photos={tripPhotos(t.id)} />
+            {hasCase(t.id) && (
+              <div className="rp-sharerow">
+                <Icon name="out" size={24} w={1.8} />
+                <span>The case study, on its own page</span>
+                <Link href={caseHref(t.id)}>Open</Link>
+              </div>
+            )}
             <div className="rp-sharerow">
               <Icon name="pin" size={24} w={1.8} />
               <span>{RIDE.share}</span>
@@ -989,6 +1003,12 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
           ))}
         </ol>
 
+        <div className="rp-sharerow">
+          <Icon name="out" size={24} w={1.8} />
+          <span>The proposal, as one page</span>
+          <Link href={PROPOSAL_HREF}>Open</Link>
+        </div>
+
         {TEARDOWN.parts
           .filter((p) => IDEA_MORE.includes(p.heading))
           .map((p) => (
@@ -1039,21 +1059,15 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
                 </span>
                 <span className="rp-msg-body">{m.text}</span>
               </span>
-              {!m.placeholder && <i className="rp-msg-new" aria-hidden="true" />}
+              <i className="rp-msg-new" aria-hidden="true" />
             </>
           );
-          return m.placeholder ? (
-            <div key={m.from} className="rp-msg placeholder">
-              {body}
-              <span className="sr">Placeholder: this quote has not been supplied yet.</span>
-            </div>
-          ) : (
+          return (
             <button key={m.from} type="button" className="rp-msg" onClick={() => openSheet('reserve')} aria-label={`${m.from}: ${m.text} Reply to Ram`}>
               {body}
             </button>
           );
         })}
-        <p className="rp-note">Quotes in square brackets are placeholders. Real ones are on their way from Ram.</p>
       </div>
       <Tribute className="rp-tribute at-foot" />
     </>
@@ -1142,13 +1156,15 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
           </span>
           <Pict name="music" />
         </button>
-        <button type="button" className="rp-acard" onClick={() => openSheet('lost')}>
-          <span>
-            <b>{ACCOUNT.lost.title}</b>
-            <small>{ACCOUNT.lost.line}</small>
-          </span>
-          <Pict name="doc" />
-        </button>
+        {LOST_READY && (
+          <button type="button" className="rp-acard" onClick={() => openSheet('lost')}>
+            <span>
+              <b>{ACCOUNT.lost.title}</b>
+              <small>{ACCOUNT.lost.line}</small>
+            </span>
+            <Pict name="doc" />
+          </button>
+        )}
         <button type="button" className="rp-arow" role="switch" aria-checked={dark} onClick={() => onDark(!dark)} aria-label={`${ACCOUNT.appearance}: dark theme`}>
           <Icon name={dark ? 'moon' : 'sun'} size={22} w={1.8} />
           <span>{ACCOUNT.appearance}</span>
@@ -1163,7 +1179,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
           <Icon name="share" size={22} w={1.8} />
           <span>{ACCOUNT.share.title}</span>
         </button>
-        <Link className="rp-arow" href="/">
+        <Link className="rp-arow" href="/" prefetch={false}>
           <Icon name="out" size={22} w={1.8} />
           <span>{ACCOUNT.mainSite.title}</span>
           <small>rambhardwaj.in</small>
@@ -1231,8 +1247,12 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
         <h2 id="rp-sheet-h" className="rp-sheet-h">
           {ACCOUNT.lost.title}
         </h2>
-        <p className="rp-sheet-p">{ACCOUNT.lost.line}.</p>
-        <p className="rp-pending">{ACCOUNT.lost.pending}</p>
+        {LOST_PARTS.map((x) => (
+          <div key={x.heading} className="rp-lost">
+            <h3>{x.heading}</h3>
+            <p>{x.text}</p>
+          </div>
+        ))}
         <button type="button" className="rp-btn pill primary push" data-first onClick={closeSheet}>
           Close
         </button>

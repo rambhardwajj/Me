@@ -1,7 +1,8 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
+import { PROFILE } from '@/lib/data';
 import { localAnswer } from '@/lib/faq';
 import { MascotFace } from './MascotFace';
 import { EASE } from './Motion';
@@ -21,14 +22,21 @@ const MAX_BUBBLES = 1;
 
 const SUGGESTIONS = ['What is Ram doing now?', 'What are his biggest wins?', 'Tell me about LeetCase', 'Why hire Ram as a PM?'];
 
-type Msg = { role: 'user' | 'assistant'; content: string };
+/** `failed` holds the question an answer could not be fetched for, so it can be asked again. */
+type Msg = { role: 'user' | 'assistant'; content: string; failed?: string };
+
+/** How long Mini Ram may stay silent, before the first word or between two words, until it gives up and says so. */
+const PATIENCE_MS = 10_000;
+const SLOW = 'Sorry, that took too long. I gave up after 10 seconds rather than keep you waiting.';
+const BROKEN = 'Sorry, I could not reach my answers just now. Your connection or my server may be having a moment.';
 
 const GREETING: Msg = { role: 'assistant', content: `Hi! I’m Mini Ram, Ram’s AI sidekick. Ask me about his experience, products, wins or how to reach him.` };
 
 /** `comments` maps section ids to what Mini Ram says there; defaults to the classic site's sections. */
-export default function Mascot({ comments = COMMENTS }: { comments?: Record<string, string> }) {
+/** `startOpen` opens the chat on arrival: for pages that load Mini Ram only once a visitor has asked for it. */
+export default function Mascot({ comments = COMMENTS, startOpen = false }: { comments?: Record<string, string>; startOpen?: boolean }) {
   const notes = useRef(comments);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(startOpen);
   const [bubble, setBubble] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([GREETING]);
   const [input, setInput] = useState('');
@@ -151,31 +159,47 @@ export default function Mascot({ comments = COMMENTS }: { comments?: Record<stri
     setOpen(v);
   };
 
-  const send = async (text: string) => {
+  /** Ask a question. `retry` is the index of a failed answer to replace, when the visitor asks the same thing again. */
+  const send = async (text: string, retry?: number) => {
     const q = text.trim();
     if (!q || busy) return;
-    const next: Msg[] = [...messages, { role: 'user', content: q }];
-    setMessages([...next, { role: 'assistant', content: '' }]);
+    // the conversation up to this question; a retry drops the failed answer and re-uses the question above it
+    const before = retry === undefined ? [...messages, { role: 'user' as const, content: q }] : messages.slice(0, retry);
+    setMessages([...before, { role: 'assistant', content: '' }]);
     setInput('');
     setBusy(true);
-    const write = (content: string) =>
+    const write = (content: string, failed?: string) =>
       setMessages((m) => {
         const copy = m.slice();
-        copy[copy.length - 1] = { role: 'assistant', content };
+        copy[copy.length - 1] = { role: 'assistant', content, failed };
         return copy;
       });
+    // one clock for the whole answer: it is wound back each time a word arrives, and stops the request when it runs out
+    const ctl = new AbortController();
+    let timedOut = false;
+    let clock: ReturnType<typeof setTimeout> | undefined;
+    const wind = () => {
+      clearTimeout(clock);
+      clock = setTimeout(() => {
+        timedOut = true;
+        ctl.abort();
+      }, PATIENCE_MS);
+    };
+    let out = '';
     try {
+      wind();
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ messages: next.filter((m) => m !== GREETING) }),
+        body: JSON.stringify({ messages: before.filter((m) => m !== GREETING && !m.failed).map(({ role, content }) => ({ role, content })) }),
+        signal: ctl.signal,
       });
-      if (res.status === 429) return write('I’m getting a lot of questions right now 😅 Give me a minute and ask again.');
+      if (res.status === 429) return write('I’m getting a lot of questions right now 😅 Give me a minute and ask again.', q);
       if (!res.ok || !res.body) return write(localAnswer(q));
       const reader = res.body.getReader();
       const dec = new TextDecoder();
-      let out = '';
       while (true) {
+        wind();
         const { done, value } = await reader.read();
         if (done) break;
         out += dec.decode(value, { stream: true });
@@ -183,13 +207,18 @@ export default function Mascot({ comments = COMMENTS }: { comments?: Record<stri
       }
       if (!out) write(localAnswer(q));
     } catch {
-      write(localAnswer(q));
+      // keep whatever already arrived; otherwise say what happened, and offer to try again
+      if (out) write(out);
+      else write(timedOut ? SLOW : BROKEN, q);
     } finally {
+      clearTimeout(clock);
       setBusy(false);
     }
   };
 
   return (
+    // reducedMotion="user": the chat appears without sliding or scaling for visitors who ask for less motion
+    <MotionConfig reducedMotion="user">
     <div className="mascot">
       <AnimatePresence>
         {open && (
@@ -221,12 +250,20 @@ export default function Mascot({ comments = COMMENTS }: { comments?: Record<stri
 
             <div className="mchat-list" ref={listRef} aria-live="polite">
               {messages.map((m, i) => (
-                <div key={i} className={`mmsg ${m.role}`}>
+                <div key={i} className={`mmsg ${m.role} ${m.failed ? 'failed' : ''}`} role={m.failed ? 'alert' : undefined}>
                   {m.content || (
-                    <span className="mtyping" aria-label="Typing">
+                    <span className="mtyping" role="status" aria-label="Mini Ram is typing">
                       <i />
                       <i />
                       <i />
+                    </span>
+                  )}
+                  {m.failed && (
+                    <span className="mretry">
+                      <button type="button" onClick={() => send(m.failed!, i)} disabled={busy}>
+                        Retry
+                      </button>
+                      <a href={`mailto:${PROFILE.email}`}>Email Ram instead</a>
                     </span>
                   )}
                 </div>
@@ -291,5 +328,6 @@ export default function Mascot({ comments = COMMENTS }: { comments?: Record<stri
         <span className="mbtn-dot" aria-hidden />
       </motion.button>
     </div>
+    </MotionConfig>
   );
 }

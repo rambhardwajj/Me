@@ -1,42 +1,58 @@
 'use client';
 
 import type { CSSProperties, ReactNode } from 'react';
-import { IDEA, type IdeaSceneId } from '@/lib/uber';
+import { IDEA, IDEA_SUMS, type IdeaSceneId } from '@/lib/uber';
 import { Icon, Solid } from './icons';
 import { TabletDemo, TripMeter } from './TabletDemo';
 
 /**
  * One graphic for each chapter of "The 20 idle minutes".
- * Every figure is worked out here from the assumptions in IDEA, so the drawings and the words cannot drift apart.
+ * Every figure comes from IDEA_SUMS (lib/uber.ts), so the drawings and the words cannot drift apart.
+ * Every number says what kind it is (estimate, illustration, quoted, target) and the one assumption under it.
  * Each graphic is drawn in its finished state and animates in from hidden: with reduced motion it is simply there.
  */
 
-const inr = (n: number) => `₹${n.toLocaleString('en-IN')}`;
+const { inr } = IDEA_SUMS;
 const M = IDEA.model;
-const PER_DAY = Math.floor(M.rides / M.answerOneIn);
-const DRIVER_DAY = PER_DAY * IDEA.driver;
-const DRIVER_MONTH = DRIVER_DAY * M.days;
-const KEEP = IDEA.fee - IDEA.driver;
-const FLEET_SURVEYS = M.cabs * PER_DAY;
-const FLEET_DRIVERS = FLEET_SURVEYS * IDEA.driver;
-const FLEET_KEEP = FLEET_SURVEYS * KEEP;
-const FLEET_KEEP_MONTH = `₹${((FLEET_KEEP * M.days) / 100000).toFixed(1)}L`;
-const FARE = IDEA.km * IDEA.perKm;
-const LIFT = Math.floor((IDEA.driver / FARE) * 100);
+const PER_DAY = IDEA_SUMS.perDay;
+const DRIVER_DAY = IDEA_SUMS.driverDay;
+const DRIVER_MONTH = IDEA_SUMS.driverMonth;
+const KEEP = IDEA_SUMS.keep;
+const FLEET_SURVEYS = IDEA_SUMS.fleetSurveys;
+const FLEET_DRIVERS = IDEA_SUMS.fleetDrivers;
+const FLEET_KEEP = IDEA_SUMS.fleetKeep;
+const FLEET_KEEP_MONTH = IDEA_SUMS.fleetKeepMonth;
+const FARE = IDEA_SUMS.fare;
+const LIFT = IDEA_SUMS.lift;
+
+/** What kind of number it is. None of them is a measured result, and each says so. */
+type Kind = 'Estimate' | 'Illustration' | 'Quoted' | 'Target' | 'Draft';
 
 /** The order something appears in, for the staggered entrance. */
 const nth = (i: number) => ({ '--i': i }) as CSSProperties;
 
-function Nums({ items }: { items: { value: string; label: string; good?: boolean }[] }) {
+function Nums({ items }: { items: { value: string; label: string; kind: Kind; why: string; good?: boolean }[] }) {
   return (
     <dl className="ig-nums">
       {items.map((x, i) => (
         <div key={x.label} className={x.good ? 'good' : ''} style={nth(i)}>
           <dd>{x.value}</dd>
           <dt>{x.label}</dt>
+          <dd className="ig-why">
+            <b>{x.kind}.</b> {x.why}
+          </dd>
         </div>
       ))}
     </dl>
+  );
+}
+
+/** One line under a drawing: what kind of numbers it holds, and what they assume. */
+function Assume({ kind, children }: { kind: Kind; children: ReactNode }) {
+  return (
+    <p className="ig-assume">
+      <b>{kind}.</b> {children}
+    </p>
   );
 }
 
@@ -78,9 +94,9 @@ function Idle() {
       </div>
       <Nums
         items={[
-          { value: '20 min', label: 'idle, per ride' },
-          { value: '2 to 3 min', label: 'one survey (estimate)' },
-          { value: '2', label: 'surveys a ride, at most (estimate)' },
+          { value: 'About 20 min', label: 'idle, per ride', kind: 'Estimate', why: 'My figure for a city trip. Not measured.' },
+          { value: '2 to 3 min', label: 'one survey', kind: 'Estimate', why: 'Assumes three short questions.' },
+          { value: '2', label: 'surveys a ride, at most', kind: 'Draft', why: 'A limit I propose, so the screen stays quiet.' },
         ]}
       />
     </>
@@ -108,6 +124,9 @@ function Tablet({ survey, onSurvey }: { survey: number; onSurvey: (n: number) =>
           </ul>
           <p className="ig-cap">The driver’s trip</p>
           <TripMeter step={survey} />
+          <Assume kind="Illustration">
+            An {IDEA.km} km trip at {inr(IDEA.perKm)} a km, my field estimate of what a driver nets. The {inr(IDEA.driver)} share is my assumption.
+          </Assume>
         </div>
       </div>
       <Chips items={IDEA.proof} check />
@@ -153,11 +172,14 @@ function Split() {
           one completed survey
         </text>
       </svg>
+      <Assume kind="Quoted">
+        {inr(IDEA.fee)} a completed survey is what advertisers quoted me during TruCost deals. The {inr(IDEA.driver)} and {inr(KEEP)} split is my assumption.
+      </Assume>
       <Nums
         items={[
-          { value: inr(FARE), label: `${IDEA.km} km trip at ${inr(IDEA.perKm)} a km` },
-          { value: inr(FARE + IDEA.driver), label: 'the same trip, one survey answered' },
-          { value: `+${LIFT}%`, label: 'for the driver', good: true },
+          { value: inr(FARE), label: `${IDEA.km} km trip at ${inr(IDEA.perKm)} a km`, kind: 'Illustration', why: `${inr(IDEA.perKm)} a km is my field estimate of what a driver nets.` },
+          { value: inr(FARE + IDEA.driver), label: 'the same trip, one survey answered', kind: 'Illustration', why: `Assumes the driver gets ${inr(IDEA.driver)} of the ${inr(IDEA.fee)} fee.` },
+          { value: `+${LIFT}`, label: 'for the driver', kind: 'Illustration', why: `${inr(IDEA.driver)} on ${inr(FARE)}. Exact, not rounded.`, good: true },
         ]}
       />
     </>
@@ -177,7 +199,7 @@ function Month() {
           </div>
           <p>
             <b>{M.rides} rides a day</b>
-            1 rider in {M.answerOneIn} answers
+            if 1 rider in {M.answerOneIn} answers
           </p>
         </div>
         <span className="ig-sum-op" aria-hidden="true">
@@ -185,11 +207,11 @@ function Month() {
         </span>
         <div className="ig-sum-step">
           <p className="ig-eq">
-            <b>{PER_DAY}</b> × <b>{inr(IDEA.driver)}</b>
+            about <b>{PER_DAY}</b> × <b>{inr(IDEA.driver)}</b>
           </p>
           <p>
             <b>{inr(DRIVER_DAY)} a day</b>
-            {PER_DAY} surveys, {inr(IDEA.driver)} each
+about {PER_DAY} surveys, {inr(IDEA.driver)} each
           </p>
         </div>
         <span className="ig-sum-op" aria-hidden="true">
@@ -208,10 +230,13 @@ function Month() {
         </div>
         <div className="ig-sum-total">
           <b>{inr(DRIVER_MONTH)}</b>
-          <span>more a month</span>
+          <span>more a month, about</span>
         </div>
       </div>
-      <Chips items={['Setup fee: ₹500 to ₹1,000, once', 'Uber installs the tablet', 'The rider pays nothing']} />
+      <Assume kind="Illustration">
+        Assumes {M.rides} rides a day, one rider in {M.answerOneIn} answering and {M.days} working days. Rounding: {IDEA_SUMS.rounding}. None of this is measured.
+      </Assume>
+      <Chips items={['Setup fee: ₹500 to ₹1,000, once (from driver interviews)', 'Uber installs the tablet', 'The rider pays nothing']} />
     </>
   );
 }
@@ -231,16 +256,16 @@ function Scale() {
       <div className="ig-fleet-side">
         <Nums
           items={[
-            { value: FLEET_SURVEYS.toLocaleString('en-IN'), label: 'surveys a day' },
-            { value: inr(FLEET_DRIVERS), label: 'to drivers, a day', good: true },
-            { value: inr(FLEET_KEEP), label: `to ${IDEA.venture}, a day` },
-            { value: FLEET_KEEP_MONTH, label: `to ${IDEA.venture}, a month of ${M.days} days` },
+            { value: `About ${FLEET_SURVEYS.toLocaleString('en-IN')}`, label: 'surveys a day', kind: 'Illustration', why: `${M.cabs.toLocaleString('en-IN')} cabs at about ${PER_DAY} surveys each.` },
+            { value: inr(FLEET_DRIVERS), label: 'to drivers, a day', kind: 'Illustration', why: `${inr(IDEA.driver)} a survey to the driver.`, good: true },
+            { value: inr(FLEET_KEEP), label: `to ${IDEA.venture}, a day`, kind: 'Illustration', why: `${inr(KEEP)} a survey, before any cost.` },
+            { value: FLEET_KEEP_MONTH, label: `to ${IDEA.venture}, a month`, kind: 'Illustration', why: `${M.days} working days. Gross, before tablets, data and sales.` },
           ]}
         />
         <p className="ig-plus">
           <Icon name="plus" size={16} w={3} />
           <span>
-            <b>Ads, on top:</b> a target of ₹5,000 to ₹5,500 per cab per month
+            <b>Ads, on top.</b> <b>Target.</b> ₹5,000 to ₹5,500 per cab per month, from my Phase 1 research. Not revenue.
           </span>
         </p>
       </div>
@@ -276,6 +301,7 @@ function Pilot() {
           ))}
         </div>
       </div>
+      <Assume kind="Draft">A plan to test, not a result. The cab count, the weeks and the 30% answer rate are my starting guesses.</Assume>
       <div className="ig-pilot-cols">
         <div>
           <p className="ig-cap">The first drivers</p>

@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
-import { BILLBOARD, THEME_KEY, TRIBUTE_LONG, type PersonaId } from '@/lib/uber';
+import { PROFILE } from '@/lib/data';
+import { BILLBOARD, RESERVE, THEME_KEY, TRIBUTE_LONG, type PersonaId } from '@/lib/uber';
+import { PROPOSAL_HREF, WORK_HREF, caseHref } from '@/lib/uber-cases';
 import PhoneApp, { type PhoneHandle } from './PhoneApp';
 import ProjectDialog from './ProjectDialog';
 import StagePanel from './StagePanel';
@@ -146,9 +148,9 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
 
   const start = () => toPhone(() => ride.ride('story'));
   const open = () => toPhone(() => phone.current?.focus());
-  const reserve = () => toPhone(() => ride.openSheet('reserve'));
   const askMiniRam = () => window.dispatchEvent(new Event('mini-ram:open'));
 
+  const mailto = `mailto:${PROFILE.email}?subject=${encodeURIComponent(RESERVE.subject)}`;
   const tick = <Icon name="check" size={28} w={2.5} />;
 
   return (
@@ -173,14 +175,22 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
                 <button type="button" onClick={askMiniRam}>
                   Ask Mini Ram
                 </button>
-                <Link href="/">Main site</Link>
+                {PROFILE.resume && (
+                  <a href={PROFILE.resume} download>
+                    {BILLBOARD.resume}
+                  </a>
+                )}
+                {/* no prefetch: fetching the main site ahead of time also pulled its 200 KB portrait into this page */}
+                <Link href="/" prefetch={false}>
+                  Main site
+                </Link>
                 <button type="button" className="ub-theme" role="switch" aria-checked={dark} aria-label="Dark theme" title={dark ? 'Switch to light' : 'Switch to dark'} onClick={() => chooseDark(!dark)}>
                   <Icon name={dark ? 'sun' : 'moon'} size={18} />
                 </button>
               </nav>
             </header>
 
-            {/* first screen: the Billboard */}
+            {/* first screen: who Ram is, what he did, one number, and the four things a visitor came for, one tap each */}
             <section className="ub-bill" aria-label="Introduction" inert={desk && arrived ? true : undefined}>
               <div className="ub-bill-copy">
                 {BILLBOARD.statuses.map((s) => (
@@ -192,26 +202,36 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
                 <h1 className="ub-h1">
                   {BILLBOARD.headline.before} <span className="ub-2min">{BILLBOARD.headline.badge}</span> {BILLBOARD.headline.after}
                 </h1>
+                <p className="ub-sub">{BILLBOARD.pitch}</p>
+                <p className="ub-proof1">
+                  <b>{BILLBOARD.proof.value}</b>
+                  <span>{BILLBOARD.proof.label}</span>
+                </p>
+                <div className="ub-acts">
+                  <Link className="ub-btn solid" href={caseHref('trucost')}>
+                    {BILLBOARD.caseStudy}
+                  </Link>
+                  <Link className="ub-btn line" href={PROPOSAL_HREF}>
+                    {BILLBOARD.proposal}
+                  </Link>
+                </div>
+                <nav className="ub-quick" aria-label="Shortcuts">
+                  {PROFILE.resume && (
+                    <a className="ub-link" href={PROFILE.resume} download>
+                      {BILLBOARD.resume}
+                    </a>
+                  )}
+                  <a className="ub-link" href={mailto}>
+                    {BILLBOARD.contact}
+                  </a>
+                  <Link className="ub-link" href={WORK_HREF}>
+                    All work
+                  </Link>
+                  <button type="button" className="ub-link" onClick={start}>
+                    {BILLBOARD.ride}
+                  </button>
+                </nav>
               </div>
-              {/* phone widths only: the pitch and the two buttons that lead into the app */}
-              <div className="ub-pitch">
-                <p>{BILLBOARD.pitch}</p>
-                <button type="button" className="ub-btn solid" onClick={start}>
-                  {BILLBOARD.start}
-                </button>
-                <button type="button" className="ub-btn line" onClick={reserve}>
-                  {BILLBOARD.reserve}
-                </button>
-              </div>
-              {/* laptop: one quiet line, so the phone stays the thing to tap */}
-              <p className="ub-cue">
-                <button type="button" className="ub-link" onClick={start}>
-                  Tap the phone to start
-                </button>
-                <button type="button" className="ub-link" onClick={reserve}>
-                  {BILLBOARD.reserve}
-                </button>
-              </p>
             </section>
 
             {/* after the scroll: the phone crosses to the left; beside it the context, then the map */}
@@ -223,6 +243,7 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
             {desk && arrived && ride.peek && !ride.sheet && !ride.route && ride.where !== 'search' && <ThoughtCloud trip={ride.peek.trip} x={ride.peek.x} y={ride.peek.y} />}
 
             <div className="ub-phone" ref={app}>
+              {/* phone widths: the app starts here, and the way past it is said first */}
               <div className="ub-frame">
                 <div className="ub-glass" inert={desk && !arrived ? true : undefined}>
                   <PhoneApp ref={phone} persona={persona} onPersona={setPersona} dark={dark} onDark={chooseDark} app={ride} reducedMotion={reduced} />
@@ -232,6 +253,21 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
                 )}
               </div>
             </div>
+
+            {/* phone widths only: the same four ways out, after the app. On a laptop they are on the first screen and in the panel */}
+            <footer className="ub-foot">
+              <nav aria-label="Shortcuts, again">
+                <Link href={caseHref('trucost')}>TruCost case study</Link>
+                <Link href={PROPOSAL_HREF}>{BILLBOARD.proposal}</Link>
+                {PROFILE.resume && (
+                  <a href={PROFILE.resume} download>
+                    {BILLBOARD.resume}
+                  </a>
+                )}
+                <a href={mailto}>{BILLBOARD.contact}</a>
+              </nav>
+              <small>{TRIBUTE_LONG}</small>
+            </footer>
           </div>
         </div>
       </div>

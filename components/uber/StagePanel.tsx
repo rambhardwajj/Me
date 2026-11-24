@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, type ReactNode } from 'react';
 import { PROFILE } from '@/lib/data';
 import {
@@ -12,6 +13,7 @@ import {
   IDEA,
   LOGO,
   INBOX,
+  LOST_PARTS,
   PERSONAS,
   REROUTES,
   RESERVE,
@@ -40,6 +42,7 @@ import StreetMap from './StreetMap';
 import { useRideStep } from './useRideStep';
 import { GEO_HOME, PLACE_GEO, rideTo } from '@/lib/uber-geo';
 import type { Ride } from './useRide';
+import { PROPOSAL_HREF, caseHref } from '@/lib/uber-cases';
 
 /** The reroute note shown above the first stop after a turn in the road. */
 const REROUTE: Partial<Record<StopId, string>> = Object.fromEntries(REROUTES.map((r) => [r.before, r.text]));
@@ -103,7 +106,7 @@ function Brief({ label, bar, photo, meta, name, text, big, rows = [], children }
 
 /** The stops a full story visits: the trip's own, in the order they happened. */
 /** A ride being requested, the way a ride app plays it: finding a driver, connecting, confirmed. */
-function PreRide({ step, name }: { step: number; name: string }) {
+function PreRide({ step, name, onSkip }: { step: number; name: string; onSkip: () => void }) {
   const s = RIDE.steps[step];
   const last = RIDE.steps.length - 1;
   return (
@@ -135,11 +138,15 @@ function PreRide({ step, name }: { step: number; name: string }) {
           </span>
         </p>
       )}
+      <button type="button" className="ub-link" onClick={onSkip}>
+        {RIDE.skip}
+      </button>
     </div>
   );
 }
 
-const ownStops = (t: Trip): Stop[] => (t.id === 'idle-minutes' ? [] : STOPS.filter((x) => x.type !== 'you' && (t.id === 'story' || x.trip === t.id)));
+/** The whole road counts every stop, "Ram, today" included, so its story and its ride show the same total. */
+const ownStops = (t: Trip): Stop[] => (t.id === 'idle-minutes' ? [] : t.id === 'story' ? STOPS : STOPS.filter((x) => x.type !== 'you' && x.trip === t.id));
 
 /** One trip as a tile in a grid: its photo, name and one line. */
 function Tile({ t, onOpen, onInfo, i }: { t: Trip; onOpen: (id: TripId) => void; onInfo?: (id: TripId) => void; i: number }) {
@@ -282,7 +289,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
     const requesting = screen.s === 'finding' && !!onTrip;
     const legEvents = leg && onTrip ? STOPS.filter((x) => x.type === 'dot' && x.trip === onTrip.id) : [];
     if (requesting) {
-      side = <PreRide step={rideStep} name={onTrip!.name} />;
+      side = <PreRide step={rideStep} name={onTrip!.name} onSkip={app.skipRide} />;
     } else if (leg && quick && !arrived && passing && legEvents.some((x) => x.id === passing.id)) {
       // on a real road, driving: the event the car has just passed
       const n = legEvents.findIndex((x) => x.id === passing.id) + 1;
@@ -293,7 +300,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
             {paused ? 'Resume' : 'Pause'}
           </button>
           <button type="button" className="ub-link" onClick={() => driveKey && setSkip(driveKey)}>
-            Skip to the end
+            {RIDE.skip}
           </button>
         </Brief>
       );
@@ -304,7 +311,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
             {paused ? 'Resume' : 'Pause'}
           </button>
           <button type="button" className="ub-link" onClick={() => driveKey && setSkip(driveKey)}>
-            Skip to the end
+            {RIDE.skip}
           </button>
         </Brief>
       );
@@ -319,7 +326,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
             {paused ? 'Resume' : 'Pause'}
           </button>
           <button type="button" className="ub-link" onClick={() => driveKey && setSkip(driveKey)}>
-            Skip to the end
+            {RIDE.skip}
           </button>
         </Brief>
       );
@@ -352,7 +359,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           label={`The full story · ${at} of ${own.length}`}
           bar={at / own.length}
           photo={s ? stopPhoto(s.id) : tripPhotos(onTrip!.id)[0]}
-          meta={s ? `${REROUTE[s.id] ? `${REROUTE[s.id]} · ` : ''}${when(s)} · ${minLabel(minutesAway(s.when))} away` : undefined}
+          meta={s ? (s.type === 'you' ? 'Now' : `${REROUTE[s.id] ? `${REROUTE[s.id]} · ` : ''}${when(s)} · ${minLabel(minutesAway(s.when))} away`) : undefined}
           name={tell ? tell.title : onTrip!.name}
           text={tell ? tell.body || undefined : `${own.length} ${own.length === 1 ? 'stop' : 'stops'}, in the order they happened. The car drives to each one and waits while you read.`}
         >
@@ -428,7 +435,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
               ) : (
                 <>
                   <b>{minLabel(minutes)}</b>
-                  {between.length} {between.length === 1 ? 'stop' : 'stops'} on the way
+                  {stops.length} stops, start to finish
                 </>
               )}
             </p>
@@ -455,9 +462,26 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
               {BILLBOARD.reserve}
             </button>
           </div>
+          {/* the same four things as the first screen, one tap each, with no ride in between */}
+          <nav className="ub-quick" aria-label="Shortcuts">
+            <Link className="ub-link" href={caseHref('trucost')}>
+              TruCost case study
+            </Link>
+            <Link className="ub-link" href={PROPOSAL_HREF}>
+              {BILLBOARD.proposal}
+            </Link>
+            {PROFILE.resume && (
+              <a className="ub-link" href={PROFILE.resume} download>
+                {BILLBOARD.resume}
+              </a>
+            )}
+            <a className="ub-link" href={`mailto:${PROFILE.email}?subject=${encodeURIComponent(RESERVE.subject)}`}>
+              {BILLBOARD.contact}
+            </a>
+          </nav>
         </div>
         <span className="ub-face">
-          <Shot photo={PORTRAIT} eager />
+          <Shot photo={PORTRAIT} />
         </span>
         <dl className="ub-proofs">
           {HERO_FACTS.map((f) => (
@@ -503,6 +527,9 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
             {sc.note && <p className="ub-idea-note">{sc.note}</p>}
           </div>
           <div className="ub-idea-nav">
+            <Link className="ub-link" href={PROPOSAL_HREF}>
+              Read it as one page
+            </Link>
             {at > 0 && (
               <button type="button" className="ub-link" onClick={() => app.setIdeaStep(at - 1)}>
                 Back
@@ -551,7 +578,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           </p>
         </div>
         <span className="ub-face">
-          <Shot photo={PORTRAIT} eager />
+          <Shot photo={PORTRAIT} />
         </span>
       </div>
     );
@@ -676,15 +703,17 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           <blockquote className="ub-say">
             <p>{INBOX[0].text}</p>
             <footer>
-              {INBOX[0].from}, {INBOX[0].when.toLowerCase()}. Three more messages are waiting on real quotes from the people he worked with here.
+              {INBOX[0].from}, {INBOX[0].when.toLowerCase()}.
             </footer>
           </blockquote>
         )}
-        {where === 'lost' && (
-          <blockquote className="ub-say">
-            <p>This chapter is still being written.</p>
-          </blockquote>
-        )}
+        {where === 'lost' &&
+          LOST_PARTS.map((x) => (
+            <blockquote key={x.heading} className="ub-say">
+              <footer>{x.heading}</footer>
+              <p>{x.text}</p>
+            </blockquote>
+          ))}
         <div className="ub-grid">
           {ids.map((id, i) => (
             <Tile key={id} t={getTrip(id)} onOpen={app.driveTo} onInfo={where === 'shipped' ? setProject : undefined} i={i} />

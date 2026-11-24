@@ -1,14 +1,14 @@
 'use client';
 
-import { IDEA } from '@/lib/uber';
+import { IDEA, IDEA_SUMS } from '@/lib/uber';
 import { Icon } from './icons';
 
 const Q = IDEA.tablet.questions;
 export const SURVEY_DONE = Q.length + 1;
 const rupees = (n: number) => `₹${n}`;
 const FARE = IDEA.km * IDEA.perKm;
-/** 12.5%, said as 12%, the way Ram put it. */
-const LIFT = Math.floor((IDEA.driver / FARE) * 100);
+/** ₹15 on ₹120: 12.5%, shown exactly. */
+const LIFT = IDEA_SUMS.lift;
 
 /**
  * The back-seat tablet from "The 20 idle minutes", small enough to try: an ask, three sample questions, a thank-you.
@@ -106,7 +106,7 @@ export function TripMeter({ step }: { step: number }) {
         <dt>This trip pays</dt>
         <dd>
           {rupees(done ? FARE + IDEA.driver : FARE)}
-          {done && <span>{LIFT}% more</span>}
+          {done && <span>{LIFT} more</span>}
         </dd>
       </div>
     </dl>

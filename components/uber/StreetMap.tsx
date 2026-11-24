@@ -337,7 +337,7 @@ export default function StreetMap({ ride = null, from, to, pad = {}, detail, con
             aria-label={
               path.ride
                 ? `A street map. The route runs from Ram today, in ${GEO_HOME.city}, to ${path.ride.name}, in ${path.ride.place.city}.`
-                : `A street map of Ram's road from ${stop(from).name} to ${stop(to).name}, with ${Math.max(0, marks.length - 2)} stops on the way.`
+                : `A street map of Ram's road from ${stop(from).name} to ${stop(to).name}, with ${marks.length} stops from start to finish.`
             }
           >
             {total > 0 && !own.far && (

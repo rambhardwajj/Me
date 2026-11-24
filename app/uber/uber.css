@@ -1492,3 +1492,151 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
 .ub-tl-go { display: flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: var(--u-text-2); white-space: nowrap; transition: color 0.18s; }
 .ub-tl-card:hover .ub-tl-go { color: var(--u-text); }
 .ub-tl > li.next .ub-tl-card { align-items: center; background: none; box-shadow: inset 0 0 0 1.5px var(--u-dash); }
+
+/* ==========================================================================
+   24 Nov 2026: the first screen says who, what and one number, and the four things a visitor came for
+   (a case study, the proposal, the resume, contact) are one tap away with no ride in between.
+   ========================================================================== */
+/* Archivo at 75% width has a narrow space: with tight tracking the words ran together. Looser tracking, wider spaces. */
+.ub-h1 { font-size: 86px; letter-spacing: -0.02em; word-spacing: 0.1em; }
+.ub-status, .ub-cap-row h2, .ub-dialog-head h2, .ub-brief h3, .ub-abt > h3, .ub-abt-side h4, .ub-home-copy h3, .ub-idea-foot h3, .ub-arr h2 { word-spacing: 0.08em; }
+.ub-home-copy h3, .ub-cap-row h2, .ub-dialog-head h2, .ub-abt > h3 { letter-spacing: -0.025em; }
+.ub-bill-copy { width: 820px; }
+.ub-2min { margin: 8px 0 4px; padding: 0 0.16em 0.07em; border-radius: 0.16em; font-size: 1em; letter-spacing: inherit; }
+.ub-sub { margin-top: 18px; max-width: 610px; font-family: var(--u-ui); font-size: 20px; line-height: 30px; color: var(--u-body); }
+.ub-proof1 { margin-top: 10px; display: flex; align-items: baseline; gap: 14px; font-family: var(--u-ui); }
+.ub-proof1 b { font-family: var(--u-display); font-size: 76px; line-height: 1; font-weight: 900; font-stretch: 75%; color: var(--u-accent); }
+.ub-proof1 span { font-size: 18px; font-weight: 600; }
+.ub-acts { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 12px; font-family: var(--u-ui); }
+.ub-acts .ub-btn { min-height: 56px; padding: 0 28px; }
+.ub-quick { display: flex; flex-wrap: wrap; align-items: center; gap: 0 22px; font-family: var(--u-ui); }
+.ub-bill-copy .ub-quick { margin-top: 6px; }
+.ub-quick .ub-link { font-size: 15.5px; }
+.ub-head-links { left: calc(544px + 16px * var(--p)); width: 330px; }
+.ub-tribute { font-size: 12px; }
+.ub-foot { display: none; }
+@media (max-width: 1023.98px), (max-height: 559.98px) {
+  .ub-bill-copy { width: auto; }
+  .ub-h1 { font-size: clamp(42px, 13.6vw, 84px); }
+  .ub-sub { margin-top: 14px; font-size: 17px; line-height: 26px; }
+  .ub-proof1 b { font-size: 56px; }
+  .ub-proof1 span { font-size: 16px; }
+  .ub-acts { flex-direction: column; max-width: 440px; }
+  .ub-head-links { left: auto; width: auto; }
+  .ub-foot { display: flex; flex-direction: column; gap: 10px; max-width: 520px; margin: 0 auto; padding: 16px 20px 28px; color: var(--u-text-2); }
+  .ub-foot nav { display: flex; flex-wrap: wrap; gap: 0 18px; }
+  .ub-foot a { min-height: 44px; display: inline-flex; align-items: center; font-size: 15px; font-weight: 600; color: var(--u-text); text-decoration: underline; text-decoration-color: var(--u-dash); text-underline-offset: 4px; }
+  .ub-foot small { font-size: 12px; }
+}
+
+/* "Skip the ride", wherever a ride is being requested: the ride is a skin, never a gate */
+.rp-skip { flex: none; align-self: center; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; margin: 0 auto 12px; padding: 0 18px; border-radius: 22px; background: var(--u-surface); font-size: 15px; font-weight: 600; }
+.ub-pre .ub-link { align-self: flex-start; }
+.rp-sharerow a { height: 44px; display: flex; align-items: center; padding: 0 16px; border-radius: 22px; background: var(--u-surface); font-size: 15px; font-weight: 600; }
+.rp-lost { margin-bottom: 14px; }
+.rp-lost h3 { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--u-text-2); }
+.rp-lost p { margin-top: 4px; font-size: 15.5px; line-height: 23px; color: var(--u-body); }
+
+/* every number on the idea page says what kind it is, and the one assumption under it */
+.ig-nums dd.ig-why, .ig-nums .good dd.ig-why { font-family: var(--u-ui); font-size: 11.5px; line-height: 15px; font-weight: 400; letter-spacing: 0; font-stretch: normal; white-space: normal; color: var(--u-text-2); }
+.ig-why b, .ig-assume b { font-weight: 700; color: var(--u-text); }
+.ig-assume { font-size: 12.5px; line-height: 18px; color: var(--u-text-2); }
+@container (max-width: 520px) {
+  .ig-nums > div { flex-wrap: wrap; }
+  .ig-nums dd.ig-why { order: 3; flex-basis: 100%; font-size: 12.5px; line-height: 17px; }
+}
+
+/* ==========================================================================
+   The plain pages: /uber/work, /uber/work/<case>, /uber/proposal. No canvas, no phone, no ride.
+   ========================================================================== */
+.ub-doc { display: flex; flex-direction: column; }
+.ub-doc a { color: inherit; }
+.ub-skip { position: absolute; z-index: 10; left: 16px; top: -80px; min-height: 44px; display: flex; align-items: center; padding: 0 16px; border-radius: 22px; background: var(--u-primary); color: var(--u-on-primary) !important; font-weight: 600; }
+.ub-skip:focus { top: 12px; }
+.ub-doc-head, .ub-doc-main, .ub-doc-foot { width: 100%; max-width: 1040px; margin: 0 auto; }
+.ub-doc-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 20px; padding: 16px 20px 8px; }
+.ub-doc-head .ub-mark { min-height: 44px; display: inline-flex; align-items: center; }
+.ub-doc-head nav, .ub-doc-foot nav { display: flex; flex-wrap: wrap; gap: 2px; margin: 0 -12px; }
+.ub-doc-head nav a, .ub-doc-foot nav a { min-height: 44px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: 22px; font-size: 15px; font-weight: 600; color: var(--u-text-2); }
+.ub-doc-head nav a:hover, .ub-doc-foot nav a:hover, .ub-doc-head nav a[aria-current] { background: var(--u-surface); color: var(--u-text); }
+.ub-doc-main { flex: 1; padding: 8px 20px 56px; }
+.ub-doc-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px 24px; padding: 18px 20px 32px; border-top: 1px solid var(--u-line); font-size: 14px; line-height: 21px; color: var(--u-text-2); }
+.ub-doc-foot small { font-size: 12px; }
+
+.ub-case { display: flex; flex-direction: column; gap: 22px; }
+.ub-case-back { align-self: flex-start; }
+.ub-case-art { position: relative; margin: 0; width: 100%; height: clamp(180px, 34vw, 340px); border-radius: 20px; overflow: hidden; background: var(--u-surface); }
+.ub-case-art img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ub-case-art.contain img { object-fit: contain; }
+.ub-case-art figcaption { position: absolute; left: 12px; bottom: 10px; padding: 4px 10px; border-radius: 12px; background: var(--u-bg); font-size: 12.5px; color: var(--u-text-2); }
+.ub-case-head h1 { margin: 6px 0 10px; font-family: var(--u-display); font-size: clamp(42px, 9vw, 84px); line-height: 0.98; font-weight: 900; font-stretch: 75%; letter-spacing: -0.02em; word-spacing: 0.08em; }
+.ub-case-lede { max-width: 720px; font-size: clamp(18px, 2.4vw, 22px); line-height: 1.4; font-weight: 500; }
+.ub-case-parts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.ub-case-parts section { display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 18px; background: var(--u-surface); }
+.ub-case-parts h2 { font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--u-text-2); }
+.ub-case-parts p { font-size: 16px; line-height: 24px; color: var(--u-body); }
+.ub-case-parts .ub-case-result { background: var(--u-tint); }
+.ub-case .ub-bigstat { align-items: flex-start; text-align: left; }
+.ub-case .ub-bigstat b { font-size: 64px; color: var(--u-text); }
+.ub-case .ub-bigstat span { max-width: none; font-size: 15px; line-height: 21px; }
+.ub-case-proof { display: flex; flex-direction: column; gap: 2px; }
+.ub-case-proof b { color: var(--u-text); }
+.ub-case-roles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.ub-case-roles li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; font-size: 16px; line-height: 22px; }
+.ub-case-roles span { color: var(--u-text-2); }
+.ub-case-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding-top: 6px; }
+.ub-case-foot .ub-btn { min-height: 52px; gap: 8px; padding: 0 24px; }
+.ub-worklist { list-style: none; padding: 0; display: flex; flex-direction: column; }
+.ub-worklist a { display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 12px 4px; border-top: 1px solid var(--u-line); border-radius: 4px; }
+.ub-worklist a:hover { background: var(--u-surface); }
+.ub-worklist-mark { flex: none; width: 52px; height: 52px; border-radius: 14px; background: var(--u-surface); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.ub-worklist-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ub-worklist-text b { font-size: 18px; font-weight: 700; }
+.ub-worklist-text small { font-size: 14px; line-height: 19px; color: var(--u-text-2); }
+.ub-worklist-res { font-family: var(--u-display); font-size: 22px; font-weight: 900; font-stretch: 75%; white-space: nowrap; }
+.ub-prop-chaps { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 40px; }
+.ub-prop-chaps > li { display: flex; flex-direction: column; gap: 10px; padding-top: 26px; border-top: 2px solid var(--u-text); scroll-margin-top: 16px; }
+.ub-prop-chaps h2 { font-family: var(--u-display); font-size: clamp(30px, 5vw, 44px); line-height: 1; font-weight: 900; font-stretch: 75%; letter-spacing: -0.02em; word-spacing: 0.08em; }
+.ub-prop-p { max-width: 720px; font-size: 17px; line-height: 26px; color: var(--u-body); }
+.ub-prop-n { max-width: 720px; font-size: 13.5px; line-height: 20px; color: var(--u-text-2); }
+.ub-prop .ub-case-head .ub-prop-p { margin-top: 10px; }
+.ub-prop .ub-case-head .ub-prop-n { margin-top: 8px; }
+.ub-prop-g { margin-top: 8px; padding: 24px; border-radius: 20px; background: var(--u-surface); }
+@media (max-width: 720px) {
+  .ub-case-parts { grid-template-columns: minmax(0, 1fr); }
+  .ub-prop-g { padding: 16px 14px; }
+  .ub-case-foot .ub-btn { width: 100%; }
+}
+/* beside the phone the stage has a fixed height: the money chapter gives its drawing a little less, so the labels fit */
+.ub-idea-stage .ig-split { gap: 10px; }
+.ub-idea-stage .ig-split .ig-flow { max-width: 450px; }
+.ub-idea-stage .ig-fleet .ig-nums { gap: 10px 20px; }
+
+/* ==========================================================================
+   24 Nov 2026: accessibility pass, from measurements on the built page in both themes.
+   ========================================================================== */
+/* contrast (WCAG AA): white on the dark theme's lighter blue was 3.6:1; the app's own blue gives 4.6:1 */
+.ub[data-theme='dark'] .ig-slot,
+.ub[data-theme='dark'] .ig-weeks span:not(.maybe),
+.ub[data-theme='dark'] .ub-idea-tabs button.on i,
+.ub[data-theme='dark'] .ub-tl > li.next .ub-tl-node { background: #276ef1; }
+.ub[data-theme='dark'] .rp-tag.green { background: #0e8345; }
+.ub-tl > li.next .ub-tl-when { color: var(--u-tint-ink); }
+.ub[data-theme='light'] .ub-tl-res { color: #0a6634; }
+/* tap targets: every control in the app is at least 44px on its short side */
+.rp-facets button { height: 44px; border-radius: 22px; }
+.rp-again { height: 44px; border-radius: 22px; }
+.rp-address button { height: 44px; border-radius: 22px; }
+.rp-chap { min-height: 44px; align-items: center; }
+.td-go, .td-opts button, .td-no { height: max(44px, 9.6cqw); }
+.td-no { min-width: 44px; }
+.ub-rate button { width: 44px; height: 44px; }
+.rp-ends-swap { width: 44px; height: 44px; }
+.rp-ends-text > *:has(input, select) { height: 45px; line-height: 44px; }
+.rp-ends-text input, .rp-ends-text select { height: 44px; }
+.lm-hit { width: 44px; height: 44px; margin: -22px 0 0 -22px; }
+.ub[data-theme='dark'] .ub-dialog-proof span { background: #0e8345; }
+@media (max-width: 1023.98px), (max-height: 559.98px) {
+  .ub-mark { min-height: 44px; display: inline-flex; align-items: center; }
+  .ub-theme { width: 44px; }
+}

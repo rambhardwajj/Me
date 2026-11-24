@@ -5,7 +5,14 @@ import '@fontsource-variable/geist-mono';
 import './globals.css';
 import { PROFILE } from '@/lib/data';
 
+/**
+ * Where the site lives, so link previews (WhatsApp, LinkedIn) get absolute addresses for the page and its share image.
+ * Vercel names the production domain itself; rambhardwaj.in is the site's own domain (lib/data.ts) for anywhere else.
+ */
+const SITE = process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'https://rambhardwaj.in';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE),
   title: `${PROFILE.name} · ${PROFILE.role}`,
   description: PROFILE.intro,
   openGraph: {

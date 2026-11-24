@@ -456,7 +456,9 @@ export const TRIPS: Trip[] = [
     blurb: 'One road from a school in Mathura to today. Two reroutes on the way: from the stage to software, and from engineering to product.',
     did: ['Physical Sciences, then dance', 'Code: rank 1 of the batch, then Ciena', 'Product: Newral, TruCost, Masters’ Union'],
     receipt: [
-      { label: 'Places on the road', value: '7' },
+      // counted from STOPS, so the receipt, the map and the "n of N" label can never disagree
+      { label: 'Places on the road', value: String(PLACES.filter((p) => p.type === 'place').length) },
+      { label: 'Stops, start to finish', value: String(STOPS.length) },
       { label: 'Reroutes', value: '2' },
     ],
   },
@@ -476,6 +478,46 @@ export const REROUTES: { before: StopId; text: string }[] = [
   { before: 'product-manager', text: 'Rerouted: from engineering to product' },
 ];
 
+/* ------------------------------------------------------------------ the idea for Uber: its assumptions and its sums */
+
+/**
+ * The assumptions behind "The 20 idle minutes". All from Ram's answers; none is a measured result.
+ * Rupees. The fee is what advertisers quoted Ram at TruCost. The driver's share, the trip, the rides a day,
+ * the answer rate and the working days are his illustration.
+ */
+const IDEA_INPUT = { fee: 25, driver: 15, km: 8, perKm: 15, model: { rides: 20, answerOneIn: 3, days: 26, cabs: 1000 } };
+const inr = (n: number) => `₹${n.toLocaleString('en-IN')}`;
+const oneDp = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
+
+/**
+ * Every sum on the idea page, worked out once, so the words, the drawings and the tablet cannot disagree.
+ * Rounding is said out loud: 20 rides with one rider in three answering is 6.7 surveys, counted as 6 (a part-answered survey pays nothing).
+ */
+export const IDEA_SUMS = (() => {
+  const { fee, driver, km, perKm, model: m } = IDEA_INPUT;
+  const fare = km * perKm;
+  const exact = m.rides / m.answerOneIn;
+  const perDay = Math.floor(exact);
+  const keep = fee - driver;
+  const fleetSurveys = m.cabs * perDay;
+  return {
+    fare,
+    /** ₹15 on ₹120 is 12.5%, shown as it is. */
+    lift: `${oneDp((driver / fare) * 100)}%`,
+    perDay,
+    rounding: `${m.rides} ÷ ${m.answerOneIn} is ${oneDp(exact)}, rounded down to ${perDay}`,
+    keep,
+    driverDay: perDay * driver,
+    driverMonth: perDay * driver * m.days,
+    fleetSurveys,
+    fleetDrivers: fleetSurveys * driver,
+    fleetKeep: fleetSurveys * keep,
+    fleetKeepMonth: `₹${oneDp((fleetSurveys * keep * m.days) / 100000)}L`,
+    inr,
+  };
+})();
+const S = IDEA_SUMS;
+
 /* ------------------------------------------------------------------ the teardown (Activity › Upcoming) */
 
 /** "The 20 idle minutes", from the interview with Ram on 20 Nov 2026 (ux-brief.md). `quick` parts show in the Quick ride. */
@@ -488,7 +530,7 @@ export const TEARDOWN: { title: string; parts: { heading: string; text: string; 
     { heading: 'The idea', text: 'A back-seat tablet from Uber shows a short brand survey. When the rider completes it, most of the fee goes to that driver, on that trip.', quick: true },
     { heading: 'Why it helps', text: 'The driver earns more per trip without the rider paying more, so a low fare is less of a reason to cancel.', quick: true },
     { heading: 'Why me', text: 'I ran in-cab tablet advertising and advertiser deals at TruCost. Drivers there got a share of the ad money, and I saw it motivate them.' },
-    { heading: 'An example', label: 'Illustration, not data', text: 'An 8 km trip at ₹15 per km is ₹120 for the driver. If ₹15 of a ₹25 survey goes to the driver, that trip pays 12% more. The ₹15 share is my assumption.' },
+    { heading: 'An example', label: 'Illustration, not data', text: `An 8 km trip at ₹15 per km is ₹120 for the driver. If ₹15 of a ₹25 survey goes to the driver, that trip pays ${IDEA_SUMS.lift} more. The ₹15 share is my assumption.` },
     { heading: 'Risks I would test', text: 'Not every rider will opt in, so test the opt-in rate and reward the rider too. The tablet asks, never the driver, to avoid pressure and rating damage. The money arrives after the trip while the driver decides before it, so show the driver a likely bonus before they accept.' },
     { heading: 'What exists already', text: 'Uber has run Journey Ads in India since June 2023 and has piloted in-car tablets. The new part is paid surveys with the money going to the driver. I have not confirmed the current status of the tablet pilot.' },
   ],
@@ -508,10 +550,10 @@ export const IDEA = {
   line: 'Let riders top up their driver’s earnings.',
   pitch: 'A driver programme I would build at Uber. A back-seat tablet from Uber shows a short brand survey. When the rider completes it, most of the fee goes to that driver, on that trip.',
   /** Rupees. The fee is what advertisers quoted Ram at TruCost. The driver's share and the trip are his illustration. */
-  fee: 25,
-  driver: 15,
-  km: 8,
-  perKm: 15,
+  fee: IDEA_INPUT.fee,
+  driver: IDEA_INPUT.driver,
+  km: IDEA_INPUT.km,
+  perKm: IDEA_INPUT.perKm,
   notes: {
     fee: 'Quoted to me by advertisers, per completed survey, during TruCost deals',
     driver: 'The driver’s share. My assumption',
@@ -542,7 +584,7 @@ export const IDEA = {
    * The assumptions behind the driver's month and the 1,000 cabs. All from Ram's answers; none is a measured result.
    * The sums are done in IdeaGraphics.tsx from these, with one day count for both, so the page cannot disagree with itself.
    */
-  model: { rides: 20, answerOneIn: 3, days: 26, cabs: 1000 },
+  model: IDEA_INPUT.model,
   /** The chapters of the page, one graphic each. `id` picks the graphic in IdeaGraphics.tsx. */
   scenes: [
     {
@@ -562,22 +604,22 @@ export const IDEA = {
     {
       id: 'split',
       tab: 'The money',
-      title: 'One survey pays ₹25. The driver gets ₹15.',
-      text: 'The brand pays for each completed survey. ₹15 goes to that driver, on that trip, and ₹10 stays with Uber. On an 8 km trip that is 12% more for the driver, and the rider pays nothing extra.',
+      title: `One survey pays ${inr(IDEA_INPUT.fee)}. The driver gets ${inr(IDEA_INPUT.driver)}.`,
+      text: `The brand pays for each completed survey. ${inr(IDEA_INPUT.driver)} goes to that driver, on that trip, and ${inr(S.keep)} stays with Uber. On an ${IDEA_INPUT.km} km trip that is ${S.lift} more for the driver (${inr(IDEA_INPUT.driver)} on ${inr(S.fare)}), and the rider pays nothing extra.`,
       note: '₹25 was quoted to me by advertisers during TruCost deals. The split is my assumption. A driver I interviewed was keen even at ₹10.',
     },
     {
       id: 'month',
       tab: 'A driver’s month',
-      title: 'About ₹2,340 more a month for one driver.',
-      text: '20 rides a day. One rider in three answers, so 6 surveys a day at ₹15, over 26 working days. The driver pays a one-time setup fee of ₹500 to ₹1,000, and Uber installs the tablet.',
-      note: 'My assumptions, not measured results. The setup fee range comes from driver interviews. A tablet costs about ₹6,000 to ₹8,000 (estimate).',
+      title: `About ${inr(S.driverMonth)} more a month for one driver.`,
+      text: `${IDEA_INPUT.model.rides} rides a day. If one rider in three answers, that is about ${S.perDay} surveys a day at ${inr(IDEA_INPUT.driver)}, over ${IDEA_INPUT.model.days} working days. The driver pays a one-time setup fee of ₹500 to ₹1,000, and Uber installs the tablet.`,
+      note: `Illustration, not a measured result. Rounding: ${S.rounding}. The setup fee range comes from driver interviews. A tablet costs about ₹6,000 to ₹8,000 (estimate).`,
     },
     {
       id: 'scale',
       tab: '1,000 cabs',
-      title: 'At 1,000 cabs: 6,000 surveys a day.',
-      text: 'The same assumptions across 1,000 cabs. Drivers share ₹90,000 a day, and Uber keeps ₹60,000, about ₹15.6L a month from surveys alone. Ads are on top: my target is ₹5,000 to ₹5,500 per cab per month.',
+      title: `At ${IDEA_INPUT.model.cabs.toLocaleString('en-IN')} cabs: about ${S.fleetSurveys.toLocaleString('en-IN')} surveys a day.`,
+      text: `The same assumptions across ${IDEA_INPUT.model.cabs.toLocaleString('en-IN')} cabs. Drivers share ${inr(S.fleetDrivers)} a day, and Uber keeps ${inr(S.fleetKeep)}, about ${S.fleetKeepMonth} a month from surveys alone. Ads are on top: my target is ₹5,000 to ₹5,500 per cab per month.`,
       note: 'Illustration, not data. The ad figure is a target from my Phase 1 research, not revenue.',
     },
     {
@@ -620,9 +662,18 @@ export const TRIBUTE_LONG = 'A fan-made portfolio by Ram Bhardwaj. Not affiliate
 
 export const BILLBOARD = {
   wordmark: 'Ram',
-  statuses: ['Finding your product manager', 'Ram accepted your request'],
-  headline: { before: 'Your product manager is', badge: '2 min', after: 'away.' },
-  pitch: 'I’m Ram. I built and sold a ride-hailing app. Tap the phone; it’s my portfolio.',
+  statuses: ['Ram accepted your request'],
+  /** Who, what and one proof number, readable in a glance. Only facts Ram has confirmed. */
+  headline: { before: 'I built and sold a', badge: 'ride-hailing', after: 'app.' },
+  pitch: 'I’m Ram Bhardwaj, a product manager. At TruCost I onboarded 100 drivers. Before that I was a PM at Newral.',
+  proof: { value: '100', label: 'drivers onboarded at TruCost' },
+  /** The four things a visitor can reach in one tap, with no ride in between. */
+  caseStudy: 'See the TruCost case study',
+  proposal: 'My Uber proposal',
+  resume: 'Resume',
+  /** "Reserve Ram" is the page's name for getting in touch; on the first screen it says how. */
+  contact: 'Reserve Ram by email',
+  ride: 'Or take the ride',
   start: 'Start the ride',
   reserve: 'Reserve Ram',
   chooseTitle: 'Choose a Ram',
@@ -718,6 +769,8 @@ export const RIDE = {
   share: 'Share trip with a colleague',
   back: 'Back to the map',
   reserve: 'Reserve Ram',
+  /** Shown wherever a ride is being requested or driven: the ride is a skin, never a gate. */
+  skip: 'Skip the ride',
   /** Milliseconds on the "Finding your experience" screen: the first time, and after that. Skipped for reduced motion. */
   findingMs: { first: 1000, later: 450 },
   /** A ride request, the way a ride app plays it before the car moves. `{name}` is the destination. */
@@ -774,15 +827,16 @@ export const ACTIVITY = {
 
 /* ------------------------------------------------------------------ Inbox */
 
-export type Message = { from: string; when: string; text: string; placeholder?: boolean };
+export type Message = { from: string; when: string; text: string };
 
-/** OWED 1: the three quotes are placeholders, and are shown as placeholders. Never fill them with invented words. */
-export const INBOX: Message[] = [
-  { from: 'Ram', when: 'Now', text: 'Hi Uber. I built and sold a ride-hailing app. I would like to build yours next.' },
-  { from: '[NAME, Newral]', when: '[DATE]', text: '[QUOTE FROM YOUR MANAGER AT NEWRAL]', placeholder: true },
-  { from: '[NAME, TruCost]', when: '[DATE]', text: '[QUOTE FROM THE TRUCOST FOUNDER]', placeholder: true },
-  { from: '[NAME, Ciena]', when: '[DATE]', text: '[QUOTE FROM YOUR MANAGER AT CIENA]', placeholder: true },
-];
+/**
+ * OWED 1. Only real messages are listed, so no placeholder can reach the page. Never fill a quote with invented words.
+ * TODO(Ram): add one row each, with the real name, date and words, once they arrive:
+ *   - his manager at Newral
+ *   - the TruCost founder
+ *   - his manager at Ciena
+ */
+export const INBOX: Message[] = [{ from: 'Ram', when: 'Now', text: 'Hi Uber. I built and sold a ride-hailing app. I would like to build yours next.' }];
 
 /* ------------------------------------------------------------------ Account */
 
@@ -791,13 +845,29 @@ export const ACCOUNT = {
   status: 'Open to PM roles',
   chapters: { title: 'Chapters explored' },
   dance: { title: 'The dance side', line: 'Represented India at a world final in Chicago', trip: 'dance' as TripId },
-  /** OWED 2: the card is drawn on the artboard; its story is not written yet, and the sheet says so. */
-  lost: { title: 'Lost and found', line: 'What did not work, and what I learned', pending: '[TO COME FROM RAM: what did not work, and what he learned]' },
+  /**
+   * OWED 2: three short parts, in Ram's own words. A part with no text is not shown, and with none written
+   * the whole card stays off the page (see LOST_READY).
+   * TODO(Ram): what did not work, why, and what you learned. Fill `text` below; nothing else needs to change.
+   */
+  lost: {
+    title: 'Lost and found',
+    line: 'What did not work, and what I learned',
+    parts: [
+      { heading: 'What did not work', text: '' },
+      { heading: 'Why', text: '' },
+      { heading: 'What I learned', text: '' },
+    ],
+  },
   appearance: 'Appearance',
   mainSite: { title: 'Open the main site', line: 'rambhardwaj.in, the full portfolio' },
   miniRam: { title: 'Ask Mini Ram', line: 'An AI that answers from Ram’s portfolio' },
   share: { title: 'Share this page', line: 'Send it to a colleague' },
 };
+
+/** "Lost and found" is on the page only once Ram has written it. */
+export const LOST_PARTS = ACCOUNT.lost.parts.filter((p) => p.text.trim());
+export const LOST_READY = LOST_PARTS.length > 0;
 
 /** The trips counted by "Chapters explored". */
 export const CHAPTERS = TRIPS.filter((t) => t.chapter).map((t) => t.id);
@@ -869,7 +939,7 @@ export const EXPLAIN: Record<ScreenKey, { title: string; uber: string; here: str
   services: { title: 'Services', uber: 'The services grid', here: 'What Ram can be booked for: 0 to 1 launches, go to market, pricing and growth.' },
   activity: { title: 'Experience', uber: 'Activity: past and upcoming trips', here: 'Every place Ram has worked, newest first, with the dates. The upcoming trip is what he would build at Uber.' },
   account: { title: 'About Ram', uber: 'Account: your profile', here: 'The person behind the app: where he comes from, and the four things he is made of.' },
-  inbox: { title: 'Inbox', uber: 'Ratings and compliments', here: 'Real quotes only. No invented rating.' },
+  inbox: { title: 'Inbox', uber: 'Messages and compliments', here: 'A note from Ram. No invented quotes or ratings.' },
   switch: { title: 'Riding with', uber: 'Switching the rider profile', here: 'Same person, a different vehicle. Each one comes with its own proof.' },
   reserve: { title: 'Reserve Ram', uber: 'Reserve a ride for later', here: 'The one action that counts: send Ram a message.' },
   lost: { title: 'Lost and found', uber: 'Lost and found', here: 'What did not work, and what he learned.' },
@@ -905,12 +975,12 @@ export type Job = {
  * Synappses is not listed here: it was a product inside Newral, and Ram wants it shown under Shipped only.
  */
 export const EXPERIENCE: Job[] = [
-  { company: 'TruCost', what: 'Ride-hailing app with an in-cab tablet', icon: 'car', logo: '/images/logos/trucost.png', trip: 'trucost', roles: [{ title: 'Product Manager, on contract', when: 'Jun 2026 to Oct 2026' }], result: '100 drivers onboarded, sold for ₹2.5L' },
+  { company: 'TruCost', what: 'Ride-hailing app with an in-cab tablet', icon: 'car', logo: '/images/logos/trucost.webp', trip: 'trucost', roles: [{ title: 'Product Manager, on contract', when: 'Jun 2026 to Oct 2026' }], result: '100 drivers onboarded, sold for ₹2.5L' },
   {
     company: 'Newral',
     what: 'Early-stage AI startup, Noida',
     icon: 'chart',
-    logo: '/images/logos/newral.png',
+    logo: '/images/logos/newral.webp',
     trip: 'newral',
     roles: [
       { title: 'Product Manager', when: 'May 2026' },
@@ -919,12 +989,12 @@ export const EXPERIENCE: Job[] = [
     ],
     result: '$0 to $6K monthly revenue',
   },
-  { company: '100xSchool, Super 30', what: 'Hacker House funded by YC', icon: 'code', logo: '/images/logos/100xschool.png', trip: 'super-30', roles: [{ title: 'Students Affairs Head', when: '2026' }, { title: 'Hacker House builder', when: '2025' }], result: '1 of 30 builders nationwide' },
+  { company: '100xSchool, Super 30', what: 'Hacker House funded by YC', icon: 'code', logo: '/images/logos/100xschool.webp', trip: 'super-30', roles: [{ title: 'Students Affairs Head', when: '2026' }, { title: 'Hacker House builder', when: '2025' }], result: '1 of 30 builders nationwide' },
   {
     company: 'Ciena',
     what: 'NYSE-listed networking company, Gurugram',
     icon: 'building',
-    logo: '/images/logos/ciena.png',
+    logo: '/images/logos/ciena.webp',
     trip: 'ciena',
     roles: [
       { title: 'IT Applications Solutions Engineer', when: 'Jul 2024 to Oct 2025' },
@@ -932,7 +1002,7 @@ export const EXPERIENCE: Job[] = [
     ],
     result: '4 of 14,000 won the annual award',
   },
-  { company: 'Ingenious Research Solutions', what: 'Research internship, Noida', icon: 'doc', logo: '/images/logos/ingenious.png', trip: 'ingenious', roles: [{ title: 'Research Intern, on an ISRO blockchain project', when: 'Jun 2023 to Jul 2023' }] },
+  { company: 'Ingenious Research Solutions', what: 'Research internship, Noida', icon: 'doc', logo: '/images/logos/ingenious.webp', trip: 'ingenious', roles: [{ title: 'Research Intern, on an ISRO blockchain project', when: 'Jun 2023 to Jul 2023' }] },
 ];
 
 /* ------------------------------------------------------------------ About Ram (the Account tab) */
@@ -999,16 +1069,16 @@ export const ABOUT = {
  * The files were taken from each organisation's own website on 21 Nov 2026, with Ram's yes.
  */
 export const LOGO: Partial<Record<TripId, string>> = {
-  ingenious: '/images/logos/ingenious.png',
-  trucost: '/images/logos/trucost.png',
-  newral: '/images/logos/newral.png',
-  ciena: '/images/logos/ciena.png',
-  'super-30': '/images/logos/100xschool.png',
-  'masters-union': '/images/logos/masters-union.png',
-  ramjas: '/images/logos/ramjas.png',
-  amity: '/images/logos/amity.png',
-  'st-dominics': '/images/logos/st-dominics.png',
-  leetcase: '/images/logos/leetcase.png',
-  unbothrrd: '/images/logos/unbothrrd.png',
-  synappses: '/images/logos/synappses.png',
+  ingenious: '/images/logos/ingenious.webp',
+  trucost: '/images/logos/trucost.webp',
+  newral: '/images/logos/newral.webp',
+  ciena: '/images/logos/ciena.webp',
+  'super-30': '/images/logos/100xschool.webp',
+  'masters-union': '/images/logos/masters-union.webp',
+  ramjas: '/images/logos/ramjas.webp',
+  amity: '/images/logos/amity.webp',
+  'st-dominics': '/images/logos/st-dominics.webp',
+  leetcase: '/images/logos/leetcase.webp',
+  unbothrrd: '/images/logos/unbothrrd.webp',
+  synappses: '/images/logos/synappses.webp',
 };

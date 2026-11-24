@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { PROJECTS } from "@/lib/data";
 import {
@@ -13,6 +14,7 @@ import {
   tripMinutes,
   type TripId,
 } from "@/lib/uber";
+import { caseHref, hasCase } from "@/lib/uber-cases";
 import { GEO_HOME, PLACE_GEO, rideTo } from "@/lib/uber-geo";
 import { PORTRAIT, stopStory, tripPhotos } from "@/lib/uber-photos";
 import { Shot } from "./StagePanel";
@@ -343,6 +345,11 @@ export default function ProjectDialog({
               >
                 Ride there on the map
               </button>
+            )}
+            {hasCase(t.id) && (
+              <Link className="ub-link" href={caseHref(t.id)}>
+                Open as a page, with its own link
+              </Link>
             )}
             <button type="button" className="ub-btn solid" onClick={onReserve}>
               Reserve Ram
