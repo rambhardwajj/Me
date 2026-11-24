@@ -117,8 +117,9 @@ function Tablet({ survey, onSurvey }: { survey: number; onSurvey: (n: number) =>
                 {x}
               </li>
             ))}
-            <li className="off" style={nth(IDEA.onTablet.length)}>
-              <Icon name="x" size={16} w={3} />
+            {/* a feature like the others, so it gets the same tick: the rider is always in control of the screen */}
+            <li style={nth(IDEA.onTablet.length)}>
+              <Icon name="check" size={16} w={3} />
               {IDEA.optOut}
             </li>
           </ul>

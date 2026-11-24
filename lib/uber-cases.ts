@@ -9,9 +9,9 @@ import { tripPhotos, type Photo } from './uber-photos';
  *
  * TODO(Ram), the gaps. Each one is hidden on the page until it is filled:
  *  - "What I would do differently": not written for ANY case. Fill `differently` below, in your own words.
- *  - Problem: missing for Newral, Ciena, Synappses, Super 30 and Ingenious (add `problem` to the trip in lib/uber.ts).
- *  - What I did: missing for Synappses and Super 30 (add `did` to the trip).
- *  - Result with a number: missing for Synappses (add `result` to the trip). Ingenious has no number, only "ISRO".
+ *  - Problem: missing for Newral, Ciena, unBothrrd, Synappses, Super 30 and Ingenious (add `problem` to the trip in lib/uber.ts).
+ *  - What I did: missing for Super 30 (add `did` to the trip).
+ *  - Result with a number: Ingenious has no number, only "ISRO".
  *  - A screenshot or photo: missing for Ingenious (add one to TRIP_SOURCES in lib/uber-photos.ts).
  *  - Dance is not a case study here; its text still says "Chicago" although the battle was in Delhi. Confirm the wording.
  */
@@ -37,8 +37,8 @@ export type CaseStudy = {
 /** Roles for the products that are not jobs: the trip's own line, split into title and year. */
 const ownRole = (t: Trip) => {
   const [title, when] = t.pickup.split(', ');
-  // Synappses: Ram confirmed the dates himself (lib/uber.ts, OWED 5)
-  return [{ title, when: t.id === 'synappses' ? 'Oct 2025 to Jun 2026' : (when ?? '') }];
+  // dates as on Ram's resume
+  return [{ title, when: t.id === 'synappses' ? 'Oct 2025 to May 2026' : t.id === 'leetcase' ? 'Aug to Sep 2026' : t.id === 'unbothrrd' ? 'Oct to Nov 2026' : (when ?? '') }];
 };
 
 export function getCase(slug: string): CaseStudy | null {
@@ -54,5 +54,8 @@ export const hasCase = (id: TripId) => CASE_IDS.includes(id);
 export const PROPOSAL_HREF = '/uber/proposal';
 export const WORK_HREF = '/uber/work';
 
-/** Applies a saved dark theme before first paint, on every /uber page. Light is the default whatever the OS says. */
-export const THEME_SCRIPT = `try{if(localStorage.getItem('${THEME_KEY}')==='dark'){var e=document.querySelector('.ub');e.dataset.theme='dark';e.classList.add('vox-dark')}}catch(e){}`;
+/**
+ * Applies the theme before first paint, on every /uber page: the visitor's own choice if they have made one,
+ * otherwise what their system asks for (prefers-color-scheme).
+ */
+export const THEME_SCRIPT = `try{var t=localStorage.getItem('${THEME_KEY}');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t==='dark'){var e=document.querySelector('.ub');e.dataset.theme='dark';e.classList.add('vox-dark')}}catch(e){}`;

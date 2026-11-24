@@ -184,7 +184,10 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
   const [flipped, setFlipped] = useState(false);
   const [shortcut, setShortcut] = useState<null | 'experience' | 'wins'>(null);
   const [seen, setSeen] = useState<TripId[]>([]);
+  /** The Inbox has been opened: the unread badge on Account goes. */
   const [inboxRead, setInboxRead] = useState(false);
+  /** The messages that have been opened, by sender: their blue dot goes. */
+  const [opened, setOpened] = useState<string[]>([]);
   const [strip, setStrip] = useState(true);
   const [toast, setToast] = useState('');
   const [copied, setCopied] = useState(false);
@@ -1059,11 +1062,21 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
                 </span>
                 <span className="rp-msg-body">{m.text}</span>
               </span>
-              <i className="rp-msg-new" aria-hidden="true" />
+              {!opened.includes(m.from) && <i className="rp-msg-new" aria-hidden="true" />}
             </>
           );
           return (
-            <button key={m.from} type="button" className="rp-msg" onClick={() => openSheet('reserve')} aria-label={`${m.from}: ${m.text} Reply to Ram`}>
+            <button
+              key={m.from}
+              type="button"
+              className="rp-msg"
+              onClick={() => {
+                setOpened((v) => (v.includes(m.from) ? v : [...v, m.from]));
+                setInboxRead(true);
+                openSheet('reserve');
+              }}
+              aria-label={`${opened.includes(m.from) ? '' : 'Unread. '}${m.from}: ${m.text} Reply to Ram`}
+            >
               {body}
             </button>
           );
@@ -1237,6 +1250,13 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
           <Icon name="link" w={1.8} />
           {RESERVE.linkedin}
         </a>
+        {/* appears by itself once PROFILE.resume (lib/data.ts) names a PDF in public/ */}
+        {PROFILE.resume && (
+          <a className="rp-btn" href={PROFILE.resume} download>
+            <Icon name="out" w={1.8} />
+            {RESERVE.resume}
+          </a>
+        )}
         <button type="button" className="rp-btn ghost" onClick={closeSheet}>
           Not now
         </button>

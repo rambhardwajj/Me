@@ -34,7 +34,13 @@ export default function Work() {
                     <b>{c.t.name}</b>
                     <small>{c.t.sub}</small>
                   </span>
-                  {c.t.result && <span className="ub-worklist-res">{c.t.result.value}</span>}
+                  {/* the number never stands alone: what it counts is under it. No result, no slot */}
+                  {c.t.result && (
+                    <span className="ub-worklist-res">
+                      <b>{c.t.result.value}</b>
+                      <small>{c.t.result.sub}</small>
+                    </span>
+                  )}
                   <Icon name="chevRight" size={18} w={2.2} />
                 </Link>
               </li>

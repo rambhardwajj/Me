@@ -1640,3 +1640,44 @@ html:has(.ub[data-theme='light']) { background: #f7f4ec; }
   .ub-mark { min-height: 44px; display: inline-flex; align-items: center; }
   .ub-theme { width: 44px; }
 }
+
+/* ==========================================================================
+   24 Nov 2026, later: fixes from a second review.
+   ========================================================================== */
+/* the tablet's headline: the same looser tracking as the page headline, so its words stand apart */
+.td-big { letter-spacing: -0.01em; word-spacing: 0.08em; }
+/* /uber/work: a number with what it counts under it */
+.ub-worklist-res { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; max-width: 42%; text-align: right; white-space: normal; }
+.ub-worklist-res b { font-size: 22px; line-height: 1; font-weight: 900; white-space: nowrap; }
+.ub-worklist-res small { font-family: var(--u-ui); font-size: 12px; line-height: 15px; font-weight: 500; font-stretch: normal; color: var(--u-text-2); }
+/* the floating tab bar: the list ends clear of it (and of the "Open to PM roles" strip), and what scrolls
+   behind it fades out instead of showing through around the pill */
+.rp-scroll, .rp-scroll.flush { padding-bottom: calc(148px + env(safe-area-inset-bottom, 0px)); }
+.rp-scroll.list { padding-bottom: 32px; }
+.rp-scroll.inbox { padding-bottom: 60px; }
+.rp-tabbar::before { content: ''; position: absolute; z-index: -1; left: -45px; right: -45px; top: -34px; bottom: calc(-20px - env(safe-area-inset-bottom, 0px)); background: linear-gradient(to bottom, transparent, var(--u-bg) 52%); pointer-events: none; }
+.rp-tabbar { isolation: isolate; }
+.rp-tabbar::after { content: ''; position: absolute; z-index: -1; inset: 0; border-radius: inherit; background: var(--u-bg); }
+@media (max-width: 1023.98px), (max-height: 559.98px) {
+  /* a screen with one message does not need a whole viewport: the page continues sooner */
+  .ub-phone:has(.rp-screen.s-inbox) { height: min(100svh, 560px); }
+}
+
+/* ==========================================================================
+   24 Nov 2026, third review.
+   ========================================================================== */
+/* <main> is a landmark only: the canvas still lays out its children */
+.ub-main { display: contents; }
+.ub > .ub-skip { position: fixed; }
+/* "Ram accepted your request": the stronger grey (6.5:1 on white) instead of the status grey (4.6:1) */
+.ub-status { color: var(--u-text-2); }
+.ub-lost { padding-top: 12vh; }
+@media (min-width: 1024px) and (min-height: 560px) {
+  /* the canvas is scaled to the window, so sizes are divided by that scale: these stay 40 real pixels tall */
+  .ub-head-links > * { height: auto; min-height: calc(40px / var(--cs)); }
+  .ub-theme { width: calc(40px / var(--cs)); }
+  .ub-mark { min-height: calc(40px / var(--cs)); display: inline-flex; align-items: center; }
+  .ub-quick .ub-link, .ub-cap .ub-link, .ub-cap-reserve { height: auto; min-height: calc(40px / var(--cs)); }
+  /* the phone on the first screen: a little smaller and lower, so its bottom edge and its float stay inside short laptop windows */
+  .ub-phone { transform: translate(calc(972px - 916px * var(--p)), calc(26px - 10px * var(--p))) rotate(calc(3deg - 3deg * var(--p))) scale(calc(0.9 + 0.1 * var(--p))); }
+}

@@ -28,7 +28,7 @@ export function buildKnowledge() {
   for (const p of PROJECTS) {
     lines.push(`\n### ${p.name}${p.url ? ` (${p.url})` : ''}`);
     lines.push(`${p.pitch} Role: ${p.role}${p.period ? `, ${p.period}` : ''}${p.client ? `, client: ${p.client}` : ''}.`);
-    lines.push(`Problem: ${p.problem}`);
+    if (p.problem) lines.push(`Problem: ${p.problem}`);
     for (const d of p.did) lines.push(`- ${d}`);
     lines.push(`Results: ${p.metrics.map((m) => `${m.value} ${m.label}`).join('; ')}. Stack/skills: ${p.stack.join(', ')}.`);
   }

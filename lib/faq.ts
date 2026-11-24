@@ -12,7 +12,7 @@ function now() {
 }
 
 function wins() {
-  const list = ['Wingathon', 'Synappses', 'Newral’s revenue', 'Customer’s First', 'world dance battle']
+  const list = ['Wingathon', 'Synappses', 'Newral’s cloud bill', 'Customer’s First', 'world dance battle']
     .map(pick)
     .filter(Boolean)
     .map((a) => `- ${a!.title} (${a!.metric})`);
@@ -26,7 +26,7 @@ function aboutLeetcase() {
 }
 
 function whyHire() {
-  const proof = ['Synappses', 'Newral’s revenue', 'Shipped TruCost', 'Customer’s First']
+  const proof = ['Synappses', 'Newral’s cloud bill', 'Shipped TruCost', 'Customer’s First']
     .map(pick)
     .filter(Boolean)
     .map((a) => `- ${a!.title}: ${a!.metric}`);

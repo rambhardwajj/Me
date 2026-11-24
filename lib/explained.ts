@@ -52,8 +52,8 @@ export const THE_NUMBERS = {
       cam: [0.48, -5, -2, 1.5, -0.5],
     },
     {
-      parts: ['At Newral he went from engineer to Product Manager in seven months, with ', { mark: '2 promotions' }, ', and drove ', { mark: '75% revenue growth' }, '.'],
-      stat: { value: '+75%', label: 'revenue growth at Newral' },
+      parts: ['At Newral he scaled Synappses from ', { mark: '5K to 70K users' }, ' and from ', { mark: '$3K to $10K MRR' }, ' in 4 months.'],
+      stat: { value: '70K', label: 'Synappses users, up from 5K' },
       cam: [0.62, 5, -16, 1.5, 1],
     },
     {
@@ -91,12 +91,11 @@ export const EXPERIENCE_STOPS = (['ciena', 'newral', 'trucost'] as const).map((s
 const SHOTS: Record<string, string | undefined> = {
   leetcase: '/images/leetcase.webp',
   trucost: '/images/trucost.webp',
-  sujhaavmarg: '/images/sujhaavmarg.webp',
   synappses: 'https://res.cloudinary.com/ewpg7mfj/image/upload/w_900/f_auto,q_auto/v1792334002/Screenshot_2026-10-18_at_8.02.57_PM_fhkljn.png',
   unbothered: 'https://res.cloudinary.com/ewpg7mfj/image/upload/w_900/f_auto,q_auto/v1792334117/Screenshot_2026-10-18_at_8.04.50_PM_qodm99.png',
 };
 
-/** Work: one product per panel, what it is up front, then what Ram did. Upto has no screenshot or link yet, so it shows its coded screen. */
+/** Work: one product per panel, what it is up front, then what Ram did. A product with no screenshot yet shows its name and one line instead. */
 export const WORK = PROJECTS.map((p) => ({
   id: p.id,
   name: p.name,
@@ -150,7 +149,7 @@ export const MINI_RAM_NOTES: Record<string, string> = {
   numbers: 'Watch the highlighter. Every number here is real.',
   experience: 'Three stops, one rising line. Keep scrolling sideways.',
   journey: 'This is the long version, from Mathura to product.',
-  work: 'Six tabs, six products. Watch the receipt print what Ram did.',
+  work: 'Five tabs, five products. Watch the receipt print what Ram did.',
   about: 'Three Rams, one person. Pick the feed you like.',
   contact: 'Still curious? Click me and ask anything about Ram.',
 };

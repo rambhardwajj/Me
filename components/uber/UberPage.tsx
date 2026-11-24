@@ -32,24 +32,27 @@ function useMedia(query: string, onServer: boolean) {
   );
 }
 
-/** The saved theme. Light unless the visitor chose dark in Account › Appearance. */
+/** The theme: the visitor's own choice once they have made one, and until then what their system asks for. */
 const THEME_EVENT = 'uber-theme-change';
 function useDark(): [boolean, (dark: boolean) => void] {
   const dark = useSyncExternalStore(
     (notify) => {
+      const system = window.matchMedia('(prefers-color-scheme: dark)');
       window.addEventListener(THEME_EVENT, notify);
       window.addEventListener('storage', notify);
+      system.addEventListener('change', notify);
       return () => {
         window.removeEventListener(THEME_EVENT, notify);
         window.removeEventListener('storage', notify);
+        system.removeEventListener('change', notify);
       };
     },
     () => {
       try {
-        return localStorage.getItem(THEME_KEY) === 'dark';
-      } catch {
-        return false;
-      }
+        const saved = localStorage.getItem(THEME_KEY);
+        if (saved === 'dark' || saved === 'light') return saved === 'dark';
+      } catch {}
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
     },
     () => false,
   );
@@ -155,6 +158,9 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
 
   return (
     <div className={`ub ${fonts} ${dark ? 'vox-dark' : ''}`} data-theme={dark ? 'dark' : 'light'} suppressHydrationWarning>
+      <a className="ub-skip" href="#main">
+        Skip to the content
+      </a>
       <div className="ub-scroll">
         <div className="ub-stage" ref={stage}>
           <div className="ub-canvas">
@@ -190,6 +196,7 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
               </nav>
             </header>
 
+            <main id="main" className="ub-main" tabIndex={-1}>
             {/* first screen: who Ram is, what he did, one number, and the four things a visitor came for, one tap each */}
             <section className="ub-bill" aria-label="Introduction" inert={desk && arrived ? true : undefined}>
               <div className="ub-bill-copy">
@@ -254,6 +261,8 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
               </div>
             </div>
 
+            </main>
+
             {/* phone widths only: the same four ways out, after the app. On a laptop they are on the first screen and in the panel */}
             <footer className="ub-foot">
               <nav aria-label="Shortcuts, again">
@@ -264,7 +273,7 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
                     {BILLBOARD.resume}
                   </a>
                 )}
-                <a href={mailto}>{BILLBOARD.contact}</a>
+                <a href={mailto}>Contact</a>
               </nav>
               <small>{TRIBUTE_LONG}</small>
             </footer>

@@ -92,7 +92,7 @@ export type StopStory = { title: string; org: string; body: string; points: stri
  * These lines replace the journey's own for that stop.
  */
 const BODY_OVERRIDE: Partial<Record<StopId, string>> = {
-  'masters-union': 'Learning business by running one: unBothrrd, a D2C venture with ₹7.2L in revenue, and a locked seat in the Netflix Fraternity.',
+  'masters-union': 'Learning business by running one: unBothrrd, a D2C brand with ₹7.2L in sales in 2 months, and first core member of the Netflix Fraternity.',
 };
 /** Journey points that carry a number the briefs do not use on this page. */
 const SKIP_POINT = /75%/;

@@ -12,7 +12,6 @@ import { CASE_IDS, PROPOSAL_HREF, WORK_HREF, caseHref, getCase } from '@/lib/ube
 export function generateStaticParams() {
   return CASE_IDS.map((slug) => ({ slug }));
 }
-export const dynamicParams = false;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

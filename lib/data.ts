@@ -1,6 +1,7 @@
 /**
  * All site content lives here. Edit this file to update the portfolio.
- * Source: Ram's résumé (Oct 2026) and his own account of the timeline. Lines marked TODO need a check.
+ * SOURCE OF TRUTH: Ram's résumé, the copy he sent on 24 Nov 2026. Every number here matches it; where an older
+ * note or brief disagrees, the résumé wins. Lines marked TODO need a check.
  */
 
 export const PROFILE = {
@@ -12,7 +13,7 @@ export const PROFILE = {
   portrait: 'https://res.cloudinary.com/ewpg7mfj/image/upload/c_fill,g_face,ar_4:5,w_900,z_0.7/f_auto,q_auto/v1792300638/P1182901_nwx7t6.jpg',
   availability: 'Open to Product Manager roles',
   pitch:
-    'I’m Ram, a Product Manager and former software engineer. I’ve scaled an AI SaaS from $0 to $6K MRR, shipped iOS and Android apps used by 100 drivers, and grown revenue 75% through pricing and GTM.',
+    'I’m Ram, a Product Manager and former software engineer. I’ve scaled an AI SaaS LMS from 5K to 70K users and from $3K to $10K MRR, shipped iOS and Android ride-hailing apps with 100 drivers onboarded, and built a D2C brand to ₹7.2L in sales.',
   location: 'Gurugram, India',
   timezone: 'Asia/Kolkata',
   status: 'Open to product leadership, founder’s office & strategy roles', // TODO: confirm target roles
@@ -30,9 +31,9 @@ export const PROFILE = {
 export type Metric = { prefix?: string; value: number; suffix?: string; decimals?: number; label: string; note: string };
 
 export const METRICS: Metric[] = [
-  { prefix: '$', value: 6, suffix: 'K', label: 'MRR from zero', note: 'Synappses AI SaaS LMS' },
-  { value: 75, suffix: '%', label: 'Revenue growth', note: 'Pricing & GTM at Newral' },
-  { prefix: '₹', value: 11.2, suffix: 'L', decimals: 1, label: 'D2C revenue', note: 'Venture built at Masters’ Union' },
+  { prefix: '$', value: 10, suffix: 'K', label: 'MRR, up from $3K', note: 'Synappses, in 4 months' },
+  { value: 70, suffix: 'K', label: 'Users, up from 5K', note: 'Synappses AI SaaS LMS' },
+  { prefix: '₹', value: 7.2, suffix: 'L', decimals: 1, label: 'D2C sales in 2 months', note: 'unBothrrd' },
   { value: 4, suffix: '/14K', label: 'Global award winners', note: 'Ciena’s annual award' },
 ];
 
@@ -47,21 +48,21 @@ export type AchievementTag = 'Product' | 'Tech' | 'Leadership' | 'Stage' | 'Acad
 /** Every key achievement, newest first. `photo` borrows the picture from that journey milestone (by id). */
 export const ACHIEVEMENTS: { year: string; title: string; context: string; metric: string; tag: AchievementTag; photo?: string }[] = [
   { year: '2026', title: 'Won the YC VibeCon Wingathon', context: 'National hackathon in Bangalore: built and pitched the best product in 24 hours', metric: 'Top 10 of 30,000', tag: 'Tech', photo: 'wingathon' },
-  { year: '2026', title: 'Locked core member, Netflix Fraternity', context: 'Masters’ Union', metric: '4 of 430', tag: 'Leadership', photo: 'masters-union' },
-  { year: '2026', title: 'Built a ₹11.2L dropshipping business', context: 'Real customers, ad spend and P&L at Masters’ Union', metric: '₹11.2L revenue', tag: 'Product', photo: 'masters-union' },
-  { year: '2026', title: 'Scaled Synappses from zero', context: 'AI SaaS LMS for coaching centres, leading a 20-member team', metric: '$0 → $6K MRR', tag: 'Product' },
+  { year: '2026', title: 'First core member, Netflix Fraternity', context: 'Masters’ Union', metric: '4 of 430', tag: 'Leadership', photo: 'masters-union' },
+  { year: '2026', title: 'Built unBothrrd to ₹7.2L in sales', context: 'D2C lifestyle brand: dropshipping campaigns, sourcing, suppliers and pricing, in 2 months', metric: '₹7.2L in sales', tag: 'Product', photo: 'masters-union' },
+  { year: '2026', title: 'Scaled Synappses', context: 'AI-powered SaaS LMS, owning positioning, pricing and segments', metric: '5K → 70K users · $3K → $10K MRR', tag: 'Product' },
   { year: '2026', title: 'Shipped TruCost to both app stores', context: 'Ride-hailing with an in-cab tablet, plus a contract closed', metric: '100 drivers onboarded', tag: 'Product', photo: 'trucost' },
   { year: '2026', title: 'Launched LeetCase from PRD to MVP', context: 'Case and guesstimate practice for MBA aspirants', metric: '150+ users', tag: 'Product', photo: 'leetcase' },
   { year: '2026', title: 'Mentored students for Google Summer of Code', context: 'Students Affairs Head, 100xSchool Super 30', metric: '30+ students', tag: 'Leadership' },
   { year: '2025', title: 'Best Employee of the year', context: 'Newral, recognised within my first three months', metric: '#1 in the company', tag: 'Leadership', photo: 'best-employee' },
-  { year: '2025', title: 'Grew Newral’s revenue and cut its cloud bill', context: 'Pricing, GTM and a zero-downtime migration to ACE Cloud', metric: '+75% revenue · −50% cost', tag: 'Product', photo: 'newral-pm' },
+  { year: '2025', title: 'Cut Newral’s cloud bill and raised retention', context: 'AWS and GCP migration to ACE Cloud with zero downtime; gamification and daily engagement', metric: '−30% cloud cost · +18% retention', tag: 'Product', photo: 'newral-pm' },
   { year: '2025', title: 'Selected for the Super 30 Hacker House', context: '100xSchool, funded by YC, alongside a full-time job', metric: '1 of 30 nationwide', tag: 'Tech', photo: 'hacker-house' },
   { year: '2024', title: 'EDST Customer’s First Award', context: 'Ciena: the first new grad ever to win its annual award', metric: '4 of 14,000', tag: 'Leadership', photo: 'ciena-award' },
-  { year: '2024', title: 'Top 10, CienaGPT AI Hackathon', context: 'Company-wide agentic AI hackathon at Ciena', metric: 'Top 10 of 800+', tag: 'Tech', photo: 'cienagpt' },
+  { year: '2024', title: 'Top 10, CienaGPT AI Hackathon', context: 'Company-wide agentic AI hackathon at Ciena', metric: 'Top 10 of 800', tag: 'Tech', photo: 'cienagpt' },
   { year: '2024', title: 'Cut $30K+ in annual software spend', context: 'Ciena: licence audit and de-provisioning across the company', metric: '$30K+ saved / year', tag: 'Product', photo: 'ciena-fte' },
   { year: '2023', title: 'Rank 1 coder of the MCA batch', context: 'Amity University, plus a Day-0 placement at Ciena', metric: '1 of 400+', tag: 'Academics', photo: 'rank-1' },
   { year: '2021', title: 'Represented India at a world dance battle', context: 'Chicago Footworkology World Final', metric: 'Top 16 worldwide', tag: 'Stage', photo: 'world-battle' },
-  { year: '2021', title: 'Choreography Head, Ramjas Dance Society', context: 'Led the crew and coordinated 10+ outstation fests', metric: '10+ fests', tag: 'Leadership', photo: 'choreographer' },
+  { year: '2021', title: 'President, Ramjas Dance Society', context: 'Coordinated 10+ outstation fests: travel, slots and accommodation', metric: '10+ fests', tag: 'Leadership', photo: 'choreographer' },
   { year: '2020', title: 'Won 10+ inter-college dance competitions', context: 'Across Delhi University and beyond', metric: '10+ titles', tag: 'Stage', photo: 'dance-wins' },
   { year: '2019', title: 'Scored 91% in Class 12', context: 'All-batch top 10%, House Captain and a badminton gold medallist', metric: 'Top 10%', tag: 'Academics', photo: 'class-12' },
 ];
@@ -114,7 +115,6 @@ export const GLOBE_STOPS: { place: string; lat: number; lon: number; year: strin
   { place: 'Gurugram', lat: 28.46, lon: 77.03, year: '2024', text: 'Ciena · 4 of 14,000 to win its annual award' },
   { place: 'Noida', lat: 28.62, lon: 77.37, year: '2025', text: 'Newral · engineer to Product Manager' },
   { place: 'Bangalore', lat: 12.97, lon: 77.59, year: '2026', text: 'Won the YC VibeCon Wingathon' },
-  { place: 'United States', lat: 37.77, lon: -122.42, year: '2026', text: 'Shipped Upto, an iOS app, for a US client' },
   { place: 'Gurugram', lat: 28.46, lon: 77.03, year: '2026', text: 'PGP at Masters’ Union · building LeetCase' },
 ];
 
@@ -155,7 +155,7 @@ export const EXPERIENCE: Job[] = [
       {
         title: 'Product Manager',
         start: '2026-06',
-        end: '2026-10',
+        end: '2026-09',
         groups: [
           {
             heading: 'Mobile apps & device connectivity',
@@ -167,7 +167,7 @@ export const EXPERIENCE: Job[] = [
           {
             heading: 'Delivery, client & monetisation',
             points: [
-              'Negotiated and closed a contract, acting as the single point of contact for scope, priorities and sign-offs',
+              'Negotiated and closed the project contract, acting as the single point of contact with the client for scope, priorities and sign-offs',
               'Hired and led the development team, coordinating with the client and running sprints to ship both apps on schedule',
               'Drove monetisation through in-cab tablet advertising and pricing strategy, balancing ad revenue with a good rider experience',
             ],
@@ -180,36 +180,29 @@ export const EXPERIENCE: Job[] = [
     slug: 'newral',
     accent: '#3b82f6',
     metrics: [
-      { prefix: '+', value: 75, suffix: '%', label: 'revenue growth' },
-      { value: 2, suffix: '×', label: 'user engagement' },
-      { prefix: '−', value: 50, suffix: '%', label: 'cloud costs' },
+      { prefix: '$', value: 10, suffix: 'K', label: 'MRR, from $3K in 4 months' },
+      { value: 70, suffix: 'K', label: 'users, from 5K' },
+      { prefix: '−', value: 30, suffix: '%', label: 'cloud costs' },
     ],
     company: 'Newral',
     logo: { text: 'N', bg: 'linear-gradient(135deg, #2563eb, #1e3a8a)', src: '/images/logos/newral.png' },
     type: 'Full-time',
     location: 'Noida',
-    summary: 'Engineer to Product Manager in seven months: 75% revenue growth, 2× engagement and 50% lower cloud costs.',
+    summary: 'Product studio behind Synappses, an AI-powered SaaS LMS: 5K to 70K users, $3K to $10K MRR in 4 months, 30% lower cloud costs.',
     highlights: ['Best Employee, 2025', 'Won the YC VibeCon Wingathon, representing Newral'],
+    // The résumé gives one span for Newral (Oct 2025 to May 2026) and two titles. The month each role began is from Ram's own timeline.
     roles: [
       {
-        title: 'Product Manager',
+        title: 'Product Manager, Synappses',
         start: '2026-05',
         end: '2026-05',
         groups: [
           {
             heading: 'Product strategy & go-to-market',
             points: [
-              'Drove 75% revenue growth by defining product positioning, pricing strategy and product decisions alongside the founder',
-              'Doubled user engagement through feature launches and product experiments that improved adoption and retention',
-              'Increased platform traffic by 25% by optimising acquisition funnels through product-led growth initiatives and automations',
-            ],
-          },
-          {
-            heading: 'Product operations & platform optimisation',
-            points: [
-              'Reduced cloud costs by 50% by evaluating infrastructure vendors and leading the migration to a cost-efficient cloud platform',
-              'Prioritised and launched AI automation workflows, saving 90+ hours a month across reporting and reconciliation',
-              'Built an automated customer feedback system, raising client satisfaction by 21% and speeding up issue resolution',
+              'Scaled Synappses from 5K to 70K users and from $3K to $10K MRR in 4 months by owning positioning, pricing and segments',
+              'Doubled DAU through A/B-tested feature launches, and raised retention 18% with gamification and daily engagement',
+              'Improved CSAT by 21% by building an automated customer feedback system that sped up issue resolution and escalations',
             ],
           },
         ],
@@ -220,17 +213,12 @@ export const EXPERIENCE: Job[] = [
         end: '2026-04',
         groups: [
           {
-            heading: 'Platform scalability & cost',
+            heading: 'Process improvement & leadership',
             points: [
-              'Reduced operational costs by 30% by leading the AWS and GCP migration to ACE Cloud with zero business downtime',
-              'Optimised the platform architecture, cutting infrastructure costs by 40% while improving scalability and code quality',
-            ],
-          },
-          {
-            heading: 'Process & leadership',
-            points: [
-              'Designed the company’s first KPI-driven performance framework to establish recognition and accountability',
-              'Improved sprint efficiency by 20% by introducing structured Jira workflows, sprint planning and execution tracking',
+              'Cut cloud infrastructure costs 30% by leading the AWS and GCP migration to ACE Cloud with zero business downtime',
+              'Led a 20-member cross-functional team and shipped 20% more story points per sprint through structured Jira planning',
+              'Designed the company’s first KPI-driven performance framework to establish measurable recognition and accountability',
+              'Ran sprint planning for an 11-member team by breaking projects into epics, user stories and tasks with clear owners',
             ],
           },
         ],
@@ -239,7 +227,14 @@ export const EXPERIENCE: Job[] = [
         title: 'Software Engineer',
         start: '2025-10',
         end: '2025-11',
-        groups: [{ points: ['Built AI SaaS products, including an LMS and a voice agent platform, for enterprise learning, automation and content delivery'] }],
+        groups: [
+          {
+            points: [
+              'Built AI SaaS products, including an LMS and an AI voice agent platform, for enterprise learning, automation and content delivery',
+              'Shipped in-video quizzes that gate lesson playback, through student-persona prototypes, mockups and live user tests',
+            ],
+          },
+        ],
       },
     ],
   },
@@ -256,7 +251,7 @@ export const EXPERIENCE: Job[] = [
     location: 'Gurugram',
     url: 'https://www.ciena.com',
     summary: 'Enterprise automation and tool adoption: 4+ hours a day saved, 35% fewer SLA breaches, $30K+ a year cut.',
-    highlights: ['EDST Customer’s First Award: first new grad ever, 4 of 14,000', 'Top 10, CienaGPT AI Hackathon (of 800+)'],
+    highlights: ['EDST Customer’s First Award: first new grad ever, 4 of 14,000', 'Top 10, CienaGPT AI Hackathon (of 800)'],
     roles: [
       {
         title: 'IT Applications Solutions Engineer',
@@ -267,7 +262,9 @@ export const EXPERIENCE: Job[] = [
             heading: 'Product operations, enterprise automation & adoption',
             points: [
               'Led product automation initiatives, cutting 4+ hours of daily effort across 5+ global teams through workflow redesign',
+              'Improved NPS by 2 points by automating the shared calendar flow, enabling event publishing and access across 7 to 8 teams',
               'Produced 30+ promotional videos as a knowledge base, enabling self-learning and driving internal tool adoption at scale',
+              'Guided 3 enterprise tool investment decisions by building Power BI dashboards on app usage, page visits and site traffic',
               'Reduced SLA breaches by 35% through new workflows and cross-functional collaboration',
               'Eliminated $30K+ in annual software costs by auditing enterprise licences and de-provisioning unused accounts',
               'Evaluated application performance and ROI to recommend enterprise product investments and procurement decisions',
@@ -283,7 +280,7 @@ export const EXPERIENCE: Job[] = [
           {
             points: [
               'Supported 300+ enterprise users, resolving 100+ product support requests and improving adoption across 8 platforms',
-              'Built a Python workflow automation, removing 3+ hours of daily manual effort across 180 employees and 9 teams',
+              'Built a Python workflow automation, removing 3+ hours of daily manual effort across 80 employees and 4 teams',
             ],
           },
         ],
@@ -403,9 +400,9 @@ export const JOURNEY: Moment[] = [
     year: '2021',
     date: '2021',
     kind: 'Milestone',
-    title: 'Choreography Head',
-    org: 'Ramjas Dance Society',
-    body: 'Led the society’s creative direction and its logistics: choreographing sets, running practice, and coordinating 10+ outstation fests.',
+    title: 'President, Ramjas Dance Society',
+    org: 'Ramjas College',
+    body: 'Led the society and its logistics: coordinated 10+ outstation fests, managing travel, slots and accommodation.',
     stat: '10+ fests coordinated',
     image: 'https://res.cloudinary.com/ewpg7mfj/image/upload/f_auto,q_auto,w_1000/v1792309855/University_Park_Friends_Picnic_Gathering_lhwv3k.png',
     imageHint: 'You leading the dance society / rehearsal',
@@ -441,7 +438,7 @@ export const JOURNEY: Moment[] = [
     title: 'IT/Ops Intern',
     org: 'Ciena · NYSE-listed networking company',
     body: 'Started on the IT team supporting 300+ enterprise users across 8 platforms.',
-    points: ['Resolved 100+ product support requests', 'Built a Python automation saving 3+ hours a day across 180 employees and 9 teams'],
+    points: ['Resolved 100+ product support requests', 'Built a Python automation saving 3+ hours a day across 80 employees and 4 teams'],
     image: 'https://media.licdn.com/dms/image/v2/D5610AQHWgPA-KjVFGA/image-shrink_800/B56ZzbX548GkAg-/0/1773207003093?e=2147483647&v=beta&t=KXmpGivc3NMoA2V0ZjEWFguW00F9Yd_395NpgBtUubc',
     imageHint: 'Ciena office / ID card / first day',
   },
@@ -476,8 +473,8 @@ export const JOURNEY: Moment[] = [
     kind: 'Achievement',
     title: 'Top 10 winner, CienaGPT AI Hackathon',
     org: 'Ciena · agentic AI hackathon',
-    body: 'Built an AI agent that placed in the top 10 of Ciena’s company-wide agentic AI hackathon, out of 800+ participants.',
-    stat: 'Top 10 of 800+',
+    body: 'Built an AI agent that placed in the top 10 of Ciena’s company-wide agentic AI hackathon, out of 800 employees.',
+    stat: 'Top 10 of 800',
     image: 'https://res.cloudinary.com/ewpg7mfj/image/upload/f_auto,q_auto,w_1000/v1792310877/10ai_jvbvz9.jpg',
     fullImage: true,
     imageHint: 'Hackathon team / demo photo',
@@ -485,7 +482,7 @@ export const JOURNEY: Moment[] = [
   {
     id: 'hacker-house',
     year: '2025',
-    date: 'Sep 2025', // TODO: résumé says Jul 2025
+    date: 'Jul 2025',
     kind: 'Milestone',
     title: 'Joined the Super 30 Hacker House',
     org: '100xSchool · funded by YC',
@@ -513,7 +510,7 @@ export const JOURNEY: Moment[] = [
     title: 'Promoted to Product Tech Lead',
     org: 'Newral',
     body: 'Two months in, moved from engineering into owning the platform: architecture, sprints and delivery.',
-    points: ['Cut operational costs 30% by migrating AWS and GCP to ACE Cloud with zero downtime', 'Built the company’s first KPI-driven performance framework', 'Improved sprint efficiency 20%'],
+    points: ['Cut cloud costs 30% by migrating AWS and GCP to ACE Cloud with zero downtime', 'Built the company’s first KPI-driven performance framework', 'Led a 20-member team and shipped 20% more story points per sprint'],
     image: 'https://res.cloudinary.com/ewpg7mfj/image/upload/c_fill,g_auto,ar_16:9,w_1200/f_auto,q_auto/v1792314234/Tech_Lead_Presenting_Product_Vision_xwaod8.png',
     imageHint: 'You presenting / whiteboard',
   },
@@ -546,10 +543,10 @@ export const JOURNEY: Moment[] = [
     year: '2026',
     date: 'May 2026',
     kind: 'Role',
-    title: 'Promoted to Product Manager',
-    org: 'Newral · until 31 May 2026',
-    body: 'Owned product positioning, pricing and go-to-market alongside the founder.',
-    points: ['Drove 75% revenue growth', 'Doubled user engagement through product experiments', 'Cut cloud costs 50% by moving to a cost-efficient platform'],
+    title: 'Product Manager, Synappses',
+    org: 'Newral · until May 2026',
+    body: 'Owned positioning, pricing and segments for Synappses, Newral’s AI-powered SaaS LMS.',
+    points: ['Scaled it from 5K to 70K users and from $3K to $10K MRR in 4 months', 'Doubled DAU through A/B-tested feature launches', 'Raised retention 18% with gamification and daily engagement'],
     image: 'https://res.cloudinary.com/ewpg7mfj/image/upload/c_fill,g_auto,ar_16:9,w_1200/f_auto,q_auto/v1792314872/Screenshot_2026-10-18_at_2.44.07_PM_bdyrtu.png',
     imageHint: 'You with the Newral team',
   },
@@ -573,7 +570,7 @@ export const JOURNEY: Moment[] = [
     kind: 'Education',
     title: 'Joined Masters’ Union',
     org: 'PGP in Technology & Business Management, Gurugram',
-    body: 'Learning business by running one: a ₹11.2L dropshipping venture, a locked seat in the Netflix Fraternity, and a 150+ member builder community.',
+    body: 'Learning business by running one: unBothrrd, a D2C brand with ₹7.2L in sales in 2 months, first core member of the Netflix Fraternity, and rank 3 in dropshipping.',
     stat: 'Netflix Fraternity · 4 of 430',
     image: '/images/ram-photo.jpg',
     imageHint: 'Masters’ Union venture stall',
@@ -581,7 +578,7 @@ export const JOURNEY: Moment[] = [
   {
     id: 'leetcase',
     year: '2026',
-    date: 'Sep 2026',
+    date: 'Aug 2026',
     kind: 'Milestone',
     title: 'Launched LeetCase',
     org: 'For MBA aspirants · guesstimates & case prep',
@@ -596,7 +593,7 @@ export type Project = {
   id: string;
   name: string;
   device: 'browser' | 'phone';
-  screen: 'leetcase' | 'upto' | 'trucost' | 'synappses' | 'unbothered' | 'sujhaav';
+  screen: 'leetcase' | 'trucost' | 'synappses' | 'unbothered' | 'sortify';
   url?: string; // live link, if public
   domain: string; // shown in the browser bar / under the name
   accent: string;
@@ -604,14 +601,17 @@ export type Project = {
   period?: string;
   client?: string;
   pitch: string;
+  /** Left empty when the résumé does not state one: nothing is written to fill it. */
   problem: string;
   did: string[];
   metrics: { value: string; label: string }[];
   stack: string[];
 };
 
-/** Selected work, shown as products on the device they live on. */
-// TODO: period and link for Upto.
+/**
+ * Selected work, shown as products on the device they live on. Every line and number is from the résumé (24 Nov 2026).
+ * Upto and SujhaavMarg were removed and SortifyStays added on that day, at Ram's request.
+ */
 export const PROJECTS: Project[] = [
   {
     id: 'leetcase',
@@ -621,37 +621,17 @@ export const PROJECTS: Project[] = [
     url: 'https://leetcase.rambhardwaj.in/',
     domain: 'leetcase.rambhardwaj.in',
     accent: '#14b8a6',
-    role: 'Founder & Product Manager',
-    period: 'Sep – Oct 2026',
-    pitch: 'LeetCode, but for MBA case interviews.',
+    role: 'Founder',
+    period: 'Aug – Sep 2026',
+    pitch: 'An AI-graded practice platform for consulting cases and guesstimates.',
     problem: 'Case and guesstimate prep is scattered across PDFs and group chats, with no structured way to practise, get hints or track progress.',
-    did: ['Ran research with MBA aspirants to shape the vision and roadmap', 'Took it from PRD to MVP: problem sets, hints and a guided solve flow', 'Tracked activation, retention and DAU/MAU, and grew it with A/B tests and feedback loops'],
+    did: ['Owned the product from PRD to MVP launch, defining the vision and roadmap from research with MBA aspirants', 'Drove product-market fit by shipping AI Interviews and Flow Chart, and tracking activation, retention and DAU', 'Led go-to-market and growth with user feedback loops and A/B tests'],
     metrics: [
       { value: '150+', label: 'users across MU communities' },
-      { value: '124', label: 'case & guesstimate problems' },
-      { value: 'PRD → MVP', label: 'in under two months' },
+      { value: 'PRD → MVP', label: 'owned end to end' },
+      { value: 'AI-graded', label: 'cases and guesstimates' },
     ],
-    stack: ['0 → 1', 'User research', 'A/B testing', 'Gemini AI'],
-  },
-  {
-    id: 'upto',
-    name: 'Upto',
-    device: 'phone',
-    screen: 'upto',
-    domain: 'iOS app · US client',
-    accent: '#a78bfa',
-    role: 'Product Manager',
-    period: '2026',
-    client: 'US client',
-    pitch: 'Plans are better when friends can tag along.',
-    problem: 'College students make plans in scattered group chats, so friends miss out and nobody knows who is going where.',
-    did: ['Designed the core loop: post an “Upto”, friends subscribe and mark interested or not', 'Built a shared calendar so everyone sees who is going where, day to day', 'Shipped the iOS app end to end for a US client'],
-    metrics: [
-      { value: 'iOS', label: 'native app, shipped' },
-      { value: '3-step', label: 'post → join → calendar loop' },
-      { value: 'US', label: 'client, remote delivery' },
-    ],
-    stack: ['Social', 'iOS', 'Shared calendar', 'Consumer'],
+    stack: ['0 → 1', 'User research', 'A/B testing', 'AI'],
   },
   {
     id: 'trucost',
@@ -661,12 +641,12 @@ export const PROJECTS: Project[] = [
     url: 'https://trucostrides.com/',
     domain: 'trucostrides.com',
     accent: '#8b5cf6',
-    role: 'Contractor, Product Manager',
-    period: 'Jun – Oct 2026',
+    role: 'Product Manager (Contract)',
+    period: 'Jun – Sep 2026',
     client: 'Skyex AI Mobility Technologies',
-    pitch: 'Ride more, pay less, with a screen that pays for the ride.',
+    pitch: 'An ad-funded ride-hailing app, with a screen that pays for the ride.',
     problem: 'Ride margins are thin, and the passenger’s attention during a ride goes unused.',
-    did: ['Designed Bluetooth pairing between the driver’s phone and an in-cab headrest tablet', 'Shipped Android and iOS apps, live on both stores', 'Drove monetisation through in-cab ads and pricing; hired and led the dev team'],
+    did: ['Designed Bluetooth pairing between the driver’s phone and an in-cab tablet on the seat headrest', 'Shipped Android and iOS apps, live on the Play Store and App Store', 'Drove monetisation through in-cab tablet ads and pricing; hired and led the dev team'],
     metrics: [
       { value: '100', label: 'drivers onboarded' },
       { value: 'Contract', label: 'negotiated & closed' },
@@ -682,17 +662,17 @@ export const PROJECTS: Project[] = [
     url: 'https://synappses.in/',
     domain: 'synappses.in',
     accent: '#38bdf8',
-    role: 'Founding Manager',
-    period: 'Oct 2025 – Jun 2026',
-    pitch: 'An AI-native LMS for coaching centres.',
-    problem: 'Coaching centres run on paper, WhatsApp and manual grading, and generic LMS tools were not built for how they teach or sell.',
-    did: ['Led a 20-member cross-functional team across product, sales and operations', 'Shipped AI assessment and content workflows for institutes', 'Built the investor pitch: vision, market opportunity and growth strategy'],
+    role: 'Product Manager, at Newral',
+    period: 'Oct 2025 – May 2026',
+    pitch: 'An AI-powered SaaS LMS.',
+    problem: '',
+    did: ['Scaled it from 5K to 70K users and from $3K to $10K MRR in 4 months by owning positioning, pricing and segments', 'Doubled DAU through A/B-tested feature launches, and raised retention 18% with gamification and daily engagement', 'Led a 20-member cross-functional team, shipping 20% more story points per sprint'],
     metrics: [
-      { value: '$0 → $6K', label: 'monthly recurring revenue' },
+      { value: '5K → 70K', label: 'users' },
+      { value: '$3K → $10K', label: 'MRR in 4 months' },
       { value: '20', label: 'person team led' },
-      { value: 'B2B', label: 'coaching institutes' },
     ],
-    stack: ['B2B SaaS', 'AI', 'EdTech', 'Fundraising'],
+    stack: ['B2B SaaS', 'AI', 'EdTech', 'Pricing'],
   },
   {
     id: 'unbothered',
@@ -702,39 +682,38 @@ export const PROJECTS: Project[] = [
     url: 'https://unbothrrd.shop/',
     domain: 'unbothrrd.shop',
     accent: '#c8b8a6',
-    role: 'Founder',
-    period: '2026',
-    client: 'Masters’ Union venture',
-    pitch: 'A D2C brand built offline and online, from zero.',
-    problem: 'No brand, no audience and a fixed window to find product–channel fit before the money ran out.',
-    did: ['Ran pop-up stalls to test products and pricing face to face', 'Sold online through our own storefront, iterating creatives on conversion data', 'Automated fulfilment, inventory and support'],
+    role: 'Co-Founder',
+    period: 'Oct – Nov 2026',
+    pitch: 'A D2C lifestyle brand with daily drops in apparel and decor.',
+    problem: '',
+    did: ['Generated ₹7.2L in sales in 2 months through dropshipping campaigns, managing sourcing, suppliers and pricing', 'Set up stalls at 6 community events with a 9-member team, testing products and pricing live', 'Tracked campaign ROI and ad spend on Meta ads, building Excel-based financial models to monitor sales'],
     metrics: [
-      { value: '₹11.2L', label: 'revenue' },
-      { value: 'Offline + online', label: 'stalls and web store' },
-      { value: 'P&L', label: 'owned end to end' },
+      { value: '₹7.2L', label: 'sales in 2 months' },
+      { value: '6', label: 'community events' },
+      { value: '9', label: 'member team' },
     ],
-    stack: ['D2C', 'Growth', 'P&L', 'Ops automation'],
+    stack: ['D2C', 'Dropshipping', 'Meta ads', 'Pricing'],
   },
   {
-    id: 'sujhaavmarg',
-    name: 'SujhaavMarg',
-    device: 'phone',
-    screen: 'sujhaav',
-    url: 'https://play.google.com/store/apps/details?id=com.user.sujhaav',
-    domain: 'Google Play',
-    accent: '#d39b6a',
-    role: 'Product Owner',
-    client: 'Client project',
-    pitch: 'Pay-per-minute voice consultations with domain experts.',
-    // TODO: period, and the problem statement in your own words
-    problem: 'Getting advice from a domain expert usually means slow bookings and fixed fees, even for a five-minute question.',
-    did: ['Built a voice consultation Android app connecting users with domain experts over real-time calls', 'Designed the end-to-end architecture, including call routing to the client’s team of agents', 'Built per-minute billing, and took the app live on the Play Store'],
+    // TODO(Ram): the résumé dates this "Dec'26 to Present", which is after today (24 Nov 2026), and its one-line description
+    // repeats LeetCase's. Until both are corrected no period is shown, and the pitch says only what the bullets say.
+    // TODO(Ram): a link and a screenshot, if the site is public.
+    id: 'sortifystays',
+    name: 'SortifyStays',
+    device: 'browser',
+    screen: 'sortify',
+    domain: 'PG and hostel discovery',
+    accent: '#f59e0b',
+    role: 'Co-Founder',
+    pitch: 'A discovery website for PGs and hostels.',
+    problem: '',
+    did: ['Shipped the complete PG and hostel discovery website, driving design, development and cross-functional coordination', 'Grew inventory to 110 unique listings by onboarding 187 PG and hostel properties', 'Created 2 revenue models, flatmate and co-sharing, by evaluating subscriptions and revenue streams for PG and hostel users'],
     metrics: [
-      { value: 'Live', label: 'on Google Play' },
-      { value: 'Per-minute', label: 'billing for consultations' },
-      { value: 'Real-time', label: 'voice calls with experts' },
+      { value: '110', label: 'unique listings' },
+      { value: '187', label: 'properties onboarded' },
+      { value: '2', label: 'revenue models' },
     ],
-    stack: ['Android', 'Voice calls', 'Billing', 'Marketplace'],
+    stack: ['Marketplace', 'Web', '0 → 1', 'Revenue models'],
   },
 ];
 

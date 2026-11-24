@@ -475,9 +475,6 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
                 {BILLBOARD.resume}
               </a>
             )}
-            <a className="ub-link" href={`mailto:${PROFILE.email}?subject=${encodeURIComponent(RESERVE.subject)}`}>
-              {BILLBOARD.contact}
-            </a>
           </nav>
         </div>
         <span className="ub-face">

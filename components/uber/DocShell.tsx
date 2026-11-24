@@ -12,7 +12,7 @@ export const MAILTO = `mailto:${PROFILE.email}?subject=${encodeURIComponent(RESE
  * ride and no animation in the way, and carries the same four ways out: work, the proposal, the resume and contact.
  * The resume link appears by itself once PROFILE.resume (lib/data.ts) names a file in public/.
  */
-export default function DocShell({ here, children }: { here: 'work' | 'proposal'; children: ReactNode }) {
+export default function DocShell({ here, children }: { here: 'work' | 'proposal' | 'none'; children: ReactNode }) {
   const links = (
     <>
       <Link href={WORK_HREF} aria-current={here === 'work' ? 'page' : undefined}>

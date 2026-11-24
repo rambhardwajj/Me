@@ -6,7 +6,6 @@ const TRUCOST_SHOT = '/images/trucost.webp';
 const STALL_PHOTO = '/images/ram-photo.jpg';
 const UNBOTHRRD_SHOT = 'https://res.cloudinary.com/ewpg7mfj/image/upload/w_1400/f_auto,q_auto/v1792334117/Screenshot_2026-10-18_at_8.04.50_PM_qodm99.png';
 const SYNAPPSES_SHOT = 'https://res.cloudinary.com/ewpg7mfj/image/upload/w_1400/f_auto,q_auto/v1792334002/Screenshot_2026-10-18_at_8.02.57_PM_fhkljn.png';
-const SUJHAAV_SHOT = '/images/sujhaavmarg.webp';
 
 export function Browser({ domain, children }: { domain: string; children: React.ReactNode }) {
   return (
@@ -45,57 +44,6 @@ function LeetCase() {
   return <img className="sc-shot" src="/images/leetcase.webp" alt="LeetCase problem dashboard" />;
 }
 
-export function Upto() {
-  const plans = [
-    { who: 'Aanya', where: 'Sunset at Hauz Khas', when: 'Fri · 6:00 PM', going: 12, tone: '#f472b6' },
-    { who: 'Kabir', where: 'Weekend in Rishikesh', when: 'Sat → Sun', going: 7, tone: '#60a5fa' },
-    { who: 'Meera', where: 'Hackathon night', when: 'Tue · 9:00 PM', going: 4, tone: '#34d399' },
-  ];
-  return (
-    <div className="sc-upto">
-      <div className="up-head">
-        <b>upto</b>
-        <span className="up-new">+ Post</span>
-      </div>
-      <div className="up-cal">
-        {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
-          <span key={i} className={i === 4 ? 'on' : ''}>
-            <small>{d}</small>
-            {14 + i}
-            {[1, 4, 5].includes(i) && <i />}
-          </span>
-        ))}
-      </div>
-      {plans.map((p) => (
-        <div className="up-card" key={p.where}>
-          <div className="up-who">
-            <span className="up-av" style={{ background: p.tone }}>
-              {p.who[0]}
-            </span>
-            <span>
-              <b>{p.who}</b> is going
-            </span>
-          </div>
-          <p className="up-where">{p.where}</p>
-          <p className="up-when">
-            {p.when} · {p.going} going
-          </p>
-          <div className="up-act">
-            <span className="yes">I’m in</span>
-            <span>Not interested</span>
-          </div>
-        </div>
-      ))}
-      <div className="up-tabs" aria-hidden>
-        <i className="on" />
-        <i />
-        <i />
-        <i />
-      </div>
-    </div>
-  );
-}
-
 function TruCost() {
   // eslint-disable-next-line @next/next/no-img-element
   return <img className="sc-shot top" src={TRUCOST_SHOT} alt="TruCost ride booking screen" />;
@@ -117,22 +65,27 @@ function Unbothered() {
   );
 }
 
-function SujhaavMarg() {
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img className="sc-shot top" src={SUJHAAV_SHOT} alt="SujhaavMarg call screen" />;
+/** SortifyStays has no screenshot yet: its name and what it is, with the numbers from the résumé. Not a drawing of its screens. */
+function Sortify() {
+  return (
+    <div className="sc-plain">
+      <b>SortifyStays</b>
+      <span>PG and hostel discovery</span>
+      <small>110 listings · 187 properties onboarded</small>
+    </div>
+  );
 }
 
 const SCREENS: Record<Project['screen'], () => React.ReactElement> = {
   leetcase: LeetCase,
-  upto: Upto,
   trucost: TruCost,
   synappses: Synappses,
   unbothered: Unbothered,
-  sujhaav: SujhaavMarg,
+  sortify: Sortify,
 };
 
 /** Screens drawn in code (not real screenshots) carry a small label so they aren't mistaken for real data. */
-const ILLUSTRATIVE: Project['screen'][] = ['upto'];
+const ILLUSTRATIVE: Project['screen'][] = [];
 
 export function ProductDevice({ p }: { p: Project }) {
   const Screen = SCREENS[p.screen];

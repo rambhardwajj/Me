@@ -111,8 +111,16 @@ export function useRide() {
   const closeSheet = useCallback(() => {
     setSheet(null);
     const el = opener.current;
-    // wait for the screen under the sheet to lose `inert`
-    requestAnimationFrame(() => el?.isConnected && el.focus());
+    // wait for the screen under the sheet to lose `inert`. Focus must not move the page:
+    // on a phone that scrolled it past the app, to the footer
+    requestAnimationFrame(() => {
+      if (el?.isConnected) el.focus({ preventScroll: true });
+      // at phone size the app is one screen of the page: if it has drifted out of view, bring it back
+      const phone = document.querySelector('.ub-phone');
+      if (!phone || window.matchMedia('(min-width: 1024px) and (min-height: 560px)').matches) return;
+      const r = phone.getBoundingClientRect();
+      if (r.top < -8 || r.top > window.innerHeight * 0.4) phone.scrollIntoView({ block: 'start', behavior: 'instant' });
+    });
   }, []);
 
   /** Any place or tile: Choose a trip → Finding your experience → Trip details. */

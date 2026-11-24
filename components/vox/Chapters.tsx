@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import Journey from '@/components/Journey';
-import { Upto } from '@/components/ProductScreens';
 import { ABOUT, ABOUT_HEADING, CHAPTERS_V, CONTACT, DOORS, EXPERIENCE_STOPS, TITLE, WORK } from '@/lib/explained';
 import type React from 'react';
 import { Chapter, Mark, Ring, Tape, win } from './parts';
@@ -247,8 +246,10 @@ export function WorkChapter() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={p.shot} alt={`${p.name}, ${p.domain}`} loading="lazy" />
                     ) : (
-                      <div className="vx-pol-phone">
-                        <Upto />
+                      // no screenshot yet: the product's own name and line, not a drawing of an app it is not
+                      <div className="vx-wk-title">
+                        <b>{p.name}</b>
+                        <span>{p.pitch}</span>
                       </div>
                     )}
                   </div>
@@ -272,10 +273,12 @@ export function WorkChapter() {
                     {p.client ? ` · ${p.client}` : ''}
                   </span>
                 </div>
-                <div className="vx-wk-rsec">
-                  <span className="vx-wk-rlbl">The problem</span>
-                  <p className="vx-wk-problem">{p.problem}</p>
-                </div>
+                {p.problem && (
+                  <div className="vx-wk-rsec">
+                    <span className="vx-wk-rlbl">The problem</span>
+                    <p className="vx-wk-problem">{p.problem}</p>
+                  </div>
+                )}
                 <div className="vx-wk-rsec">
                   <span className="vx-wk-rlbl">What I did</span>
                   <ol className="vx-wk-did">

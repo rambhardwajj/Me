@@ -2,23 +2,25 @@
  * Everything the /uber page says lives here: the Billboard, the phone app, the life map and every trip.
  * Edit this file to change a stop, a trip or a receipt.
  *
- * Sources: the approved artboards and the briefs (design-brief.md, ux-brief.md). Where those disagree
- * with lib/data.ts on a number, the briefs win. Nothing here is invented: a field with no source is left out.
+ * SOURCE OF TRUTH: Ram's resume (the copy he sent on 24 Nov 2026). He said that day that every number on the resume is real
+ * and the portfolio's are not, so where the resume and anything else disagree (the briefs, lib/data.ts, an older note here),
+ * the resume wins. Nothing here is invented: a field with no source is left out.
+ * Two things are on this page but not on the resume, kept because Ram stated them himself: TruCost was sold for ₹2.5L,
+ * and the idea for Uber.
  *
  * STILL OWED BY RAM (search for "OWED" below to find the spot each one fills):
  *  1. Inbox quotes: a real quote, name and date from his manager at Newral, the TruCost founder and his manager at Ciena.
  *  2. "Lost and found": what did not work, and what he learned.
  *  3. The promo code and the hidden story it unlocks (the Chicago dance battle). Not built until both exist.
  *  4. unBothrrd: the months it ran, so it can become its own stop on the map (it hangs on Masters' Union for now).
- *  5. Synappses: what he did there and any result. Ram confirmed on 22 Nov 2026: it was a product inside Newral, and he was
- *     its Founding Manager, Oct 2025 to Jun 2026 (not Co-Founder, and not a separate company, as the design brief implied).
- *     Open: whether the $0 to $6K monthly revenue shown for Newral is Synappses' revenue.
+ *  5. Synappses: settled by the resume (24 Nov 2026). A product of Newral; Ram was its Product Manager, Oct 2025 to May 2026.
+ *     5K to 70K users and $3K to $10K MRR in 4 months are Synappses' numbers. Never call him its Co-Founder.
  *  6. Netflix Fraternity: the month, so it can become its own stop (shown inside the Masters' Union trip for now).
- *  7. Exact months for stops placed by year only: 10+ dance wins, the world dance battle, Choreography Head,
+ *  7. Exact months for stops placed by year only: 10+ dance wins, the world dance battle, President of the dance society,
  *     rank 1 coder, the EDST award and the CienaGPT hackathon. Their "min" figures come from the approved map.
- *  8. Super 30 Hacker House start: the site says Sep 2025, the resume says Jul 2025. The map uses Sep 2025.
+ *  8. Super 30 Hacker House: settled by the resume, Jul 2025 to Feb 2026.
  *  9. St. Dominic's School: the map's 91 min assumes the Class 12 result in Apr 2019.
- * 10. TruCost: the months it went live and was sold (the trip says "by October 2026", the contract's last month on the site).
+ * 10. TruCost: the resume says Jun to Sep 2026. The months it went live and was sold are not known.
  */
 
 /** Where the page remembers the chosen theme (the main site uses its own key). */
@@ -98,7 +100,7 @@ export const STOPS: Stop[] = [
   { id: 'ramjas', type: 'place', name: 'Ramjas College', note: 'Delhi. BSc Physical Sciences', when: '2019-08', at: { x: 343, y: 220 }, tag: { x: 447, y: 300 }, trip: 'ramjas' },
   { id: 'dance-wins', type: 'dot', name: '10+ dance wins', when: '2020-06', monthAssumed: true, at: { x: 700, y: 344 }, trip: 'dance', win: true },
   { id: 'world-battle', type: 'dot', name: 'World dance battle, Top 16', when: '2021-06', monthAssumed: true, at: { x: 330, y: 551 }, trip: 'dance', win: true },
-  { id: 'choreography', type: 'dot', name: 'Choreography Head', when: '2021-09', monthAssumed: true, at: { x: 330, y: 696 }, trip: 'dance' },
+  { id: 'choreography', type: 'dot', name: 'President, Ramjas Dance Society', when: '2021-09', monthAssumed: true, at: { x: 330, y: 696 }, trip: 'dance' },
   { id: 'amity', type: 'place', name: 'Amity University', note: 'Noida. MCA', when: '2022-08', at: { x: 855, y: 700 }, tag: { x: 737, y: 776 }, trip: 'amity' },
   { id: 'rank-1', type: 'dot', name: 'Rank 1 coder of 400+', when: '2023-05', monthAssumed: true, at: { x: 918, y: 330 }, trip: 'amity', win: true },
   { id: 'ingenious', type: 'place', name: 'Ingenious Research Solutions', note: 'Noida. Research intern', when: '2023-06', at: { x: 1100, y: 330 }, tag: { x: 1000, y: 400 }, trip: 'ingenious' },
@@ -106,14 +108,14 @@ export const STOPS: Stop[] = [
   { id: 'full-time', type: 'dot', name: 'Full-time engineer', when: '2024-07', at: { x: 1302, y: 620 }, trip: 'ciena' },
   { id: 'edst', type: 'dot', name: 'EDST award, 4 of 14,000', when: '2024-10', monthAssumed: true, at: { x: 1447, y: 620 }, trip: 'ciena', win: true },
   { id: 'cienagpt', type: 'dot', name: 'Top 10, CienaGPT AI hackathon', when: '2024-12', monthAssumed: true, at: { x: 1543, y: 620 }, trip: 'ciena', win: true },
-  { id: 'super-30', type: 'place', name: 'Super 30 Hacker House', note: '100xSchool. 1 of 30 builders', when: '2025-09', monthAssumed: true, at: { x: 1604, y: 960 }, tag: { x: 1478, y: 866 }, trip: 'super-30' },
+  { id: 'super-30', type: 'place', name: 'Super 30 Hacker House', note: '100xSchool. 1 of 30 builders', when: '2025-07', at: { x: 1604, y: 960 }, tag: { x: 1478, y: 866 }, trip: 'super-30' },
   { id: 'newral', type: 'place', name: 'Newral', note: 'Noida. Engineer, then product', when: '2025-10', at: { x: 1556, y: 960 }, tag: { x: 1658, y: 1040 }, trip: 'newral' },
   { id: 'tech-lead', type: 'dot', name: 'Tech Lead and Best Employee', when: '2025-12', at: { x: 1459, y: 960 }, trip: 'newral', win: true },
   { id: 'wingathon', type: 'dot', name: 'YC VibeCon Wingathon winner', when: '2026-04', at: { x: 1267, y: 960 }, trip: 'newral', win: true },
   { id: 'product-manager', type: 'dot', name: 'Product Manager', when: '2026-05', at: { x: 1219, y: 960 }, trip: 'newral' },
   { id: 'trucost', type: 'place', name: 'TruCost', note: 'Ride-hailing app, built and sold', when: '2026-06', at: { x: 1171, y: 960 }, tag: { x: 1312, y: 1076 }, trip: 'trucost' },
   { id: 'masters-union', type: 'place', name: 'Masters’ Union', note: 'Gurugram. PGP, now', when: '2026-07', at: { x: 1123, y: 960 }, tag: { x: 880, y: 1060 }, trip: 'masters-union' },
-  { id: 'leetcase', type: 'dot', name: 'LeetCase launched', when: '2026-09', at: { x: 1100, y: 886 }, trip: 'leetcase' },
+  { id: 'leetcase', type: 'dot', name: 'LeetCase launched', when: '2026-08', at: { x: 1100, y: 886 }, trip: 'leetcase' },
   { id: 'you', type: 'you', name: 'You are here', note: `Ram, ${NOW_LABEL}`, when: NOW, at: { x: 1100, y: 790 }, trip: 'story' },
 ];
 
@@ -175,7 +177,7 @@ export const TRIPS: Trip[] = [
     blurb: 'A ride-hailing app with an in-cab tablet that earns from advertisers during the ride.',
     leg: [
       { title: 'Took the contract as Product Manager', when: 'June 2026' },
-      { title: 'Both apps live on the App Store and Play Store', when: 'By October 2026' }, // the contract's last month; OWED 10: the launch and sale months
+      { title: 'Both apps live on the App Store and Play Store', when: 'By September 2026' }, // the contract's last month on the resume
     ],
     result: { sub: 'Sold to the founder', value: '₹2.5L' },
     proof: { title: '100 drivers onboarded', badge: 'Live on both app stores', note: 'Hired and led the development team' },
@@ -191,24 +193,24 @@ export const TRIPS: Trip[] = [
   {
     id: 'newral',
     name: 'Newral',
-    sub: 'From $0 to $6K monthly revenue',
+    sub: 'Synappses: $3K to $10K MRR in 4 months',
     icon: 'chart',
     from: 'you',
     to: 'newral',
-    pickup: 'Product Lead, 2025',
-    blurb: 'An early-stage AI startup in Noida. Ram joined as an engineer and left owning go-to-market and pricing.',
+    pickup: 'Product Manager, 2025',
+    blurb: 'The product studio behind Synappses, an AI-powered SaaS LMS. Ram joined as a software engineer and became its Product Manager.',
     leg: [
       { title: 'Joined as a software engineer', when: 'October 2025' },
-      { title: 'Product Lead, owning GTM and pricing', when: 'May 2026' },
+      { title: 'Product Manager, Synappses', when: 'May 2026' },
     ],
-    result: { sub: 'Monthly revenue, from zero', value: '$6K' },
-    proof: { title: 'Doubled user engagement', badge: '+25% platform traffic', note: 'Best Employee within three months' },
-    did: ['Owned positioning, pricing and go-to-market with the founder', 'Shipped features and experiments that doubled engagement', 'Moved the platform to a cheaper cloud with zero downtime'],
+    result: { sub: 'MRR, up from $3K in 4 months', value: '$10K' },
+    proof: { title: 'Scaled Synappses from 5K to 70K users', badge: 'Doubled DAU', note: 'Retention up 18%, cloud costs down 30%' },
+    did: ['Owned positioning, pricing and segments for Synappses', 'Doubled DAU with A/B-tested feature launches, and raised retention 18%', 'Cut cloud costs 30% by moving AWS and GCP to ACE Cloud with zero downtime'],
     receipt: [
-      { label: 'Monthly revenue, from zero', value: '$6K' },
-      { label: 'Platform traffic', value: '+25%' },
+      { label: 'MRR, in 4 months', value: '$3K to $10K' },
+      { label: 'Users', value: '5K to 70K' },
     ],
-    activity: { role: 'Product Lead', when: '2026-05', line: '$0 to $6K monthly revenue' },
+    activity: { role: 'Product Manager', when: '2026-05', line: '5K to 70K users, $3K to $10K MRR' },
     chapter: true,
   },
   {
@@ -229,7 +231,7 @@ export const TRIPS: Trip[] = [
     did: ['Saved 4+ hours a day across 5+ global teams', 'Cut SLA breaches by 35% with new workflows', 'Audited licences and removed $30K+ of yearly cost'],
     receipt: [
       { label: 'Annual award', value: '4 of 14,000' },
-      { label: 'CienaGPT AI hackathon', value: 'Top 10 of 800+' },
+      { label: 'CienaGPT AI hackathon', value: 'Top 10 of 800' },
     ],
     activity: { role: 'Solutions Engineer', when: '2024-01', line: '4 of 14,000 won the annual award' },
     chapter: true,
@@ -255,62 +257,65 @@ export const TRIPS: Trip[] = [
   {
     id: 'leetcase',
     name: 'LeetCase',
-    sub: 'Case practice for MBA aspirants',
+    sub: 'AI-graded case practice for MBA aspirants',
     icon: 'doc',
     from: 'you',
     to: 'leetcase',
     pickup: 'Founder, 2026',
-    blurb: 'Case and guesstimate practice for MBA aspirants, taken from a PRD to a live product.',
+    blurb: 'An AI-graded practice platform for consulting cases and guesstimates, taken from a PRD to a live product.',
     leg: [
-      { title: 'Launched, from a PRD to an MVP', when: 'September 2026' },
-      { title: '150 users across Masters’ Union communities', when: 'Now' },
+      { title: 'Started, from a PRD to an MVP', when: 'August 2026' },
+      { title: '150+ users across Masters’ Union communities', when: 'September 2026' },
     ],
-    result: { sub: 'Users', value: '150' },
-    proof: { title: '70% activation', badge: '124 problems', note: 'PRD to MVP in under two months' },
+    result: { sub: 'Users, across Masters’ Union communities', value: '150+' },
+    proof: { title: 'Owned the product from PRD to MVP', badge: 'AI Interviews, Flow Chart', note: 'Grown with feedback loops and A/B tests' },
     problem: 'Case and guesstimate prep is scattered across PDFs and group chats, with no structured way to practise, get hints or track progress.',
-    did: ['Ran research with MBA aspirants to shape the roadmap', 'Built problem sets, hints and a guided solve flow', 'Grew it with A/B tests and feedback loops'],
+    did: ['Ran research with MBA aspirants to define the vision and roadmap', 'Shipped AI Interviews and Flow Chart, tracking activation, retention and DAU', 'Led go-to-market and growth with user feedback loops and A/B tests'],
     receipt: [
-      { label: 'Users', value: '150' },
-      { label: 'Activation', value: '70%' },
+      { label: 'Users', value: '150+' },
+      { label: 'Built', value: 'Aug to Sep 2026' },
     ],
-    activity: { role: 'Founder', when: '2026-09', line: '150 users, 70% activation' },
+    activity: { role: 'Founder', when: '2026-08', line: '150+ users across Masters’ Union' },
     chapter: true,
   },
   {
     id: 'unbothrrd',
     name: 'unBothrrd',
-    sub: 'D2C brand, ₹7.2L revenue',
+    sub: 'D2C lifestyle brand, ₹7.2L in sales',
     icon: 'bag',
     from: 'you',
-    to: 'masters-union', // OWED 4: its own stop, once the months are known
+    to: 'masters-union', // it has no stop of its own: it is a Masters' Union venture
     noMinutes: true,
-    pickup: 'Founder, 2026',
-    blurb: 'A D2C brand built offline and online, from zero, as a Masters’ Union venture.',
-    result: { sub: 'D2C revenue', value: '₹7.2L' },
-    proof: { title: 'Owned the P&L end to end', note: 'Pop-up stalls and an own web store' },
-    problem: 'No brand, no audience and a fixed window to find product and channel fit before the money ran out.',
-    did: ['Ran pop-up stalls to test products and pricing face to face', 'Sold online through an own storefront', 'Automated fulfilment, inventory and support'],
+    pickup: 'Co-Founder, 2026',
+    blurb: 'A D2C lifestyle brand with daily drops in apparel and decor, run from October to November 2026.',
+    result: { sub: 'Sales in 2 months', value: '₹7.2L' },
+    proof: { title: 'Stalls at 6 community events', note: 'With a 9-member team' },
+    did: ['Ran dropshipping campaigns, and managed sourcing, suppliers and pricing', 'Set up stalls at 6 community events with a 9-member team, to test products and pricing', 'Tracked campaign ROI and ad spend on Meta ads, with Excel models to monitor sales'],
     receipt: [
-      { label: 'D2C revenue', value: '₹7.2L' },
-      { label: 'Channels', value: 'Stalls and web' },
+      { label: 'Sales, in 2 months', value: '₹7.2L' },
+      { label: 'Community events', value: '6' },
     ],
   },
   {
     id: 'synappses',
     name: 'Synappses',
-    sub: 'Newral’s AI LMS, as Founding Manager',
+    sub: 'Newral’s AI LMS: 5K to 70K users',
     icon: 'cap',
     from: 'you',
     to: 'newral', // it has no stop of its own on the map: it was built inside Newral
-    pickup: 'Founding Manager, 2025',
-    blurb: 'An AI-native LMS for coaching centres, built inside Newral. Ram was its Founding Manager from October 2025 to June 2026.', // OWED 5: what he did and the result
+    pickup: 'Product Manager, 2025',
+    // Title and dates as on Ram's resume (24 Nov 2026): Product Manager, Synappses, at Newral, Oct 2025 to May 2026. Never "Co-Founder".
+    blurb: 'An AI-powered SaaS LMS, built at Newral. Ram was its Product Manager.',
     leg: [
-      { title: 'Joined as Founding Manager', when: 'October 2025' },
-      { title: 'Founding Manager', when: 'June 2026' },
+      { title: 'Joined Newral', when: 'October 2025' },
+      { title: 'Product Manager, Synappses', when: 'May 2026' },
     ],
+    result: { sub: 'Users, up from 5K', value: '70K' },
+    proof: { title: '$3K to $10K MRR in 4 months', badge: 'Doubled DAU', note: 'Led a 20-member cross-functional team' },
+    did: ['Owned positioning, pricing and segments', 'Raised retention 18% with gamification and daily engagement', 'Improved CSAT by 21% with an automated customer feedback system'],
     receipt: [
-      { label: 'Role', value: 'Founding Manager' },
-      { label: 'Built at', value: 'Newral' },
+      { label: 'Users', value: '5K to 70K' },
+      { label: 'MRR, in 4 months', value: '$3K to $10K' },
     ],
   },
   {
@@ -323,7 +328,7 @@ export const TRIPS: Trip[] = [
     pickup: 'Builder, 2025',
     blurb: 'The Super 30 Hacker House at 100xSchool, funded by YC. Ram was one of 30 builders picked nationwide, while working full-time.',
     leg: [
-      { title: 'Selected for the Hacker House', when: '2025' }, // OWED 8: Sep or Jul 2025
+      { title: 'Selected for the Hacker House', when: 'July 2025' },
       { title: 'Students Affairs Head', when: '2026' },
     ],
     result: { sub: 'Builders picked nationwide', value: '1 of 30' },
@@ -347,7 +352,7 @@ export const TRIPS: Trip[] = [
       { title: 'Chicago Footworkology World Final', when: '2021' },
     ],
     result: { sub: 'Worldwide, representing India', value: 'Top 16' },
-    proof: { title: 'Choreography Head, Ramjas Dance Society', badge: 'Top 4 in India', note: 'Coordinated 10+ outstation fests' },
+    proof: { title: 'President, Ramjas Dance Society', badge: 'World Top 16', note: 'Coordinated 10+ outstation fests' },
     receipt: [
       { label: 'World final', value: 'Top 16' },
       { label: 'Inter-college titles', value: '10+' },
@@ -380,7 +385,7 @@ export const TRIPS: Trip[] = [
     blurb: 'BSc Physical Sciences at the University of Delhi, where the stage became a second classroom.',
     leg: [
       { title: 'Joined BSc Physical Sciences', when: 'August 2019' },
-      { title: 'Choreography Head, Ramjas Dance Society', when: '2021' },
+      { title: 'President, Ramjas Dance Society', when: '2021' },
     ],
     result: { sub: 'Inter-college dance titles', value: '10+' },
     proof: { title: 'Represented India at a world dance battle', badge: 'Top 16 worldwide', note: 'Chicago Footworkology World Final, 2021' },
@@ -422,10 +427,10 @@ export const TRIPS: Trip[] = [
       { title: 'Joined the PGP', when: 'July 2026' },
       { title: 'Building LeetCase and unBothrrd', when: 'Now' },
     ],
-    result: { sub: 'D2C revenue from unBothrrd', value: '₹7.2L' },
-    proof: { title: 'Locked core member, Netflix Fraternity', badge: '4 of 430', note: 'Launched LeetCase to 150 users' }, // OWED 6
+    result: { sub: 'Sales from unBothrrd, in 2 months', value: '₹7.2L' },
+    proof: { title: 'First core member, Netflix Fraternity', badge: '4 of 430', note: 'Rank 3 in dropshipping' },
     receipt: [
-      { label: 'D2C revenue', value: '₹7.2L' },
+      { label: 'D2C sales, in 2 months', value: '₹7.2L' },
       { label: 'Netflix Fraternity', value: '4 of 430' },
     ],
   },
@@ -639,7 +644,7 @@ export const IDEA = {
   ] as { id: IdeaSceneId; tab: string; title: string; text: string; note: string }[],
   /** What the tablet shows. Games and offers come later, so they are not listed. */
   onTablet: ['Greets the rider by name', 'Shows the trip', 'Paid brand surveys', 'Brand ads'],
-  optOut: 'Mute or switch off, any time',
+  optOut: 'The rider can mute it or switch it off, any time',
   /** Product proof only. Ram has not supplied revenue or response rates, so none are shown. */
   proof: ['100 drivers onboarded at TruCost', 'Rider app live on the Play Store', 'Tablet app tied to each driver’s ID'],
   firstDrivers: ['15+ trips a day', 'Rated 4.7+', 'The most active first'],
@@ -704,9 +709,9 @@ export type Persona = {
 };
 
 export const PERSONAS: Persona[] = [
-  { id: 'pm', label: 'Ram, Product Manager', proof: 'Newral, TruCost, LeetCase', icon: 'chart', card: { name: 'Ram PM', time: '2 min', line: 'Took Newral from $0 to $6K monthly revenue' }, lead: 'ciena', first: [] },
+  { id: 'pm', label: 'Ram, Product Manager', proof: 'Newral, TruCost, LeetCase', icon: 'chart', card: { name: 'Ram PM', time: '2 min', line: 'Scaled Synappses from 5K to 70K users' }, lead: 'ciena', first: [] },
   { id: 'engineer', label: 'Ram, Engineer', proof: 'Ciena, Super 30, rank 1 coder', icon: 'code', card: { name: 'Ram Engineer', time: '2 min', line: 'Built TruCost for iOS and Android; 100 drivers onboarded' }, lead: 'ciena', first: ['ciena', 'super-30'] },
-  { id: 'founder', label: 'Ram, Founder', proof: 'unBothrrd, LeetCase', icon: 'bag', card: { name: 'Ram Growth', time: '2 min', line: 'Ran a D2C brand to ₹7.2L revenue' }, lead: 'unbothrrd', first: ['unbothrrd', 'leetcase'] },
+  { id: 'founder', label: 'Ram, Founder', proof: 'unBothrrd, LeetCase', icon: 'bag', card: { name: 'Ram Growth', time: '2 min', line: 'Built a D2C brand to ₹7.2L in sales' }, lead: 'unbothrrd', first: ['unbothrrd', 'leetcase'] },
   { id: 'dancer', label: 'Ram, Dancer', proof: 'India at a world final', icon: 'music', card: { name: 'Ram Performer', time: '2 min', line: 'Represented India at a world dance battle' }, lead: 'dance', first: ['dance'] },
 ];
 
@@ -716,7 +721,7 @@ export const PERSONAS: Persona[] = [
 /** Ram's order, 24 Nov 2026: where he worked on the first row, where he studied on the second. Projects live under Shipped. */
 export const TILES: { trip: TripId; badge?: string; label?: string }[] = [
   { trip: 'trucost', badge: 'Sold ₹2.5L' },
-  { trip: 'newral', badge: '$0 to $6K' },
+  { trip: 'newral', badge: '$3K to $10K' },
   { trip: 'ciena' },
   // the full name is three lines under a tile: Ram asked for the first word only
   { trip: 'ingenious', label: 'Ingenious' },
@@ -788,9 +793,9 @@ export const SERVICES = {
   book: 'Book Ram for',
   main: [
     { name: '0 to 1 launches', line: 'TruCost, LeetCase', icon: 'car', trip: 'trucost' },
-    { name: 'Go to market', line: 'Newral, $0 to $6K', icon: 'chart', trip: 'newral' },
+    { name: 'Go to market', line: 'Synappses, $3K to $10K MRR', icon: 'chart', trip: 'newral' },
     { name: 'Pricing', line: 'Fares and offers at TruCost', icon: 'bag', trip: 'trucost' },
-    { name: 'Growth', line: '+25% traffic at Newral', icon: 'doc', trip: 'newral' },
+    { name: 'Growth', line: '5K to 70K users at Synappses', icon: 'doc', trip: 'newral' },
   ] as { name: string; line: string; icon: Pictogram; trip: TripId }[],
   also: 'Also on board',
   more: [
@@ -879,6 +884,7 @@ export const RESERVE = {
   line: 'Open to Product Manager roles. He replies fastest by email.',
   email: 'Email Ram',
   linkedin: 'Message on LinkedIn',
+  resume: 'Download the resume (PDF)',
   copy: 'Copy',
   copied: 'Copied',
   subject: 'Reserve Ram: Product Manager at Uber',
@@ -949,7 +955,7 @@ export const EXPLAIN: Record<ScreenKey, { title: string; uber: string; here: str
 /** Three proofs on the panel before anything is tapped. Each opens its trip. */
 export const HERO_FACTS: { trip: TripId; value: string; label: string }[] = [
   { trip: 'trucost', value: '₹2.5L', label: 'TruCost, built and sold' },
-  { trip: 'newral', value: '$6K', label: 'Newral, monthly revenue from zero' },
+  { trip: 'newral', value: '$10K', label: 'Synappses MRR, up from $3K' },
   { trip: 'ciena', value: '4 of 14,000', label: 'Ciena, annual award' },
 ];
 
@@ -975,21 +981,20 @@ export type Job = {
  * Synappses is not listed here: it was a product inside Newral, and Ram wants it shown under Shipped only.
  */
 export const EXPERIENCE: Job[] = [
-  { company: 'TruCost', what: 'Ride-hailing app with an in-cab tablet', icon: 'car', logo: '/images/logos/trucost.webp', trip: 'trucost', roles: [{ title: 'Product Manager, on contract', when: 'Jun 2026 to Oct 2026' }], result: '100 drivers onboarded, sold for ₹2.5L' },
+  { company: 'TruCost', what: 'Ride-hailing app with an in-cab tablet', icon: 'car', logo: '/images/logos/trucost.webp', trip: 'trucost', roles: [{ title: 'Product Manager, on contract', when: 'Jun 2026 to Sep 2026' }], result: '100 drivers onboarded, sold for ₹2.5L' },
   {
     company: 'Newral',
-    what: 'Early-stage AI startup, Noida',
+    what: 'Product studio behind Synappses, Noida',
     icon: 'chart',
     logo: '/images/logos/newral.webp',
     trip: 'newral',
     roles: [
-      { title: 'Product Manager', when: 'May 2026' },
-      { title: 'Product Tech Lead', when: 'Dec 2025 to Apr 2026' },
-      { title: 'Software Engineer', when: 'Oct 2025 to Nov 2025' },
+      // the resume gives one span for Newral, not a date for each role
+      { title: 'Software Engineer, then Product Manager for Synappses', when: 'Oct 2025 to May 2026' },
     ],
-    result: '$0 to $6K monthly revenue',
+    result: '5K to 70K users, $3K to $10K MRR',
   },
-  { company: '100xSchool, Super 30', what: 'Hacker House funded by YC', icon: 'code', logo: '/images/logos/100xschool.webp', trip: 'super-30', roles: [{ title: 'Students Affairs Head', when: '2026' }, { title: 'Hacker House builder', when: '2025' }], result: '1 of 30 builders nationwide' },
+  { company: '100xSchool, Super 30', what: 'Hacker House funded by YC', icon: 'code', logo: '/images/logos/100xschool.webp', trip: 'super-30', roles: [{ title: 'Students Affairs Head', when: '2026' }, { title: 'Hacker House builder', when: 'Jul 2025 to Feb 2026' }], result: '1 of 30 builders nationwide' },
   {
     company: 'Ciena',
     what: 'NYSE-listed networking company, Gurugram',
@@ -1039,7 +1044,7 @@ export const ABOUT = {
       id: 'dance',
       label: 'Dance',
       title: 'The stage was my second classroom',
-      text: 'At Ramjas I won 10+ inter-college titles, led the dance society as Choreography Head, and represented India at a world final in Chicago.',
+      text: 'At Ramjas I won 10+ inter-college titles, led the dance society as its President, and represented India at a world final in Chicago.',
       trip: 'dance',
       photo: 'world-battle',
     },
