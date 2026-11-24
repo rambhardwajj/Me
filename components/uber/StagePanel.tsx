@@ -33,7 +33,7 @@ import {
 } from '@/lib/uber';
 import { PORTRAIT, stopPhoto, stopStory, tripPhotos, type Photo } from '@/lib/uber-photos';
 import { routeBetween } from './LifeMap';
-import { Icon } from './icons';
+import { Icon, Pict } from './icons';
 import Mark from './Mark';
 import { IdeaGraphic } from './IdeaGraphics';
 import StreetMap from './StreetMap';
@@ -598,12 +598,75 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
         ))}
       </div>
     );
+  } else if (where === 'activity') {
+    /* ---------------------------------------------------------------- Experience: a timeline, newest first, with what comes next on top */
+    const next = getTrip(ACTIVITY.upcomingTrip);
+    // the whole time at a place, from its oldest role's start to its newest role's end
+    const span = (j: (typeof EXPERIENCE)[number]) => {
+      const first = j.roles[j.roles.length - 1].when.split(' to ')[0];
+      const last = j.roles[0].when.split(' to ').pop()!;
+      return first === last ? first : `${first} to ${last}`;
+    };
+    body = (
+      <ol className="ub-tl">
+        <li className="next" style={{ ['--i' as string]: 0 }}>
+          <span className="ub-tl-when">{ACTIVITY.upcoming}</span>
+          <span className="ub-tl-node" aria-hidden="true">
+            <Icon name="arrow" size={16} w={2.6} />
+          </span>
+          <button type="button" className="ub-tl-card" onClick={() => ride(next.id)}>
+            <span className="ub-tl-main">
+              <b>{next.name}</b>
+              <small>{next.sub}</small>
+            </span>
+            <span className="ub-tl-go">
+              Open <Icon name="arrow" size={15} w={2.4} />
+            </span>
+          </button>
+        </li>
+        {EXPERIENCE.map((j, i) => (
+          <li key={j.company} style={{ ['--i' as string]: i + 1 }}>
+            <span className="ub-tl-when">{span(j)}</span>
+            <span className="ub-tl-node" aria-hidden="true">
+              {j.logo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={j.logo} alt="" />
+              ) : (
+                <Pict name={j.icon} size={24} />
+              )}
+            </span>
+            <button type="button" className="ub-tl-card" disabled={!j.trip} onClick={() => j.trip && app.driveTo(j.trip)}>
+              <span className="ub-tl-main">
+                <b>{j.company}</b>
+                <small>{j.what}</small>
+                <span className="ub-tl-roles">
+                  {j.roles.map((r) => (
+                    <span key={r.title}>
+                      <i aria-hidden="true" />
+                      <b>{r.title}</b>
+                      <em>{r.when}</em>
+                    </span>
+                  ))}
+                </span>
+              </span>
+              <span className="ub-tl-side">
+                {j.result && <span className="ub-tl-res">{j.result}</span>}
+                {j.trip && (
+                  <span className="ub-tl-go">
+                    Ride there <Icon name="arrow" size={15} w={2.4} />
+                  </span>
+                )}
+              </span>
+            </button>
+          </li>
+        ))}
+      </ol>
+    );
   } else {
     /* ---------------------------------------------------------------- a grid of trips for this screen */
     const lists: Partial<Record<typeof where, TripId[]>> = {
       shipped: SHIPPED,
       services: [...new Set([...SERVICES.main, ...SERVICES.more].map((x) => x.trip))],
-      activity: [...EXPERIENCE.flatMap((j) => (j.trip ? [j.trip] : [])), ACTIVITY.upcomingTrip],
       inbox: ['newral', 'trucost', 'ciena'],
     };
     const ids = lists[where] ?? [];

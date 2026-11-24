@@ -340,7 +340,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
 
       <h2 className="rp-h2">{HOME.forYou}</h2>
       <div className="rp-tiles">
-        {tiles.map(({ trip: id, badge }) => {
+        {tiles.map(({ trip: id, badge, label }) => {
           const t = getTrip(id);
           return (
             <button key={id} type="button" className="rp-tile" onClick={() => app.driveTo(id)} {...peeks(id)}>
@@ -348,7 +348,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
                 {badge && <span className="rp-badge">{badge}</span>}
                 <Mark id={id} />
               </span>
-              <span className="rp-tile-name">{t.name}</span>
+              <span className="rp-tile-name">{label ?? t.name}</span>
             </button>
           );
         })}

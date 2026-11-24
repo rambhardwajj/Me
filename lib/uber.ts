@@ -653,7 +653,7 @@ export type Persona = {
 };
 
 export const PERSONAS: Persona[] = [
-  { id: 'pm', label: 'Ram, Product Manager', proof: 'Newral, TruCost, LeetCase', icon: 'chart', card: { name: 'Ram PM', time: '2 min', line: 'Took Newral from $0 to $6K monthly revenue' }, lead: 'trucost', first: [] },
+  { id: 'pm', label: 'Ram, Product Manager', proof: 'Newral, TruCost, LeetCase', icon: 'chart', card: { name: 'Ram PM', time: '2 min', line: 'Took Newral from $0 to $6K monthly revenue' }, lead: 'ciena', first: [] },
   { id: 'engineer', label: 'Ram, Engineer', proof: 'Ciena, Super 30, rank 1 coder', icon: 'code', card: { name: 'Ram Engineer', time: '2 min', line: 'Built TruCost for iOS and Android; 100 drivers onboarded' }, lead: 'ciena', first: ['ciena', 'super-30'] },
   { id: 'founder', label: 'Ram, Founder', proof: 'unBothrrd, LeetCase', icon: 'bag', card: { name: 'Ram Growth', time: '2 min', line: 'Ran a D2C brand to ₹7.2L revenue' }, lead: 'unbothrrd', first: ['unbothrrd', 'leetcase'] },
   { id: 'dancer', label: 'Ram, Dancer', proof: 'India at a world final', icon: 'music', card: { name: 'Ram Performer', time: '2 min', line: 'Represented India at a world dance battle' }, lead: 'dance', first: ['dance'] },
@@ -663,11 +663,12 @@ export const PERSONAS: Persona[] = [
 
 /** "Projects and experience": seven tiles. `badge` is the red result badge. */
 /** Ram's order, 24 Nov 2026: where he worked on the first row, where he studied on the second. Projects live under Shipped. */
-export const TILES: { trip: TripId; badge?: string }[] = [
+export const TILES: { trip: TripId; badge?: string; label?: string }[] = [
   { trip: 'trucost', badge: 'Sold ₹2.5L' },
   { trip: 'newral', badge: '$0 to $6K' },
   { trip: 'ciena' },
-  { trip: 'ingenious' },
+  // the full name is three lines under a tile: Ram asked for the first word only
+  { trip: 'ingenious', label: 'Ingenious' },
   { trip: 'masters-union' },
   { trip: 'amity' },
   { trip: 'ramjas' },
@@ -931,8 +932,7 @@ export const EXPERIENCE: Job[] = [
     ],
     result: '4 of 14,000 won the annual award',
   },
-  { company: 'Ingenious Research Solutions', what: 'Research firm, Noida', icon: 'doc', logo: '/images/logos/ingenious.png', trip: 'ingenious', roles: [{ title: 'Research Intern', when: 'Jun 2023 to Jul 2023' }] },
-  { company: 'Ingenious Research Solutions', what: 'Research internship, Noida', icon: 'doc', logo: '/images/logos/ingenious.png', roles: [{ title: 'Research Intern, on an ISRO blockchain project', when: 'Jun 2023 to Jul 2023' }] },
+  { company: 'Ingenious Research Solutions', what: 'Research internship, Noida', icon: 'doc', logo: '/images/logos/ingenious.png', trip: 'ingenious', roles: [{ title: 'Research Intern, on an ISRO blockchain project', when: 'Jun 2023 to Jul 2023' }] },
 ];
 
 /* ------------------------------------------------------------------ About Ram (the Account tab) */
