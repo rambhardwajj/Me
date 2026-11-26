@@ -479,6 +479,12 @@ export function tripMinutes(t: Trip): number | null {
   return minutesAway(stop(end).when);
 }
 
+/**
+ * The stops a full story visits, in the order they happened: the trip's own.
+ * The whole road counts every stop, "Ram, today" included, so its story and its ride show the same total.
+ */
+export const ownStops = (t: Trip): Stop[] => (t.id === 'idle-minutes' ? [] : t.id === 'story' ? STOPS : STOPS.filter((x) => x.type !== 'you' && x.trip === t.id));
+
 /** Where the road turns: shown as "Rerouted" in the story ride. The stop named is the first one after the turn. */
 export const REROUTES: { before: StopId; text: string }[] = [
   { before: 'amity', text: 'Rerouted: from the stage to software' },
@@ -691,6 +697,14 @@ export const STAGE = {
   headline: 'Your product manager has arrived.',
   body: 'This phone is my portfolio. Tap anything in it. Every screen is a part of my story.',
   nowShowing: 'Now showing from the phone',
+  /** How the page works, in three steps, shown beside the phone before anything is tapped. Words only: nothing here is pressed. */
+  howTitle: 'How this works',
+  how: [
+    { title: 'Tap a logo in the phone', text: 'A company, a college or a project.' },
+    { title: 'The car drives there', text: 'On this side, on a real street map.' },
+    { title: 'Read what I did there', text: 'Then reserve me from the phone.' },
+  ],
+  cue: 'Start with the phone',
 };
 
 /* ------------------------------------------------------------------ personas: "Choose a Ram" and "Riding with" */
@@ -745,6 +759,26 @@ export const HOME = {
 
 /** The Shipped tab: products Ram built or led, newest first. */
 export const SHIPPED: TripId[] = ['leetcase', 'trucost', 'unbothrrd', 'newral', 'synappses'];
+
+/* ------------------------------------------------------------------ the guide on the phone */
+
+/**
+ * A first-time visitor is shown where to tap, one thing at a time, on the phone's Home. `at` names the part it points to.
+ * It ends when they finish it, skip it, or tap anything themselves, and it can be played again from About.
+ */
+export const GUIDE = {
+  title: 'How this app works',
+  next: 'Next',
+  done: 'Got it',
+  skip: 'Skip',
+  again: { title: 'How this app works', line: 'Play the guide again' },
+  steps: [
+    { at: 'tiles', title: 'Tap any logo to start', text: 'Try TruCost. The car drives there, then shows what I did.' },
+    { at: 'where', title: 'Or search for a place', text: 'Every company, college and win, in one list.' },
+    { at: 'cards', title: 'See my idea for Uber', text: 'Open it and try the back-seat tablet yourself.' },
+    { at: 'tabs', title: 'More in these tabs', text: 'Services, Experience and About Ram.' },
+  ],
+};
 
 /* ------------------------------------------------------------------ Search */
 

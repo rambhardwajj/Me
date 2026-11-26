@@ -1,12 +1,10 @@
 'use client';
 
-import Link from 'next/link';
 import { useState, type ReactNode } from 'react';
 import { PROFILE } from '@/lib/data';
 import {
   ABOUT,
   ACTIVITY,
-  BILLBOARD,
   EXPERIENCE,
   EXPLAIN,
   HERO_FACTS,
@@ -25,6 +23,7 @@ import {
   minLabel,
   minutesAway,
   monthLabel,
+  ownStops,
   stop,
   trip as getTrip,
   type PersonaId,
@@ -42,7 +41,6 @@ import StreetMap from './StreetMap';
 import { useRideStep } from './useRideStep';
 import { GEO_HOME, PLACE_GEO, rideTo } from '@/lib/uber-geo';
 import type { Ride } from './useRide';
-import { PROPOSAL_HREF, caseHref } from '@/lib/uber-cases';
 
 /** The reroute note shown above the first stop after a turn in the road. */
 const REROUTE: Partial<Record<StopId, string>> = Object.fromEntries(REROUTES.map((r) => [r.before, r.text]));
@@ -106,7 +104,7 @@ function Brief({ label, bar, photo, meta, name, text, big, rows = [], children }
 
 /** The stops a full story visits: the trip's own, in the order they happened. */
 /** A ride being requested, the way a ride app plays it: finding a driver, connecting, confirmed. */
-function PreRide({ step, name, onSkip }: { step: number; name: string; onSkip: () => void }) {
+function PreRide({ step, name }: { step: number; name: string }) {
   const s = RIDE.steps[step];
   const last = RIDE.steps.length - 1;
   return (
@@ -138,31 +136,21 @@ function PreRide({ step, name, onSkip }: { step: number; name: string; onSkip: (
           </span>
         </p>
       )}
-      <button type="button" className="ub-link" onClick={onSkip}>
-        {RIDE.skip}
-      </button>
     </div>
   );
 }
 
-/** The whole road counts every stop, "Ram, today" included, so its story and its ride show the same total. */
-const ownStops = (t: Trip): Stop[] => (t.id === 'idle-minutes' ? [] : t.id === 'story' ? STOPS : STOPS.filter((x) => x.type !== 'you' && x.trip === t.id));
 
 /** One trip as a tile in a grid: its photo, name and one line. */
-function Tile({ t, onOpen, onInfo, i }: { t: Trip; onOpen: (id: TripId) => void; onInfo?: (id: TripId) => void; i: number }) {
+function Tile({ t, i }: { t: Trip; i: number }) {
   const photo = tripPhotos(t.id)[0];
   return (
     <div className="ub-tile" style={{ ['--i' as string]: i }}>
-      <button type="button" onClick={() => onOpen(t.id)}>
+      <div className="it">
         <span className="ub-tile-art">{photo && <Shot photo={photo} />}</span>
         <b>{t.name}</b>
         <small>{t.result ? `${t.result.value} · ${t.result.sub}` : t.sub}</small>
-      </button>
-      {onInfo && (
-        <button type="button" className="ub-link" onClick={() => onInfo(t.id)}>
-          Details
-        </button>
-      )}
+      </div>
     </div>
   );
 }
@@ -171,7 +159,7 @@ function Tile({ t, onOpen, onInfo, i }: { t: Trip; onOpen: (id: TripId) => void;
  * What opens beside a place on the map: its photo and logo, where and when it was, the headline number,
  * what happened there, and the way into the whole story.
  */
-function PlaceCard({ s, onDetails, onRide }: { s: Stop; onDetails: (id: TripId) => void; onRide?: (id: TripId) => void }) {
+function PlaceCard({ s }: { s: Stop }) {
   const t = getTrip(s.trip);
   const own = s.name !== t.name && s.type === 'dot' ? s : null;
   const tell = own ? stopStory(own.id) : null;
@@ -210,16 +198,6 @@ function PlaceCard({ s, onDetails, onRide }: { s: Stop; onDetails: (id: TripId) 
           ))}
         </ul>
       )}
-      <div className="ub-pc-act">
-        <button type="button" className="ub-btn solid" onClick={() => onDetails(t.id)}>
-          What Ram did here
-        </button>
-        {onRide && (
-          <button type="button" className="ub-link" onClick={() => onRide(t.id)}>
-            Ride there
-          </button>
-        )}
-      </div>
     </div>
   );
 }
@@ -227,30 +205,22 @@ function PlaceCard({ s, onDetails, onRide }: { s: Stop; onDetails: (id: TripId) 
 type Props = {
   app: Ride;
   persona: PersonaId;
-  onPersona: (p: PersonaId) => void;
   reducedMotion: boolean;
 };
 
 /**
  * The panel beside the phone. It shows the phone's current moment at full size, and never repeats
  * what the phone is already saying.
+ * It is a display, not a control (Ram, 26 Nov 2026): nothing here can be pressed. Every action lives in the phone,
+ * so a visitor is never unsure which side to use. Pointing at a place on the map still shows what it was.
  */
-export default function StagePanel({ app, persona, onPersona, reducedMotion }: Props) {
-  const { where, onTrip, route, screen, hot, setHot, ride, openSheet, tripMode, setStack, facet, setFacet, setProject } = app;
-  /** The car's drive on the Quick ride: how many times it has been replayed, the stop it is passing, and whether it has arrived. */
-  const [replay, setReplay] = useState(0);
+export default function StagePanel({ app, persona, reducedMotion }: Props) {
+  const { where, onTrip, route, screen, hot, setHot, tripMode, facet } = app;
+  /** The stop the car is passing on a ride. */
   const [pass, setPass] = useState<{ key: string; stop: StopId }>({ key: '', stop: 'you' });
-  const [done, setDone] = useState('');
-  /** The drive that is paused, by its key, so a new ride never starts paused. */
-  const [pausedKey, setPausedKey] = useState('');
-  const [skip, setSkip] = useState('');
-  /** Where the reader is in a full story, by trip. */
-  const [story, setStory] = useState<{ trip: string; i: number }>({ trip: '', i: 0 });
-  const [copied, setCopied] = useState(false);
   const ex = EXPLAIN[where];
   // a ride being requested: the same three steps the phone is showing
   const rideStep = useRideStep(screen.s === 'finding' ? `${screen.trip}:${app.driveNo}` : null, reducedMotion);
-  const reserve = () => openSheet('reserve');
 
   let body;
   const browsing = where === 'search';
@@ -265,17 +235,15 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
     const quick = inDetails && tripMode === 'quick' && onTrip!.id !== 'idle-minutes';
     const own = inDetails && tripMode === 'full' ? ownStops(onTrip!) : [];
     const tale = own.length > 0;
-    const driveKey = quick ? `${onTrip!.id}:${app.driveNo}:${replay}` : null;
-    const arrived = !!driveKey && done === driveKey;
-    const paused = !!driveKey && pausedKey === driveKey;
+    // the ride itself is the phone's: it names the drive, says when to skip it, and is told when the car arrives
+    const driveKey = quick ? app.driveKey : null;
+    const arrived = !!driveKey && app.driveDone === driveKey;
     const passing = quick && pass.key === driveKey ? stop(pass.stop) : null;
     // the full story: step 0 is the start of the trip, then one step for each of its own stops
-    const at = tale ? (story.trip === onTrip!.id ? Math.min(story.i, own.length) : 0) : 0;
-    const go = (n: number) => setStory({ trip: onTrip!.id, i: Math.max(0, Math.min(own.length, n)) });
+    const at = tale ? (app.story.trip === onTrip!.id ? Math.min(app.story.i, own.length) : 0) : 0;
     const carAt = tale ? own[Math.max(0, at - 1)].id : null;
     const mapFrom = tale ? own[0].id : onMap.from;
     const mapTo = tale ? own[own.length - 1].id : onMap.to;
-    const setMode = (m: 'quick' | 'full') => onTrip && setStack((st) => [...st.slice(0, -1), { s: 'details', trip: onTrip.id, mode: m }]);
 
     // what is docked on the map (a ride or a story in progress), and what opens beside a place being pointed at
     let side: ReactNode = null;
@@ -289,31 +257,17 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
     const requesting = screen.s === 'finding' && !!onTrip;
     const legEvents = leg && onTrip ? STOPS.filter((x) => x.type === 'dot' && x.trip === onTrip.id) : [];
     if (requesting) {
-      side = <PreRide step={rideStep} name={onTrip!.name} onSkip={app.skipRide} />;
+      side = <PreRide step={rideStep} name={onTrip!.name} />;
     } else if (leg && quick && !arrived && passing && legEvents.some((x) => x.id === passing.id)) {
       // on a real road, driving: the event the car has just passed
       const n = legEvents.findIndex((x) => x.id === passing.id) + 1;
       const tell = stopStory(passing.id);
       side = (
-        <Brief label={`Now passing · ${n} of ${legEvents.length}`} bar={n / (legEvents.length + 1)} photo={stopPhoto(passing.id)} meta={when(passing)} name={tell.title} text={tell.body ? firstSentence(tell.body) : undefined}>
-          <button type="button" className="ub-link" onClick={() => setPausedKey(paused ? '' : (driveKey ?? ''))} aria-pressed={paused}>
-            {paused ? 'Resume' : 'Pause'}
-          </button>
-          <button type="button" className="ub-link" onClick={() => driveKey && setSkip(driveKey)}>
-            {RIDE.skip}
-          </button>
-        </Brief>
+        <Brief label={`Now passing · ${n} of ${legEvents.length}`} bar={n / (legEvents.length + 1)} photo={stopPhoto(passing.id)} meta={when(passing)} name={tell.title} text={tell.body ? firstSentence(tell.body) : undefined} />
       );
     } else if (leg && quick && !arrived) {
       side = (
-        <Brief label="On the way" photo={tripPhotos(onTrip!.id)[0]} meta={legTo} name={onTrip!.name} text={onTrip!.blurb}>
-          <button type="button" className="ub-link" onClick={() => setPausedKey(paused ? '' : (driveKey ?? ''))} aria-pressed={paused}>
-            {paused ? 'Resume' : 'Pause'}
-          </button>
-          <button type="button" className="ub-link" onClick={() => driveKey && setSkip(driveKey)}>
-            {RIDE.skip}
-          </button>
-        </Brief>
+        <Brief label="On the way" photo={tripPhotos(onTrip!.id)[0]} meta={legTo} name={onTrip!.name} text={onTrip!.blurb} />
       );
     } else if (quick && !arrived) {
       // Quick ride, driving: the stop the car is passing
@@ -321,39 +275,17 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
       const n = stops.findIndex((x) => x.id === s.id) + 1;
       const tell = stopStory(s.id);
       side = (
-        <Brief label={`Now passing · ${n} of ${stops.length}`} bar={n / stops.length} photo={stopPhoto(s.id)} meta={s.type === 'you' ? 'Now' : `${when(s)} · ${minLabel(minutesAway(s.when))} away`} name={tell.title} text={tell.body ? firstSentence(tell.body) : undefined}>
-          <button type="button" className="ub-link" onClick={() => setPausedKey(paused ? '' : (driveKey ?? ''))} aria-pressed={paused}>
-            {paused ? 'Resume' : 'Pause'}
-          </button>
-          <button type="button" className="ub-link" onClick={() => driveKey && setSkip(driveKey)}>
-            {RIDE.skip}
-          </button>
-        </Brief>
+        <Brief label={`Now passing · ${n} of ${stops.length}`} bar={n / stops.length} photo={stopPhoto(s.id)} meta={s.type === 'you' ? 'Now' : `${when(s)} · ${minLabel(minutesAway(s.when))} away`} name={tell.title} text={tell.body ? firstSentence(tell.body) : undefined} />
       );
     } else if (quick) {
       // Quick ride, arrived: where the car is, and the way into the longer story
       side = (
-        <Brief label="Arrived" photo={tripPhotos(onTrip!.id)[0]} name={onTrip!.name} text={onTrip!.blurb}>
-          <button type="button" className="ub-btn solid" onClick={() => setMode('full')}>
-            Read the full story
-          </button>
-          <button
-            type="button"
-            className="ub-link"
-            onClick={() => {
-              setPausedKey('');
-              setReplay((x) => x + 1);
-            }}
-          >
-            Replay the ride
-          </button>
-        </Brief>
+        <Brief label="Arrived" photo={tripPhotos(onTrip!.id)[0]} name={onTrip!.name} text={onTrip!.blurb} />
       );
     } else if (tale) {
       // Full story: the car is parked at one stop, and this tells that stop
       const s = at > 0 ? own[at - 1] : null;
       const tell = s ? stopStory(s.id) : null;
-      const last = at === own.length;
       side = (
         <Brief
           label={`The full story · ${at} of ${own.length}`}
@@ -361,24 +293,8 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           photo={s ? stopPhoto(s.id) : tripPhotos(onTrip!.id)[0]}
           meta={s ? (s.type === 'you' ? 'Now' : `${REROUTE[s.id] ? `${REROUTE[s.id]} · ` : ''}${when(s)} · ${minLabel(minutesAway(s.when))} away`) : undefined}
           name={tell ? tell.title : onTrip!.name}
-          text={tell ? tell.body || undefined : `${own.length} ${own.length === 1 ? 'stop' : 'stops'}, in the order they happened. The car drives to each one and waits while you read.`}
-        >
-          {last ? (
-            <button type="button" className="ub-btn solid" onClick={reserve}>
-              Reserve Ram
-            </button>
-          ) : (
-            <button type="button" className="ub-btn solid" onClick={() => go(at + 1)}>
-              {at === 0 ? 'Start' : 'Next stop'}
-              <Icon name="arrow" size={16} />
-            </button>
-          )}
-          {at > 0 && (
-            <button type="button" className="ub-link" onClick={() => go(at - 1)}>
-              Back
-            </button>
-          )}
-        </Brief>
+          text={tell ? tell.body || undefined : `${own.length} ${own.length === 1 ? 'stop' : 'stops'}, in the order they happened. Press Start in the phone: the car drives to each one and waits while you read.`}
+        />
       );
     } else if (onTrip && inDetails) {
       // a trip with no stops of its own to drive through: the phone has the whole story
@@ -388,12 +304,12 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
     // pointing at a place, on the map or in the phone's list: a card opens beside it, and closes when the pointer leaves
     const ps = hot && hot !== 'you' && !(quick && !arrived) ? stop(hot) : null;
     if (ps) {
-      pop = <PlaceCard s={ps} onDetails={setProject} onRide={onTrip?.id !== ps.trip ? ride : undefined} />;
+      pop = <PlaceCard s={ps} />;
     }
 
     const landed = () => {
       if (!driveKey) return;
-      setDone(driveKey);
+      app.setDriveDone(driveKey);
       // a ride started from a tile ends with what Ram did there, opened at full size
       if (onTrip && app.arrive === onTrip.id) app.landed(onTrip.id);
     };
@@ -409,14 +325,11 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
             dock={side}
             pad={side ? { left: 300 } : undefined}
             detail
-            controls
             browse={browsing}
             hot={hot}
             onHot={setHot}
-            onPick={(id) => setProject(stop(id).trip)}
             drive={driveKey}
-            paused={paused}
-            skip={skip}
+            skip={app.driveSkip}
             onPass={(id) => driveKey && setPass({ key: driveKey, stop: id })}
             onDone={landed}
             searching={requesting && rideStep === 0}
@@ -426,7 +339,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           {!tale && (
             <p className="ub-mapbox-sum">
               {browsing ? (
-                'Point at any place to see what it was. Click it to read what Ram did there.'
+                'Point at any place to see what it was. To go there, use the phone.'
               ) : leg ? (
                 <>
                   <b>Real streets</b>
@@ -454,28 +367,24 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           </p>
           <h3>{STAGE.headline}</h3>
           <p>{STAGE.body}</p>
-          <div className="ub-home-acts">
-            <button type="button" className="ub-btn solid tall" onClick={() => ride('story')}>
-              {BILLBOARD.start}
-            </button>
-            <button type="button" className="ub-btn line tall" onClick={reserve}>
-              {BILLBOARD.reserve}
-            </button>
+          <div className="ub-how" aria-label={STAGE.howTitle}>
+            <p className="ub-kicker">{STAGE.howTitle}</p>
+            <ol>
+              {STAGE.how.map((x, i) => (
+                <li key={x.title} style={{ ['--i' as string]: i }}>
+                  <i aria-hidden="true">{i + 1}</i>
+                  <span>
+                    <b>{x.title}</b>
+                    <small>{x.text}</small>
+                  </span>
+                </li>
+              ))}
+            </ol>
           </div>
-          {/* the same four things as the first screen, one tap each, with no ride in between */}
-          <nav className="ub-quick" aria-label="Shortcuts">
-            <Link className="ub-link" href={caseHref('trucost')}>
-              TruCost case study
-            </Link>
-            <Link className="ub-link" href={PROPOSAL_HREF}>
-              {BILLBOARD.proposal}
-            </Link>
-            {PROFILE.resume && (
-              <a className="ub-link" href={PROFILE.resume} download>
-                {BILLBOARD.resume}
-              </a>
-            )}
-          </nav>
+          <p className="ub-home-cue">
+            <span className="ub-hand" aria-hidden="true" />
+            {STAGE.cue}
+          </p>
         </div>
         <span className="ub-face">
           <Shot photo={PORTRAIT} />
@@ -484,10 +393,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           {HERO_FACTS.map((f) => (
             <div key={f.trip}>
               <dt>
-                <button type="button" onClick={() => app.driveTo(f.trip)}>
-                  {f.label}
-                  <Icon name="arrow" size={15} />
-                </button>
+                <span className="it">{f.label}</span>
               </dt>
               <dd>{f.value}</dd>
             </div>
@@ -500,18 +406,18 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
     const scenes = IDEA.scenes;
     const at = Math.max(0, Math.min(scenes.length - 1, app.ideaStep));
     const sc = scenes[at];
-    const last = at === scenes.length - 1;
     body = (
       <div className="ub-idea">
-        <div className="ub-idea-tabs" role="tablist" aria-label="Chapters of the idea">
+        <ol className="ub-idea-tabs" aria-label="Chapters of the idea">
           {scenes.map((x, i) => (
-            <button key={x.id} type="button" role="tab" aria-selected={i === at} className={i === at ? 'on' : i < at ? 'seen' : ''} onClick={() => app.setIdeaStep(i)}>
+            <li key={x.id} aria-current={i === at ? 'step' : undefined} className={`it ${i === at ? 'on' : i < at ? 'seen' : ''}`}>
               <i aria-hidden="true">{i + 1}</i>
               {x.tab}
-            </button>
+            </li>
           ))}
-        </div>
-        <div className="ub-idea-stage" key={sc.id} role="tabpanel" aria-label={sc.tab}>
+        </ol>
+        {/* inert: the tablet is tried in the phone, and this one mirrors it */}
+        <div className="ub-idea-stage" key={sc.id} inert>
           <IdeaGraphic id={sc.id} survey={app.survey} onSurvey={app.setSurvey} />
         </div>
         <div className="ub-idea-foot" key={`t-${sc.id}`}>
@@ -523,26 +429,6 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
             <p className="ub-idea-p">{sc.text}</p>
             {sc.note && <p className="ub-idea-note">{sc.note}</p>}
           </div>
-          <div className="ub-idea-nav">
-            <Link className="ub-link" href={PROPOSAL_HREF}>
-              Read it as one page
-            </Link>
-            {at > 0 && (
-              <button type="button" className="ub-link" onClick={() => app.setIdeaStep(at - 1)}>
-                Back
-              </button>
-            )}
-            {last ? (
-              <button type="button" className="ub-btn solid" onClick={reserve}>
-                Reserve Ram
-              </button>
-            ) : (
-              <button type="button" className="ub-btn solid" onClick={() => app.setIdeaStep(at + 1)}>
-                {scenes[at + 1].tab}
-                <Icon name="arrow" size={16} />
-              </button>
-            )}
-          </div>
         </div>
       </div>
     );
@@ -553,25 +439,9 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           <h3>{RESERVE.title}</h3>
           <p>{RESERVE.line}</p>
           <p className="ub-mail">{PROFILE.email}</p>
-          <a className="ub-btn solid tall" href={`mailto:${PROFILE.email}?subject=${encodeURIComponent(RESERVE.subject)}`}>
-            {RESERVE.email}
-          </a>
-          <p className="ub-links">
-            <a className="ub-link" href={PROFILE.linkedin} target="_blank" rel="noreferrer">
-              {RESERVE.linkedin}
-            </a>
-            <button
-              type="button"
-              className="ub-link"
-              onClick={() =>
-                navigator.clipboard
-                  .writeText(PROFILE.email)
-                  .then(() => setCopied(true))
-                  .catch(() => {})
-              }
-            >
-              <span aria-live="polite">{copied ? RESERVE.copied : `${RESERVE.copy} the address`}</span>
-            </button>
+          <p className="ub-home-cue">
+            <Icon name="back" size={20} w={2.4} />
+            Email, LinkedIn and copy are in the phone.
           </p>
         </div>
         <span className="ub-face">
@@ -586,14 +456,14 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
     body = (
       <div className="ub-abt">
         <h3>{ABOUT.lede}</h3>
-        <div className="ub-tabs" role="tablist" aria-label="The sides of Ram">
+        <ul className="ub-tabs" aria-label="The sides of Ram">
           {ABOUT.facets.map((x) => (
-            <button key={x.id} type="button" role="tab" aria-selected={x.id === f.id} className={x.id === f.id ? 'on' : ''} onClick={() => setFacet(x.id)}>
+            <li key={x.id} aria-current={x.id === f.id ? 'true' : undefined} className={`it ${x.id === f.id ? 'on' : ''}`}>
               {x.label}
-            </button>
+            </li>
           ))}
-        </div>
-        <div className="ub-abt-side" key={f.id} role="tabpanel">
+        </ul>
+        <div className="ub-abt-side" key={f.id}>
           {fp && (
             <span className="ub-abt-art">
               <Shot photo={fp} eager />
@@ -602,25 +472,21 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           <div>
             <h4>{f.title}</h4>
             <p>{f.text}</p>
-            <button type="button" className="ub-btn solid" onClick={() => app.driveTo(f.trip)}>
-              Ride to {getTrip(f.trip).name}
-              <Icon name="arrow" size={16} />
-            </button>
           </div>
         </div>
       </div>
     );
   } else if (where === 'switch') {
     body = (
-      <div className="ub-plist" role="radiogroup" aria-label="Riding with">
+      <ul className="ub-plist" aria-label="Riding with">
         {PERSONAS.map((p) => (
-          <button key={p.id} type="button" role="radio" aria-checked={p.id === persona} className={p.id === persona ? 'on' : ''} onClick={() => onPersona(p.id)}>
+          <li key={p.id} aria-current={p.id === persona ? 'true' : undefined} className={`it ${p.id === persona ? 'on' : ''}`}>
             <b>{p.label}</b>
             <span>{p.card.line}</span>
             {p.id === persona && <Icon name="check" size={22} w={2.6} />}
-          </button>
+          </li>
         ))}
-      </div>
+      </ul>
     );
   } else if (where === 'activity') {
     /* ---------------------------------------------------------------- Experience: a timeline, newest first, with what comes next on top */
@@ -638,15 +504,12 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           <span className="ub-tl-node" aria-hidden="true">
             <Icon name="arrow" size={16} w={2.6} />
           </span>
-          <button type="button" className="ub-tl-card" onClick={() => ride(next.id)}>
+          <div className="ub-tl-card">
             <span className="ub-tl-main">
               <b>{next.name}</b>
               <small>{next.sub}</small>
             </span>
-            <span className="ub-tl-go">
-              Open <Icon name="arrow" size={15} w={2.4} />
-            </span>
-          </button>
+          </div>
         </li>
         {EXPERIENCE.map((j, i) => (
           <li key={j.company} style={{ ['--i' as string]: i + 1 }}>
@@ -659,7 +522,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
                 <Pict name={j.icon} size={24} />
               )}
             </span>
-            <button type="button" className="ub-tl-card" disabled={!j.trip} onClick={() => j.trip && app.driveTo(j.trip)}>
+            <div className="ub-tl-card">
               <span className="ub-tl-main">
                 <b>{j.company}</b>
                 <small>{j.what}</small>
@@ -675,13 +538,8 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
               </span>
               <span className="ub-tl-side">
                 {j.result && <span className="ub-tl-res">{j.result}</span>}
-                {j.trip && (
-                  <span className="ub-tl-go">
-                    Ride there <Icon name="arrow" size={15} w={2.4} />
-                  </span>
-                )}
               </span>
-            </button>
+            </div>
           </li>
         ))}
       </ol>
@@ -713,7 +571,7 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
           ))}
         <div className="ub-grid">
           {ids.map((id, i) => (
-            <Tile key={id} t={getTrip(id)} onOpen={app.driveTo} onInfo={where === 'shipped' ? setProject : undefined} i={i} />
+            <Tile key={id} t={getTrip(id)} i={i} />
           ))}
         </div>
       </>
@@ -727,23 +585,6 @@ export default function StagePanel({ app, persona, onPersona, reducedMotion }: P
       <header className="ub-cap">
         <div className="ub-cap-top">
           <p className="ub-kicker">{STAGE.nowShowing}</p>
-          <span className="ub-cap-acts">
-            {(where !== 'home' || app.sheet) && (
-              <button
-                type="button"
-                className="ub-link"
-                onClick={() => {
-                  app.closeSheet();
-                  app.goTab('home', 'ram');
-                }}
-              >
-                Home
-              </button>
-            )}
-            <button type="button" className="ub-cap-reserve" onClick={reserve}>
-              {RIDE.reserve}
-            </button>
-          </span>
         </div>
         <div className="ub-cap-row" key={where}>
           <h2 aria-live="polite">

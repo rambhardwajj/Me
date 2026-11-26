@@ -476,13 +476,27 @@ export default function StreetMap({ ride = null, from, to, pad = {}, detail, con
           {/* places beyond the edge of the map */}
           {(detail || browse) && !driving && (
             <div className="rm-chips">
-              {offMap.map((s) => (
-                <button key={s.id} type="button" className="rm-chip" onMouseEnter={() => onHot?.(s.id)} onMouseLeave={() => onHot?.(null)} onClick={() => onPick?.(s.id)}>
+              {/* a map that is only looked at (no onPick: the panel beside the phone) names what is off its edge, and nothing here is pressed */}
+              {offMap.map((s) =>
+                onPick ? (
+                  <button key={s.id} type="button" className="rm-chip" onMouseEnter={() => onHot?.(s.id)} onMouseLeave={() => onHot?.(null)} onClick={() => onPick(s.id)}>
+                    <Icon name="arrow" size={13} w={2.6} />
+                    {s.name} · {placeGeo(s.id)?.city}
+                  </button>
+                ) : (
+                  <span key={s.id} className="rm-chip" onMouseEnter={() => onHot?.(s.id)} onMouseLeave={() => onHot?.(null)}>
+                    <Icon name="arrow" size={13} w={2.6} />
+                    {s.name} · {placeGeo(s.id)?.city}
+                  </span>
+                ),
+              )}
+              {!path.ride && !onPick && (
+                <span className="rm-chip">
                   <Icon name="arrow" size={13} w={2.6} />
-                  {s.name} · {placeGeo(s.id)?.city}
-                </button>
-              ))}
-              {!path.ride && (
+                  {stop(FAR.stop).name} · {FAR.city}
+                </span>
+              )}
+              {!path.ride && onPick && (
                 <button type="button" className={`rm-chip ${own.far ? 'on' : ''}`} onClick={() => setMine({ key: viewKey, z: 0, far: !own.far })} aria-pressed={own.far}>
                   <Icon name={own.far ? 'back' : 'arrow'} size={13} w={2.6} />
                   {own.far ? 'Back to Delhi' : `${stop(FAR.stop).name} · ${FAR.city}`}

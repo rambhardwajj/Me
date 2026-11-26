@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type ReactNode } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import Link from 'next/link';
 import { PROFILE } from '@/lib/data';
 import {
@@ -11,7 +11,9 @@ import {
   CHAPTERS,
   HOME,
   IDEA,
+  GUIDE,
   INBOX,
+  ownStops,
   LOST_PARTS,
   LOST_READY,
   LOGO,
@@ -67,6 +69,34 @@ type Props = {
   /** Where the visitor is in the app. The page owns it, so the panel beside the phone shows the same moment. */
   app: Ride;
   reducedMotion: boolean;
+  /** The phone is the thing in front of the visitor: on a laptop, once the scroll has brought it to the centre. */
+  live: boolean;
+  /** Laptop layout: the panel beside the phone shows the map, and the phone holds every control for it. */
+  desk: boolean;
+};
+
+/* The guide is shown once. Whether it has been seen is kept in the browser, with a plain variable for browsers that refuse storage. */
+const GUIDE_KEY = 'uber-guide-seen';
+const GUIDE_EVENT = 'uber-guide-change';
+let guideSeenHere = false;
+const guideSeen = () => {
+  try {
+    return guideSeenHere || localStorage.getItem(GUIDE_KEY) === '1';
+  } catch {
+    return guideSeenHere;
+  }
+};
+const setGuideSeen = (seen: boolean) => {
+  guideSeenHere = seen;
+  try {
+    if (seen) localStorage.setItem(GUIDE_KEY, '1');
+    else localStorage.removeItem(GUIDE_KEY);
+  } catch {}
+  window.dispatchEvent(new Event(GUIDE_EVENT));
+};
+const watchGuide = (notify: () => void) => {
+  window.addEventListener(GUIDE_EVENT, notify);
+  return () => window.removeEventListener(GUIDE_EVENT, notify);
 };
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
@@ -177,7 +207,7 @@ function StopList({ from, to, full, onOpen, onHot }: { from: StopId; to: StopId;
   );
 }
 
-const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onPersona, dark, onDark, app, reducedMotion }, ref) {
+const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onPersona, dark, onDark, app, reducedMotion, live, desk }, ref) {
   const { stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, swapEnds, moves, step, push, back, goTab, closeSheet, ride } = app;
   const [query, setQuery] = useState('');
   /** Plan your ride with its two ends swapped: the ride then ends at Ram today. */
@@ -194,6 +224,11 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
   /** True once "Finding your experience" has played in full; later rides find faster. */
 
   const root = useRef<HTMLDivElement>(null);
+
+  // the guide: which step it is on, and the screen move it started at (any move after that means the visitor has got it)
+  const seenGuide = useSyncExternalStore(watchGuide, guideSeen, () => true);
+  const [guideAt, setGuideAt] = useState(0);
+  const guideFrom = useRef(0);
 
   const who = PERSONAS.find((p) => p.id === persona)!;
 
@@ -231,6 +266,10 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
   const key = screen.s === 'tab' ? `tab-${screen.tab}` : screen.s === 'search' || screen.s === 'inbox' || screen.s === 'idea' ? screen.s : `${screen.s}-${screen.trip}`;
   useEffect(() => {
     if (moves) root.current?.querySelector<HTMLElement>('.rp-screen [data-first]')?.focus({ preventScroll: true });
+  }, [moves]);
+
+  useEffect(() => {
+    if (moves > guideFrom.current && !guideSeen()) setGuideSeen(true);
   }, [moves]);
 
   useEffect(() => {
@@ -300,7 +339,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
   /* ---------------------------------------------------------------- pieces shared by screens */
 
   const tabBar = (active: Tab) => (
-    <nav className="rp-tabbar" aria-label="Main">
+    <nav className="rp-tabbar" aria-label="Main" data-guide-at="tabs">
       {TABS.map((t) => (
         <button key={t.id} type="button" className={t.id === active ? 'on' : ''} aria-current={t.id === active ? 'page' : undefined} onClick={() => goTab(t.id)}>
           {t.id === 'account' && !inboxRead && <i className="rp-unread" aria-hidden="true" />}
@@ -327,7 +366,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
 
   const homeRam = (
     <>
-      <div className="rp-where">
+      <div className="rp-where" data-guide-at="where">
         <button type="button" className="rp-where-go" onClick={() => push({ s: 'search' })}>
           <Icon name="search" size={22} w={2.2} />
           {HOME.where}
@@ -352,7 +391,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
       </button>
 
       <h2 className="rp-h2">{HOME.forYou}</h2>
-      <div className="rp-tiles">
+      <div className="rp-tiles" data-guide-at="tiles">
         {tiles.map(({ trip: id, badge, label }) => {
           const t = getTrip(id);
           return (
@@ -368,7 +407,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
       </div>
 
       <h2 className="rp-h2 elevate">{HOME.elevate}</h2>
-      <div className="rp-cards">
+      <div className="rp-cards" data-guide-at="cards">
         <button type="button" className="rp-card" onClick={() => ride('idle-minutes')}>
           <span className="rp-card-art">
             <svg aria-hidden="true" viewBox="0 0 268 132">
@@ -483,6 +522,22 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
     </>
   );
 
+  /** The guide is up: first visit, the phone in front of the visitor, Home as it opens, nothing over it. */
+  const guiding = live && !seenGuide && screen.s === 'tab' && screen.tab === 'home' && homeTab === 'ram' && !sheet;
+  const guide = GUIDE.steps[Math.min(guideAt, GUIDE.steps.length - 1)];
+  const guideTo = (n: number) => {
+    setGuideAt(n);
+    // bring the part it points to to the middle of the phone's own scroll area. Only that area moves, never the page;
+    // sizes are divided by the phone's scale, since on a laptop the phone is drawn smaller than its own pixels
+    const sc = root.current?.querySelector<HTMLElement>('.rp-scroll');
+    const el = root.current?.querySelector<HTMLElement>(`[data-guide-at="${GUIDE.steps[n].at}"]`);
+    if (!sc || !el || !sc.contains(el)) return;
+    const a = sc.getBoundingClientRect();
+    const b = el.getBoundingClientRect();
+    const scale = a.height / sc.offsetHeight || 1;
+    sc.scrollTo({ top: sc.scrollTop + (b.top - a.top) / scale - (sc.clientHeight - b.height / scale) / 2, behavior: reducedMotion ? 'instant' : 'smooth' });
+  };
+
   const home = (
     <>
       {/* Home has its own Reserve button beside "Where to?", so the line above it does not repeat one */}
@@ -514,7 +569,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
         ))}
       </nav>
       <div className={`rp-scroll ${homeTab === 'journey' ? 'flush' : ''}`}>{homeTab === 'ram' ? homeRam : homeTab === 'shipped' ? homeShipped : homeJourney}</div>
-      {strip && homeTab === 'ram' && (
+      {strip && !guiding && homeTab === 'ram' && (
         <div className="rp-strip">
           <i aria-hidden="true" />
           <span>{HOME.availability}</span>
@@ -725,6 +780,11 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
   const details = (t: Trip, m: Mode) => {
     const min = minutesOf(t);
     const full = m === 'full';
+    // on a laptop the car drives on the map beside the phone, and the phone drives the car
+    const driving = desk && !!app.driveKey && app.driveDone !== app.driveKey;
+    const tale = full ? ownStops(t) : [];
+    const taleAt = app.story.trip === t.id ? Math.min(app.story.i, tale.length) : 0;
+    const taleGo = (n: number) => app.setStory({ trip: t.id, i: Math.max(0, Math.min(tale.length, n)) });
     const receipt = [...(t.receipt ?? []), ...(min && t.id !== 'idle-minutes' ? [{ label: t.id === 'story' ? 'The whole road' : 'Distance from today', value: min }] : [])];
     return (
       <>
@@ -745,6 +805,34 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
             </button>
           </div>
           <div className="rp-details-body">
+            {driving && (
+              <button type="button" className="rp-skip" onClick={app.skipDrive}>
+                {RIDE.skip}
+                <Icon name="arrow" size={16} w={2.4} />
+              </button>
+            )}
+            {desk && tale.length > 0 && (
+              <div className="rp-stepper" aria-live="polite">
+                <span>
+                  <small>{taleAt === 0 ? `${tale.length} ${tale.length === 1 ? 'stop' : 'stops'}, in order` : `Stop ${taleAt} of ${tale.length}`}</small>
+                  <b>{taleAt === 0 ? 'The car waits at each one' : tale[taleAt - 1].type === 'you' ? 'Ram, today' : tale[taleAt - 1].name}</b>
+                </span>
+                {taleAt > 0 && (
+                  <button type="button" onClick={() => taleGo(taleAt - 1)} aria-label="Previous stop">
+                    <Icon name="back" size={18} w={2.4} />
+                  </button>
+                )}
+                {taleAt < tale.length ? (
+                  <button type="button" className="go" onClick={() => taleGo(taleAt + 1)}>
+                    {taleAt === 0 ? 'Start' : 'Next stop'}
+                  </button>
+                ) : (
+                  <button type="button" className="go" onClick={() => openSheet('reserve')}>
+                    {RIDE.reserve}
+                  </button>
+                )}
+              </div>
+            )}
             {t.id === 'story' ? (
               <div className="rp-story">
                 <p className="rp-about">{t.blurb}</p>
@@ -936,7 +1024,8 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
               <span className="rp-job-rail" aria-hidden="true">
                 <i />
               </span>
-              <div className="rp-job-card">
+              {/* the whole card goes there; the button inside it is the same action for keyboards and screen readers */}
+              <div className={`rp-job-card ${j.trip ? 'tap' : ''}`} onClick={(e) => j.trip && !(e.target as HTMLElement).closest('button') && app.driveTo(j.trip)}>
                 <div className="rp-past-top">
                   {j.logo ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -997,7 +1086,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
 
         <ol className="rp-chaps">
           {IDEA.scenes.map((sc, i) => (
-            <li key={sc.id} className={i === app.ideaStep ? 'on' : ''}>
+            <li key={sc.id} className={`c-${sc.id} ${i === app.ideaStep ? 'on' : ''}`}>
               <button type="button" className="rp-chap" aria-current={i === app.ideaStep ? 'step' : undefined} onClick={() => app.setIdeaStep(i)}>
                 <i aria-hidden="true">{i + 1}</i>
                 <span>
@@ -1196,6 +1285,21 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
           <span>{ACCOUNT.miniRam.title}</span>
           <small>AI</small>
         </button>
+        <button
+          type="button"
+          className="rp-arow"
+          onClick={() => {
+            // going Home is one move; the guide counts moves from after it
+            guideFrom.current = moves + 1;
+            setGuideAt(0);
+            setGuideSeen(false);
+            goTab('home', 'ram');
+          }}
+        >
+          <Icon name="map" size={22} w={1.8} />
+          <span>{GUIDE.again.title}</span>
+          <small>Guide</small>
+        </button>
         <button type="button" className="rp-arow" onClick={share}>
           <Icon name="share" size={22} w={1.8} />
           <span>{ACCOUNT.share.title}</span>
@@ -1304,7 +1408,7 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
               : details(getTrip(screen.trip), screen.mode);
 
   return (
-    <div className="rp" ref={root} onKeyDown={onKeyDown}>
+    <div className="rp" ref={root} onKeyDown={onKeyDown} data-guide={guiding ? guide.at : undefined}>
       <div className={`rp-screen s-${screen.s}`} key={key} inert={sheet ? true : undefined}>
         {body}
       </div>
@@ -1317,6 +1421,35 @@ const PhoneApp = forwardRef<PhoneHandle, Props>(function PhoneApp({ persona, onP
             <Tribute className="rp-tribute in" onReserve={sheet === 'reserve' ? undefined : reserveHere} />
           </section>
         </>
+      )}
+      {guiding && (
+        <section className={`rp-guide at-${guide.at}`} role="dialog" aria-label={GUIDE.title}>
+          <p className="rp-guide-n">
+            <span className="sr">
+              Step {guideAt + 1} of {GUIDE.steps.length}. {GUIDE.title}.
+            </span>
+            {GUIDE.steps.map((x, i) => (
+              <i key={x.at} className={i === guideAt ? 'on' : i < guideAt ? 'seen' : ''} aria-hidden="true" />
+            ))}
+          </p>
+          <b>{guide.title}</b>
+          <p>{guide.text}</p>
+          <div className="rp-guide-acts">
+            <button type="button" onClick={() => setGuideSeen(true)}>
+              {GUIDE.skip}
+            </button>
+            {guideAt < GUIDE.steps.length - 1 ? (
+              <button type="button" className="go" onClick={() => guideTo(guideAt + 1)}>
+                {GUIDE.next}
+                <Icon name="arrow" size={16} w={2.4} />
+              </button>
+            ) : (
+              <button type="button" className="go" onClick={() => setGuideSeen(true)}>
+                {GUIDE.done}
+              </button>
+            )}
+          </div>
+        </section>
       )}
       <p className="rp-toast" role="status">
         {toast}

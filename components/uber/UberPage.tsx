@@ -8,7 +8,7 @@ import { PROPOSAL_HREF, WORK_HREF, caseHref } from '@/lib/uber-cases';
 import PhoneApp, { type PhoneHandle } from './PhoneApp';
 import ProjectDialog from './ProjectDialog';
 import StagePanel from './StagePanel';
-import ThoughtCloud from './ThoughtCloud';
+import HoverTip from './HoverTip';
 import { Icon } from './icons';
 import { useRide } from './useRide';
 
@@ -149,7 +149,6 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
     [desk, reduced],
   );
 
-  const start = () => toPhone(() => ride.ride('story'));
   const open = () => toPhone(() => phone.current?.focus());
   const askMiniRam = () => window.dispatchEvent(new Event('mini-ram:open'));
 
@@ -177,7 +176,8 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
                 {BILLBOARD.wordmark}
               </a>
               <span className="ub-tribute">{TRIBUTE_LONG}</span>
-              <nav className="ub-head-links" aria-label="Elsewhere">
+              {/* beside the phone nothing is pressed: on the second screen these live in the phone's About tab */}
+              <nav className="ub-head-links" aria-label="Elsewhere" inert={desk && arrived ? true : undefined}>
                 <button type="button" onClick={askMiniRam}>
                   Ask Mini Ram
                 </button>
@@ -230,9 +230,6 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
                   <Link className="ub-link" href={WORK_HREF}>
                     All work
                   </Link>
-                  <button type="button" className="ub-link" onClick={start}>
-                    {BILLBOARD.ride}
-                  </button>
                 </nav>
                 {/* phone widths: the app is the next screen down, and this says so */}
                 <a className="ub-hint" href="#app">
@@ -244,17 +241,17 @@ export default function UberPage({ fonts, children }: { fonts: string; children?
 
             {/* after the scroll: the phone crosses to the left; beside it the context, then the map */}
             <div className="ub-arrived" inert={desk && !arrived ? true : undefined}>
-              {desk && <StagePanel app={ride} persona={persona} onPersona={setPersona} reducedMotion={reduced} />}
+              {desk && <StagePanel app={ride} persona={persona} reducedMotion={reduced} />}
             </div>
 
             {/* the cloud is for screens without the map; on the map, the place's own card opens instead */}
-            {desk && arrived && ride.peek && !ride.sheet && !ride.route && ride.where !== 'search' && <ThoughtCloud trip={ride.peek.trip} x={ride.peek.x} y={ride.peek.y} />}
+            {desk && arrived && ride.peek && !ride.sheet && !ride.route && ride.where !== 'search' && <HoverTip trip={ride.peek.trip} y={ride.peek.y} />}
 
             <div className="ub-phone" id="app" ref={app}>
               {/* phone widths: the app starts here, and the way past it is said first */}
               <div className="ub-frame">
                 <div className="ub-glass" inert={desk && !arrived ? true : undefined}>
-                  <PhoneApp ref={phone} persona={persona} onPersona={setPersona} dark={dark} onDark={chooseDark} app={ride} reducedMotion={reduced} />
+                  <PhoneApp ref={phone} persona={persona} onPersona={setPersona} dark={dark} onDark={chooseDark} app={ride} reducedMotion={reduced} live={arrived} desk={desk} />
                 </div>
                 {desk && !arrived && (
                   <button type="button" className="ub-phone-open" onClick={open} aria-label="Open the phone: it is Ram's portfolio" />

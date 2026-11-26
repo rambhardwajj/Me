@@ -57,6 +57,11 @@ export function useRide() {
   const [arrive, setArrive] = useState<TripId | null>(null);
   /** Counts those rides, so the same place can be driven to twice. */
   const [driveNo, setDriveNo] = useState(0);
+  /** The drive that has reached its end, and the drive the visitor asked to skip, each by its key. */
+  const [driveDone, setDriveDone] = useState('');
+  const [driveSkip, setDriveSkip] = useState('');
+  /** Where the reader is in a full story, by trip: 0 is the start, then one step for each of its stops. */
+  const [story, setStory] = useState<{ trip: string; i: number }>({ trip: '', i: 0 });
   /** The side of Ram on show in About. */
   const [facet, setFacet] = useState<FacetId>('roots');
   /** Counts moves between screens, so the keyboard can follow each one. */
@@ -201,7 +206,13 @@ export function useRide() {
   const route = onTrip ? { from: onTrip.from, to: onTrip.to } : onJourney ? journey : null;
   const tripMode: Mode = screen.s === 'finding' || screen.s === 'details' ? screen.mode : mode;
 
+  /** The name of the drive on show: one for each ride to a place. Null when no car is driving. */
+  const driveKey = screen.s === 'details' && screen.mode === 'quick' && screen.trip !== 'idle-minutes' ? `${screen.trip}:${driveNo}` : null;
+  /** Skip the drive that is running: the car goes straight to the end. */
+  const skipDrive = () => driveKey && setDriveSkip(driveKey);
+
   return {
+    driveKey, driveDone, setDriveDone, driveSkip, skipDrive, story, setStory,
     stack, setStack, screen, homeTab, setHomeTab, sheet, mode, setMode, journey, setJourney, setEnd, swapEnds, hot, setHot, look, setLook, peek, setPeek, project, setProject, arrivedAt, survey, setSurvey, ideaStep, setIdeaStep, facet, setFacet, moves, step,
     push, back, goTab, openSheet, closeSheet, ride, driveTo, landed, skipRide, arrive, driveNo,
     where, onTrip, onJourney, journeyTrip, route, tripMode,
